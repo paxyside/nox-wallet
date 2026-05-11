@@ -1,0 +1,45 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.pb.dart"
+    - "**/*.pbenum.dart"
+    - "**/*.pbjson.dart"
+    - "**/*.pbgrpc.dart"
+    - "build/**"
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    # Hard failures
+    invalid_annotation_target: error
+    missing_required_param: error
+    missing_return: error
+    # Style nudges — useful, not blocking
+    public_member_api_docs: ignore
+    lines_longer_than_80_chars: ignore
+    one_member_abstracts: ignore
+    avoid_classes_with_only_static_members: ignore
+    sort_pub_dependencies: ignore
+    avoid_redundant_argument_values: ignore
+    flutter_style_todos: ignore
+    diagnostic_describe_all_properties: ignore
+    todo: ignore
+
+linter:
+  rules:
+    avoid_print: true
+    prefer_single_quotes: true
+    require_trailing_commas: true
+    use_super_parameters: true
+    unawaited_futures: true
+    cancel_subscriptions: true
+    close_sinks: true
+    prefer_const_constructors: true
+    prefer_const_constructors_in_immutables: true
+    prefer_const_declarations: true
+    prefer_const_literals_to_create_immutables: true
+    use_key_in_widget_constructors: true

@@ -1,0 +1,15 @@
+version: v1
+plugins:
+  - plugin: go
+    out: proto/gen/go
+    opt:
+      - paths=source_relative
+  - plugin: go-grpc
+    out: proto/gen/go
+    opt:
+      - paths=source_relative
+      - require_unimplemented_servers=false
+  - plugin: dart
+    out: proto/gen/dart/lib
+    opt:
+      - grpc

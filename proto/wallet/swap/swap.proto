@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package wallet.swap;
+
+option go_package = "github.com/paxyside/nox-wallet/proto/gen/go/wallet/swap;walletswap";
+
+enum PoolFee {
+  POOL_FEE_UNSPECIFIED = 0;
+  POOL_FEE_100 = 1;
+  POOL_FEE_500 = 2;
+  POOL_FEE_3000 = 3;
+  POOL_FEE_10000 = 4;
+}
+
+message SwapQuote {
+  string amount_out = 1;
+  string amount_out_raw = 2;
+  string price_impact_bps = 3;
+  string gas_estimate = 4;
+  string gas_cost_usd = 5;
+  string max_fee_gwei = 6;
+}

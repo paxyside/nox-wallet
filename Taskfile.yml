@@ -1,0 +1,178 @@
+version: "3"
+
+silent: true
+
+vars:
+  UI: ui
+  RELEASE_BUNDLE: ui/build/macos/Build/Products/Release/Nox.app
+
+tasks:
+  default:
+    desc: List all tasks
+    cmds:
+      - task --list
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Development
+  # ───────────────────────────────────────────────────────────────────────────
+
+  dev:
+    desc: Build backend → run Flutter on macOS in debug mode (primary dev loop)
+    cmds:
+      - task: build:backend
+      - cd {{.UI}} && flutter run -d macos
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Clean — single nuclear wipe (artefacts, caches, sandbox, app, keychain)
+  # ───────────────────────────────────────────────────────────────────────────
+
+  clean:
+    desc: Wipe everything — builds, caches, sandbox containers, installed app, keychain
+    cmds:
+      - echo "→ killing live processes"
+      - killall -9 Nox backend 2>/dev/null || true
+      - diskutil unmount /Volumes/Nox 2>/dev/null || true
+      - echo "→ build artefacts"
+      - rm -rf build dist
+      - rm -rf {{.UI}}/build
+      - rm -rf {{.UI}}/.dart_tool
+      - rm -rf {{.UI}}/macos/Pods
+      - rm -rf {{.UI}}/macos/Flutter/ephemeral
+      - rm -f  {{.UI}}/macos/Podfile.lock
+      - echo "→ installed app"
+      - rm -rf /Applications/Nox.app
+      - rm -rf "$HOME/Applications/Nox.app"
+      - echo "→ sandbox container data + caches + prefs"
+      # macOS containermanagerd owns the container shell and its
+      # `.com.apple.containermanagerd.metadata.plist` — even root can't
+      # `rm -rf` those without `csrutil disable`. Wipe the user-writable
+      # Data/ subtree only; the OS rebuilds the rest on next launch.
+      - rm -rf "$HOME/Library/Containers/com.nox.wallet/Data"/* 2>/dev/null || true
+      - rm -rf "$HOME/Library/Containers/com.nox.wallet/Data"/.[!.]* 2>/dev/null || true
+      - find "$HOME/Library/Group Containers" -maxdepth 1 -name "*com.nox.wallet*" -exec rm -rf {} + 2>/dev/null || true
+      - rm -rf "$HOME/Library/Caches/com.nox.wallet"
+      - rm -rf "$HOME/Library/Preferences/com.nox.wallet.plist"
+      - rm -rf "$HOME/Library/Saved Application State/com.nox.wallet.savedState"
+      - rm -rf "$HOME/Library/HTTPStorages/com.nox.wallet"
+      - rm -rf "$HOME/Library/WebKit/com.nox.wallet"
+      - rm -rf "$HOME/Library/Application Scripts/com.nox.wallet"
+      - echo "→ keychain wallet secret"
+      - security delete-generic-password -s "nox-wallet" 2>/dev/null || true
+      - echo "→ Launch Services (so Finder forgets old bundles)"
+      - /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister
+        -kill -r -domain user 2>/dev/null || true
+      - echo "✓ clean done — system is virgin"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Build — Go backend, Flutter release bundle, signed DMG
+  # ───────────────────────────────────────────────────────────────────────────
+
+  build:backend:
+    desc: Build Go backend → ./build/backend (fast iteration target)
+    cmds:
+      - mkdir -p build
+      - CGO_ENABLED=1 GOOS=darwin go build -ldflags="-s -w" -o ./build/backend ./cmd/app
+    sources:
+      - "**/*.go"
+      - go.mod
+    generates:
+      - build/backend
+
+  build:
+    desc: Build Go backend + Flutter release Nox.app
+    cmds:
+      - task: build:backend
+      - cd {{.UI}} && flutter build macos --release
+
+  build:dmg:
+    desc: |
+      Build Nox.app, ad-hoc-codesign every nested binary, package as DMG, ad-hoc-codesign the DMG.
+      Ad-hoc signing keeps the bundle internally consistent (so macOS doesn't gripe about a broken
+      seal when the user has Gatekeeper assessment off) but does not satisfy notarization — that
+      requires an Apple Developer ID ($99/yr).
+    cmds:
+      - task: build
+      - mkdir -p dist
+      - rm -f dist/Nox.dmg
+      # Re-sign the bundle ad-hoc with --deep so every nested framework
+      # / dylib carries a signature. Flutter does this during --release,
+      # but re-signing here defends against any post-build copy that
+      # would otherwise break the seal.
+      - codesign --force --deep --sign - "{{.RELEASE_BUNDLE}}"
+      - |
+        create-dmg \
+          --volname "Nox" \
+          --volicon "ui/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png" \
+          --window-pos 200 120 \
+          --window-size 600 400 \
+          --icon-size 100 \
+          --icon "Nox.app" 150 185 \
+          --hide-extension "Nox.app" \
+          --app-drop-link 450 185 \
+          "dist/Nox.dmg" \
+          "{{.RELEASE_BUNDLE}}"
+      - codesign --force --sign - dist/Nox.dmg
+      - echo "✓ dist/Nox.dmg ready"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Quality — individual gates + the meta `prepare` runner
+  # ───────────────────────────────────────────────────────────────────────────
+
+  test:
+    desc: Run Go tests
+    cmds:
+      - CGO_ENABLED=1 go test ./...
+
+  lint:
+    desc: golangci-lint with auto-fix
+    cmds:
+      - golangci-lint run --fix
+
+  flutter:analyze:
+    desc: Flutter / Dart static analyzer
+    dir: "{{.UI}}"
+    cmds:
+      - flutter analyze
+
+  flutter:format:
+    desc: Format Dart sources in-place (line length 100)
+    dir: "{{.UI}}"
+    cmds:
+      - dart format --line-length=100 lib/
+
+  prepare:
+    desc: Full pre-commit pipeline (deps + dryrun + lint + test + format + analyze + flutter test)
+    cmds:
+      - go mod tidy
+      - go mod vendor
+      - go build ./...
+      - golangci-lint run --fix
+      - CGO_ENABLED=1 go test ./...
+      - cd {{.UI}} && dart format --line-length=100 --set-exit-if-changed lib/
+      - cd {{.UI}} && flutter analyze
+      - |
+        if [ -d "{{.UI}}/test" ] && [ -n "$(ls -A {{.UI}}/test 2>/dev/null)" ]; then
+          cd {{.UI}} && flutter test
+        fi
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Proto — buf in Docker (one-time image build, then format + lint + generate)
+  # ───────────────────────────────────────────────────────────────────────────
+
+  proto:image:
+    desc: Build the buf Docker image (run once after pulling the repo)
+    cmds:
+      - docker build -f gen.Dockerfile -t nox-wallet-buf:latest .
+
+  proto:generate:
+    desc: Format, lint, and regenerate Go + Dart proto bindings
+    cmds:
+      - |
+        docker run --rm -v "$(pwd):/workspace" -w /workspace \
+          nox-wallet-buf:latest format -w
+      - |
+        docker run --rm -v "$(pwd):/workspace" -w /workspace \
+          nox-wallet-buf:latest lint
+      - |
+        docker run --rm -v "$(pwd):/workspace" -w /workspace \
+          nox-wallet-buf:latest generate

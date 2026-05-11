@@ -1,0 +1,493 @@
+syntax = "proto3";
+
+package wallet;
+
+import "google/protobuf/timestamp.proto";
+import "wallet/balance/balance.proto";
+import "wallet/common/common.proto";
+import "wallet/contact/contact.proto";
+import "wallet/event/event.proto";
+import "wallet/swap/swap.proto";
+import "wallet/token/token.proto";
+import "wallet/transaction/transaction.proto";
+import "wallet/wallet/wallet.proto";
+
+option go_package = "github.com/paxyside/nox-wallet/proto/gen/go/wallet;wallet";
+
+// ── Wallet management ────────────────────────────────────────────────────────
+
+message GenerateWalletRequest {
+  string label = 1;
+  bool word_count_24 = 2;
+}
+message GenerateWalletResponse {
+  .wallet.wallet.Wallet wallet = 1;
+  string mnemonic = 2;
+}
+
+message ImportMnemonicRequest {
+  string mnemonic = 1;
+  string label = 2;
+  string derivation_path = 3;
+}
+message ImportMnemonicResponse {
+  .wallet.wallet.Wallet wallet = 1;
+}
+
+message ImportPrivateKeyRequest {
+  string private_key_hex = 1;
+  string label = 2;
+}
+message ImportPrivateKeyResponse {
+  .wallet.wallet.Wallet wallet = 1;
+}
+
+message ImportKeystoreRequest {
+  bytes keystore_json = 1;
+  string passphrase = 2;
+  string label = 3;
+}
+message ImportKeystoreResponse {
+  .wallet.wallet.Wallet wallet = 1;
+}
+
+message ExportKeystoreRequest {
+  string passphrase = 1;
+}
+message ExportKeystoreResponse {
+  bytes keystore_json = 1;
+}
+
+message RevealSecretRequest {}
+message RevealSecretResponse {
+  string secret = 1; // mnemonic phrase or private key hex
+  .wallet.wallet.SecretType secret_type = 2;
+}
+
+message GetWalletRequest {}
+message GetWalletResponse {
+  .wallet.wallet.Wallet wallet = 1;
+}
+
+// ── Balances & fees ──────────────────────────────────────────────────────────
+
+message GetBalancesRequest {
+  bool with_tokens = 1;
+}
+message GetBalancesResponse {
+  string eth_balance = 1;
+  string eth_balance_wei = 2;
+  repeated .wallet.balance.TokenBalance tokens = 3;
+  string eth_usd_value = 4;
+}
+
+message GetGasFeesRequest {}
+message GetGasFeesResponse {
+  .wallet.balance.GasFees fees = 1;
+  uint64 block_number = 2;
+  string eth_price_usd = 3;
+}
+
+// ── Transactions ─────────────────────────────────────────────────────────────
+
+// GasOptions overrides the auto-estimated EIP-1559 gas parameters. Empty
+// strings ("") mean "use the network suggestion". Both fields are decimal
+// gwei strings — the conventional format throughout the API.
+message GasOptions {
+  string priority_gwei = 1; // max priority fee (validator tip)
+  string max_gwei = 2; // max total fee per gas
+}
+
+message SendETHRequest {
+  string to = 1;
+  string amount = 2;
+  GasOptions gas = 3;
+}
+message SendETHResponse {
+  .wallet.transaction.TxReceipt receipt = 1;
+}
+
+message SendTokenRequest {
+  string to = 1;
+  string token_address = 2;
+  string amount = 3;
+  GasOptions gas = 4;
+}
+message SendTokenResponse {
+  .wallet.transaction.TxReceipt receipt = 1;
+}
+
+message GetHistoryRequest {
+  string address = 1;
+  string asset = 2;
+  .wallet.common.PageParams page = 3;
+}
+message GetHistoryResponse {
+  repeated .wallet.transaction.HistoryItem items = 1;
+  .wallet.common.PageInfo page_info = 2;
+}
+
+// ── Swap ─────────────────────────────────────────────────────────────────────
+
+message QuoteSwapRequest {
+  string token_in = 1;
+  string token_out = 2;
+  string amount_in = 3;
+  .wallet.swap.PoolFee fee = 4;
+}
+message QuoteSwapResponse {
+  .wallet.swap.SwapQuote quote = 1;
+}
+
+message ExecuteSwapRequest {
+  string token_in = 1;
+  string token_out = 2;
+  string amount_in = 3;
+  string amount_out_min = 4;
+  .wallet.swap.PoolFee fee = 5;
+  uint32 deadline_seconds = 6;
+  GasOptions gas = 7;
+}
+message ExecuteSwapResponse {
+  .wallet.transaction.TxReceipt receipt = 1;
+}
+
+// ── Contacts ─────────────────────────────────────────────────────────────────
+
+message CreateContactRequest {
+  string name = 1;
+  string address = 2;
+  string note = 3;
+}
+message CreateContactResponse {
+  .wallet.contact.Contact contact = 1;
+}
+
+message GetContactRequest {
+  string id = 1;
+}
+message GetContactResponse {
+  .wallet.contact.Contact contact = 1;
+}
+
+message UpdateContactRequest {
+  string id = 1;
+  string name = 2;
+  string address = 3;
+  string note = 4;
+}
+message UpdateContactResponse {
+  .wallet.contact.Contact contact = 1;
+}
+
+message DeleteContactRequest {
+  string id = 1;
+}
+message DeleteContactResponse {}
+
+message ListContactsRequest {}
+message ListContactsResponse {
+  repeated .wallet.contact.Contact contacts = 1;
+}
+
+message FavoriteContactRequest {
+  string id = 1;
+  bool favorite = 2;
+}
+message FavoriteContactResponse {}
+
+// ── Tokens ────────────────────────────────────────────────────────────────────
+
+message AddTokenRequest {
+  string address = 1;
+}
+message AddTokenResponse {
+  .wallet.token.WatchedToken token = 1;
+}
+
+message RemoveTokenRequest {
+  string id = 1;
+}
+message RemoveTokenResponse {}
+
+message ListTokensRequest {}
+message ListTokensResponse {
+  repeated .wallet.token.WatchedToken tokens = 1;
+}
+
+message ListTokensWithBalancesRequest {}
+message ListTokensWithBalancesResponse {
+  repeated .wallet.token.WatchedTokenWithBalance tokens = 1;
+}
+
+message PinTokenRequest {
+  string id = 1;
+  bool pinned = 2;
+}
+message PinTokenResponse {}
+
+message HideTokenRequest {
+  string id = 1;
+  bool hidden = 2;
+}
+message HideTokenResponse {}
+
+// ── Approvals (Revoke approvals screen) ──────────────────────────────────────
+
+message TokenApproval {
+  string token_address = 1;
+  string token_symbol = 2;
+  string token_name = 3;
+  uint32 token_decimals = 4;
+  string spender = 5;
+  string spender_label = 6; // human-readable label, e.g. "Uniswap V3"
+  string amount_raw = 7; // raw wei string ("115792089237316195423570985008687907853269984665640564039457584007913129639935" for unlimited)
+  string amount_human = 8; // pretty-printed, e.g. "Unlimited" or "1,234.5 USDC"
+  string token_logo_url = 9; // Alchemy CDN logo, empty = use letter avatar
+}
+
+message ListApprovalsRequest {}
+message ListApprovalsResponse {
+  repeated TokenApproval approvals = 1;
+}
+
+message RevokeApprovalRequest {
+  string token_address = 1;
+  string spender = 2;
+}
+message RevokeApprovalResponse {
+  .wallet.transaction.TxReceipt receipt = 1;
+}
+
+// ── ENS resolution ─────────────────────────────────────────────────────────
+
+message ResolveENSRequest {
+  string name = 1;
+}
+message ResolveENSResponse {
+  // Empty when the name has no resolver / no address record. Clients should
+  // treat empty as "not configured" — not as a hard error.
+  string address = 1;
+}
+
+message ReverseENSRequest {
+  string address = 1;
+}
+message ReverseENSResponse {
+  // Empty when the address has no primary name registered.
+  string name = 1;
+}
+
+// ── Replacement transactions (speed-up / cancel) ───────────────────────────
+
+message SpeedUpTxRequest {
+  string tx_hash = 1;
+}
+message SpeedUpTxResponse {
+  string new_tx_hash = 1;
+}
+
+message CancelTxRequest {
+  string tx_hash = 1;
+}
+message CancelTxResponse {
+  string new_tx_hash = 1;
+}
+
+// ── Pending transactions (broadcast but not yet mined) ────────────────────
+
+message PendingTx {
+  string tx_hash = 1;
+  string from = 2;
+  string to = 3;
+  string value = 4; // human ETH for native, raw wei for token-data
+  uint64 nonce = 5;
+  string gas_tip_gwei = 6;
+  string gas_cap_gwei = 7;
+  string kind = 8; // "send", "swap", "approve", "speed-up", "cancel" (best-effort)
+  google.protobuf.Timestamp submitted_at = 9;
+}
+
+message ListPendingTxsRequest {}
+message ListPendingTxsResponse {
+  repeated PendingTx pending = 1;
+}
+
+// ── Tx simulation (pre-flight eth_call) ───────────────────────────────────
+
+// SimulateSendRequest dry-runs an outgoing transfer. `token_address` empty =
+// native ETH; otherwise simulates an ERC-20 `transfer(to, amount)`.
+message SimulateSendRequest {
+  string to = 1;
+  string amount = 2; // human-readable units (ETH or token)
+  string token_address = 3; // empty = ETH
+}
+message SimulateSendResponse {
+  bool will_revert = 1;
+  string revert_reason = 2; // empty if !will_revert
+  uint64 gas_units = 3;
+  string gas_cost_eth = 4; // formatted ETH cost (gas_units × maxFee)
+  string gas_cost_usd = 5; // formatted "$X.XX" — empty if no price feed
+
+  // Asset diffs from alchemy_simulateAssetChanges. Empty when the fallback
+  // eth_call path was used (e.g. non-Alchemy node, non-mainnet).
+  repeated SimulatedAssetChange asset_changes = 6;
+}
+
+message SimulatedAssetChange {
+  string kind = 1; // NATIVE | ERC20 | ERC721 | ERC1155 | SPECIAL
+  string change_type = 2; // TRANSFER | APPROVE
+  string from = 3;
+  string to = 4;
+  string amount = 5; // human-readable ("1.234"); empty for NFT-only rows
+  string symbol = 6;
+  string name = 7;
+  uint32 decimals = 8;
+  string contract_address = 9;
+  string token_id = 10;
+}
+
+// ── Streaming ─────────────────────────────────────────────────────────────────
+
+message WatchEventsRequest {}
+
+// ── Notifications ────────────────────────────────────────────────────────────
+
+// NotificationEnvelope wraps a persisted (or live-streamed) WalletEvent
+// with the storage-layer metadata the UI needs to manage read state.
+// The same shape is returned by ListNotifications and by the
+// WatchEvents stream so the client can key per-row state by `id`
+// regardless of how the event reached it.
+message NotificationEnvelope {
+  // Server-side ULID of the persisted notification row. Empty for
+  // events that bypassed persistence (sink off, marshal failure) —
+  // those are ephemeral; UI shows them but can't mark/clear them.
+  string id = 1;
+  // True after MarkRead / MarkAllRead has been called for this row,
+  // or after a fresh Save when `auto_mark_read` is enabled in
+  // notification settings.
+  bool is_read = 2;
+  // The event itself. For live streams this is the watcher's emit;
+  // for List this is the persisted payload re-unmarshalled.
+  .wallet.event.WalletEvent event = 3;
+}
+
+// ListNotifications returns the persisted history so the UI can
+// re-populate its notification panel after a restart. The stream of
+// new events flows through WatchEvents (also envelope-wrapped) —
+// this RPC is purely the read-side cache.
+message ListNotificationsRequest {
+  // Max rows to return. Clamped to [1, 200]; 0 means default 100.
+  int32 limit = 1;
+}
+message ListNotificationsResponse {
+  // Newest first.
+  repeated NotificationEnvelope items = 1;
+}
+
+message MarkNotificationReadRequest {
+  string id = 1;
+}
+message MarkNotificationReadResponse {}
+
+message MarkAllNotificationsReadRequest {}
+message MarkAllNotificationsReadResponse {}
+
+message ClearNotificationsRequest {}
+message ClearNotificationsResponse {}
+
+// NotificationSettings mirrors the SQLite singleton row. All fields
+// are user-controlled toggles or numbers; the server persists the
+// whole struct on every Update call (no PATCH-style partial updates,
+// keeps the wire small and the storage code straight-line).
+message NotificationSettings {
+  bool play_sound = 1;
+  bool macos_toasts = 2;
+  bool auto_mark_read = 3;
+  // 0 means "never auto-delete".
+  int32 auto_delete_days = 4;
+  bool mute_system_alerts = 5;
+}
+
+message GetNotificationSettingsRequest {}
+message GetNotificationSettingsResponse {
+  NotificationSettings settings = 1;
+}
+
+message UpdateNotificationSettingsRequest {
+  NotificationSettings settings = 1;
+}
+message UpdateNotificationSettingsResponse {
+  NotificationSettings settings = 1;
+}
+
+// ── Service ───────────────────────────────────────────────────────────────────
+
+service WalletService {
+  // Wallet management
+  rpc GenerateWallet(GenerateWalletRequest) returns (GenerateWalletResponse);
+  rpc ImportMnemonic(ImportMnemonicRequest) returns (ImportMnemonicResponse);
+  rpc ImportPrivateKey(ImportPrivateKeyRequest) returns (ImportPrivateKeyResponse);
+  rpc ImportKeystore(ImportKeystoreRequest) returns (ImportKeystoreResponse);
+  rpc RevealSecret(RevealSecretRequest) returns (RevealSecretResponse);
+  rpc ExportKeystore(ExportKeystoreRequest) returns (ExportKeystoreResponse);
+  rpc GetWallet(GetWalletRequest) returns (GetWalletResponse);
+
+  // Balances & fees
+  rpc GetBalances(GetBalancesRequest) returns (GetBalancesResponse);
+  rpc GetGasFees(GetGasFeesRequest) returns (GetGasFeesResponse);
+
+  // Transactions
+  rpc SendETH(SendETHRequest) returns (SendETHResponse);
+  rpc SendToken(SendTokenRequest) returns (SendTokenResponse);
+  rpc GetHistory(GetHistoryRequest) returns (GetHistoryResponse);
+
+  // Swap
+  rpc QuoteSwap(QuoteSwapRequest) returns (QuoteSwapResponse);
+  rpc ExecuteSwap(ExecuteSwapRequest) returns (ExecuteSwapResponse);
+
+  // Contacts
+  rpc CreateContact(CreateContactRequest) returns (CreateContactResponse);
+  rpc GetContact(GetContactRequest) returns (GetContactResponse);
+  rpc UpdateContact(UpdateContactRequest) returns (UpdateContactResponse);
+  rpc DeleteContact(DeleteContactRequest) returns (DeleteContactResponse);
+  rpc ListContacts(ListContactsRequest) returns (ListContactsResponse);
+  rpc FavoriteContact(FavoriteContactRequest) returns (FavoriteContactResponse);
+
+  // Tokens
+  rpc AddToken(AddTokenRequest) returns (AddTokenResponse);
+  rpc RemoveToken(RemoveTokenRequest) returns (RemoveTokenResponse);
+  rpc ListTokens(ListTokensRequest) returns (ListTokensResponse);
+  rpc ListTokensWithBalances(ListTokensWithBalancesRequest) returns (ListTokensWithBalancesResponse);
+  rpc PinToken(PinTokenRequest) returns (PinTokenResponse);
+  rpc HideToken(HideTokenRequest) returns (HideTokenResponse);
+
+  // Approvals
+  rpc ListApprovals(ListApprovalsRequest) returns (ListApprovalsResponse);
+  rpc RevokeApproval(RevokeApprovalRequest) returns (RevokeApprovalResponse);
+
+  // ENS
+  rpc ResolveENS(ResolveENSRequest) returns (ResolveENSResponse);
+  rpc ReverseENS(ReverseENSRequest) returns (ReverseENSResponse);
+
+  // Replacement transactions
+  rpc SpeedUpTx(SpeedUpTxRequest) returns (SpeedUpTxResponse);
+  rpc CancelTx(CancelTxRequest) returns (CancelTxResponse);
+
+  // Pending transactions
+  rpc ListPendingTxs(ListPendingTxsRequest) returns (ListPendingTxsResponse);
+
+  // Simulation
+  rpc SimulateSend(SimulateSendRequest) returns (SimulateSendResponse);
+
+  // Streaming
+  rpc WatchEvents(WatchEventsRequest) returns (stream NotificationEnvelope);
+
+  // Notifications
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  rpc MarkNotificationRead(MarkNotificationReadRequest) returns (MarkNotificationReadResponse);
+  rpc MarkAllNotificationsRead(MarkAllNotificationsReadRequest) returns (MarkAllNotificationsReadResponse);
+  rpc ClearNotifications(ClearNotificationsRequest) returns (ClearNotificationsResponse);
+  rpc GetNotificationSettings(GetNotificationSettingsRequest) returns (GetNotificationSettingsResponse);
+  rpc UpdateNotificationSettings(UpdateNotificationSettingsRequest) returns (UpdateNotificationSettingsResponse);
+}

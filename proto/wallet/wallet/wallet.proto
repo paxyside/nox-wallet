@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package wallet.wallet;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/paxyside/nox-wallet/proto/gen/go/wallet/wallet;walletwallet";
+
+message Wallet {
+  string id = 1;
+  string address = 2;
+  string label = 3;
+  SecretType secret_type = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+enum SecretType {
+  SECRET_TYPE_UNSPECIFIED = 0;
+  SECRET_TYPE_MNEMONIC = 1;
+  SECRET_TYPE_PRIVATE_KEY = 2;
+}

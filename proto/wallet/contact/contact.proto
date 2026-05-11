@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package wallet.contact;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/paxyside/nox-wallet/proto/gen/go/wallet/contact;walletcontact";
+
+message Contact {
+  string id = 1;
+  string name = 2;
+  string address = 3;
+  string note = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  bool is_favorite = 7;
+}

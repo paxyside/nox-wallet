@@ -1,0 +1,65 @@
+# ─── Secrets / local config ──────────────────────────────────────────────────
+# Real keys live here (Alchemy, CoinGecko). Use config.example.yaml as the
+# reference and copy to config.yaml locally — never commit the populated file.
+config.yaml
+*.env
+.env.local
+
+# ─── OS / editor cruft ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*~
+*.bak
+*.swp
+*.tmp
+
+# IDEs (covers root + nested workspaces like ui/.idea/)
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+# GoLand sprays *.go.<random>.<timestamp> files on save — distinct from real .go
+*.go.*
+
+# ─── Go ──────────────────────────────────────────────────────────────────────
+# Compiled binaries (top-level `build/` is the Taskfile output dir)
+/bin/
+/obj/
+/build/
+*.exe
+*.out
+*.test
+*.coverprofile
+
+# Linter / test caches
+.golangci-lint-cache/
+
+# Air auto-reloader scratch
+.air/
+
+# ─── Flutter / Dart ──────────────────────────────────────────────────────────
+ui/build/
+**/.dart_tool/
+# Flutter's flutter_export_environment.sh in macos/Flutter is regenerated per
+# build and contains absolute paths — never commit.
+ui/macos/Flutter/ephemeral/
+ui/macos/Flutter/Generated.xcconfig
+ui/macos/Flutter/flutter_export_environment.sh
+
+# ─── Runtime / local state ───────────────────────────────────────────────────
+# Local SQLite for `task run-be` (no --data-dir)
+.dev-data/
+# Legacy dev-DB path (pre `.dev-data/` migration) — keep gitignored as a safety
+# net so an old dump file can't leak.
+internal/dal/sqlite/db/*.db
+internal/dal/sqlite/db/*.db-shm
+internal/dal/sqlite/db/*.db-wal
+
+# Process logs / pidfiles
+*.log
+*.pid
+
+# ─── Tooling caches ──────────────────────────────────────────────────────────
+.task/
+.claude/

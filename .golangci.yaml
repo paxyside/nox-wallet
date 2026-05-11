@@ -1,0 +1,338 @@
+version: "2"
+
+# Project context for the linter rules below:
+# - Crypto/wallet code: many "magic numbers" (decimals, gas units, BIP44 indices) are
+#   protocol constants, not magic — `mnd` is disabled.
+# - All errors flow through pkg/errors (`liberrors.Wrap`/`Wrapf`/...) — wrapcheck is
+#   configured to recognize that surface. Adapter layer thinly delegates to ethkit
+#   and is wrapped by usecases above; wrapcheck excluded for adapters.
+# - Package-level globals are used for: sentinel errors, contract addresses, ABI
+#   strings — gochecknoglobals would be noise. Disabled.
+# - Generated proto/sqlc/freezed files: excluded via paths.
+
+output:
+  formats:
+    text:
+      print-issued-lines: true
+      print-linter-name: true
+  sort-order: [linter, severity, file]
+
+issues:
+  max-same-issues: 50
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+    - golines
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/paxyside/nox-wallet
+    golines:
+      max-len: 120
+      base-formatter: gofumpt
+
+linters:
+  default: none
+  enable:
+    # ── Correctness (always on) ──────────────────────────────────────────────
+    - asasalint           # []any in variadic any
+    - asciicheck          # non-ASCII identifiers
+    - bidichk             # dangerous unicode
+    - bodyclose           # http response body close
+    - copyloopvar         # Go 1.22 loop vars
+    - durationcheck       # duration * duration
+    - errcheck            # unchecked errors
+    - errname             # Err* / *Error naming
+    - errorlint           # errors.Is / errors.As
+    - exhaustive          # missing switch cases
+    - exptostd            # x/exp → std
+    - fatcontext          # nested ctx in loops
+    - gocheckcompilerdirectives
+    - gochecksumtype
+    - govet               # vet on steroids
+    - ineffassign         # ineffectual assignment
+    - intrange            # for-range over int (Go 1.22)
+    - makezero            # non-zero-init slice
+    - mirror              # bytes/strings mirror APIs
+    - nilerr              # return nil after non-nil err check
+    - nilnesserr
+    - noctx               # missing ctx
+    - protogetter         # use proto getters
+    - reassign            # don't reassign package vars
+    - recvcheck           # receiver consistency
+    - rowserrcheck        # rows.Err()
+    - sqlclosecheck       # close sql resources
+    - staticcheck
+    - unconvert           # unnecessary type conversions
+    - unused              # dead code
+    - usestdlibvars       # use stdlib constants
+    - wastedassign
+
+    # ── Style / quality (kept) ───────────────────────────────────────────────
+    - contextcheck        # non-inherited context
+    - cyclop              # cyclomatic complexity
+    - funlen              # function length
+    - gocognit            # cognitive complexity
+    - goconst             # repeated string constants
+    - gocritic            # style + perf
+    - godot               # comments end in period
+    - inamedparam         # named params in interface methods
+    - nakedret            # naked returns
+    - nestif              # deeply nested ifs
+    - nolintlint          # //nolint hygiene
+    - perfsprint          # faster Sprintf alternatives
+    - predeclared         # don't shadow predeclareds
+    - revive              # general-purpose
+    - tparallel           # t.Parallel misuse
+    - unparam             # unused params
+    - usetesting          # testing-package replacements
+    - whitespace          # leading/trailing whitespace
+    - wrapcheck           # wrap external errors
+
+    # ── Security ─────────────────────────────────────────────────────────────
+    - gosec
+
+    # ── Test-specific (only enforced inside _test.go via include rules) ──────
+    - testableexamples
+    - testifylint
+
+  settings:
+    cyclop:
+      max-complexity: 15
+      package-average: 10.0
+
+    funlen:
+      lines: 120
+      statements: 60
+
+    gocognit:
+      min-complexity: 25
+
+    gocritic:
+      disabled-checks:
+        - hugeParam              # we copy small structs intentionally
+        - rangeValCopy           # same — explicit values are fine
+        - unnamedResult          # noisy on (T, error) returns
+        - whyNoLint
+      settings:
+        captLocal:
+          paramsOnly: false
+        underef:
+          skipRecvDeref: false
+
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment   # too strict for hand-written structs
+        - shadow           # too noisy with err shadowing pattern
+      settings: {}
+
+    inamedparam:
+      skip-single-param: true
+
+    nakedret:
+      max-func-lines: 0
+
+    nolintlint:
+      allow-no-explanation: [funlen, gocognit, gocyclo, golines, cyclop]
+      require-explanation: true
+      require-specific: true
+
+    perfsprint:
+      strconcat: false
+
+    recvcheck:
+      # UnmarshalText/UnmarshalJSON MUST be pointer receivers per encoding/text
+      # and encoding/json contracts; the value-receiver counterparts (Marshal*,
+      # accessors) for the same type are correct as values.
+      disable-builtin-exclusions: false
+      exclusions:
+        - Address.UnmarshalText
+        - Address.UnmarshalJSON
+        - Amount.UnmarshalText
+
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: empty-block
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: range
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: superfluous-else
+        - name: time-naming
+        - name: unexported-return
+        - name: unreachable-code
+        - name: unused-parameter
+          disabled: true
+        - name: var-declaration
+        - name: var-naming
+          disabled: true   # too strict for proto-style names
+
+    staticcheck:
+      checks:
+        - all
+        - -ST1000 # missing package comment — excessive
+        - -ST1016 # consistent receiver naming — we mix `c`/`s` intentionally
+        - -ST1003 # underscores in names — proto-generated names sometimes leak
+        - -QF1008 # embedded field selector — readability call
+
+    wrapcheck:
+      # Functions that already return a properly structured/wrapped error.
+      ignore-sigs:
+        - liberrors.Wrap(
+        - liberrors.Wrapf(
+        - liberrors.New(
+        - liberrors.Newf(
+        - liberrors.FromGRPCError(
+        - .WithMessage(
+        - .WithMessagef(
+        - .Errorf(
+        - errors.New(
+        - errors.Join(
+        - .ToGRPCError(
+        - ToGRPCError(
+        - context.Context).Err(
+        - .Group).Wait(
+        - .Validate).Error(
+        - status.Error(
+        - status.Errorf(
+      # Internal interfaces own their own error contracts — services and usecases
+      # pass them through unchanged so handler.HandleError can match sentinels.
+      ignore-interface-regexps:
+        - github.com/paxyside/nox-wallet/internal/.*
+      # Re-export pattern: thin "New(...) (*Client, error)" constructors are wrapped by callers.
+      ignore-sig-regexps:
+        - github.com/paxyside/nox-wallet/pkg/.*\.New\(
+        - \(\*database/sql\.Rows\)\.Err\(\)
+        - \(interface\)\.Scan\(
+        - \(interface\)\.Start\(
+        - \(\*net\.ListenConfig\)\.Listen\(
+
+  exclusions:
+    warn-unused: true
+    paths:
+      - ".*\\.pb\\.go$"
+      - ".*\\.pb\\.gw\\.go$"
+      - "proto/gen/.*"
+      - "ui/.*"
+    presets:
+      - std-error-handling
+      - common-false-positives
+    rules:
+      # godot doesn't need to fire for TODO/FIXME comments.
+      - source: '(TODO|FIXME)'
+        linters: [godot]
+
+      # Tests are exploratory; relax noisy lints there.
+      - path: '_test\.go'
+        linters:
+          - bodyclose
+          - dupl
+          - errcheck
+          - funlen
+          - goconst
+          - gosec
+          - noctx
+          - wrapcheck
+          - cyclop
+          - gocognit
+          - gocritic
+
+      # cmd/ is the only place where fmt.Print* / os.Exit are appropriate.
+      - path: 'cmd/'
+        linters:
+          - forbidigo
+          - gochecknoinits
+          - gosec
+          - revive
+
+      # Generated code passes through unchecked.
+      - path: '\.gen\.go$'
+        linters:
+          - all
+
+      # gRPC handler functions deal with proto bookkeeping — funlen/cyclop too strict.
+      - path: 'internal/handler/grpc/'
+        linters:
+          - funlen
+          - cyclop
+          - gocognit
+
+      # Detached background syncs intentionally use context.Background():
+      #   - history/usecase.go: Alchemy sync continues past request lifetime
+      #   - handler/grpc/wallet.go: token discovery on first balance fetch
+      # Errors are logged; the goroutines wouldn't make sense bound to a request ctx.
+      - path: 'internal/usecase/history/usecase\.go'
+        linters: [contextcheck, gosec]
+      - path: 'internal/handler/grpc/wallet\.go'
+        linters: [contextcheck, gosec]
+
+      # Graceful shutdown uses a fresh ctx with timeout — not derived from the
+      # parent that's already being cancelled.
+      - path: 'internal/app/app\.go'
+        linters: [contextcheck]
+      # Logger context helpers wrap context.Background intentionally.
+      - path: 'pkg/logger/context\.go'
+        linters: [contextcheck]
+
+      # Switch statements over our error code enum are inherently large but
+      # straightforward — readable as-is.
+      - path: 'pkg/errors/grpc\.go'
+        linters: [cyclop]
+
+      # Long-running stream handler with reconnection logic — splitting it
+      # would obscure the protocol flow.
+      - path: 'pkg/ethkit/subscribe\.go'
+        linters: [gocognit]
+
+      # Domain-protocol overflow conversions: token decimals (≤32 bits), gas
+      # amounts and block numbers (always positive uint64 → int64 for proto).
+      # Each call site checked manually — values bound by EVM/protocol limits.
+      - path: 'pkg/ethkit/'
+        linters: [gosec]
+      - path: 'internal/handler/grpc/history\.go'
+        linters: [gosec]
+
+      # Hardcoded strings here are public CoinGecko symbol IDs ("ethereum",
+      # "usd-coin", …) — gosec false positive on G101.
+      - path: 'internal/adapter/price/'
+        linters: [gosec]
+
+      # Alchemy ERC-20 detection requires nested checks on optional/legacy fields.
+      - path: 'pkg/ethkit/alchemy\.go'
+        linters: [nestif]
+
+      # Migrations are pure SQL strings; ignore noise.
+      - path: 'internal/dal/sqlite/migrations/'
+        linters:
+          - all
+
+      # pkg/ holds reusable libraries that own their own error semantics.
+      # Adapter layer thinly delegates to ethkit etc.; usecases above always wrap.
+      # Wrapping at every layer would just produce noisy "ethkit: ethkit: ..." chains.
+      - path: 'pkg/'
+        linters: [wrapcheck]
+      - path: 'internal/adapter/'
+        linters: [wrapcheck]
+      # Domain services are identity wrappers around their Repository interface —
+      # adding wrapping here would lose the domain sentinels (ErrNotFound, etc.).
+      - path: 'internal/domain/.+/service/'
+        linters: [wrapcheck]
+
+      # Usecase layer thinly delegates to internal interfaces (EthClient, *Service,
+      # *Repository) that already own their error contracts. Errors flow up through
+      # errors.Is so handler.HandleError can match sentinel codes — re-wrapping
+      # would obscure the chain without adding context.
+      - path: 'internal/usecase/'
+        linters: [wrapcheck]

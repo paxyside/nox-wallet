@@ -1,0 +1,73 @@
+# Context = repo root. Local app image needs: go.mod, go.sum, vendor/, sources, config.yaml (not listed here).
+
+# VCS, CI, IDE
+.git
+.github
+.idea
+.vscode
+.cursor
+
+# OS
+**/.DS_Store
+Thumbs.db
+
+# Secrets & local env (never send to daemon)
+**/.env
+*.env
+
+# Docs & legal (not used by go build)
+**/*.md
+LICENSE
+
+# Lint / task runners
+.golangci.yaml
+.golangci-lint-cache/
+.task/
+Taskfile.yml
+Taskfile.yaml
+
+# Kubernetes / werf / Helm (not in Go binary)
+.helm
+werf*.yaml
+**/charts/
+**/secrets.dev.yaml
+**/values.dev.yaml
+
+# Docker definitions & compose (Dockerfile path is -f on host; not read from context tarball)
+docker/
+docker-compose*.yml
+docker-compose*.yaml
+compose*.yml
+compose*.yaml
+**/Dockerfile
+**/Dockerfile.*
+
+# Frontend / misc tooling
+**/node_modules/
+**/npm-debug.log
+
+# Build & test output (root only — avoids matching arbitrary …/bin in modules)
+/bin/
+/obj/
+*.exe
+*.out
+*.test
+*.coverprofile
+coverage.html
+*.log
+*.pid
+*.swp
+*.tmp
+*~
+*.bak
+.air/
+
+# Editor / legacy junk
+**/.classpath
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/*.*proj.user
+**/*.dbmdl
+**/*.jfm

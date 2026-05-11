@@ -1,0 +1,12 @@
+name: wallet_proto
+description: Generated Dart protobuf bindings for the wallet gRPC service.
+publish_to: none
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  grpc: ^5.1.0
+  protobuf: ^6.0.0
+  fixnum: ^1.1.0

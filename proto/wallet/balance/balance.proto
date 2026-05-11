@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package wallet.balance;
+
+option go_package = "github.com/paxyside/nox-wallet/proto/gen/go/wallet/balance;walletbalance";
+
+message TokenBalance {
+  string symbol = 1;
+  string name = 2;
+  string address = 3;
+  string balance = 4;
+  uint32 decimals = 5;
+  string usd_value = 6;
+}
+
+message GasFees {
+  string base_fee_gwei = 1;
+  string max_priority_fee_gwei = 2;
+  string max_fee_gwei = 3;
+  uint64 estimated_gas = 4;
+
+  // Network status snapshot — taken alongside gas fees so the UI can render
+  // a single "Mainnet · 18 gwei · block 19234567" indicator without a second
+  // round-trip. block_number is 0 when the chain isn't reachable.
+  int64 chain_id = 5;
+  uint64 block_number = 6;
+}

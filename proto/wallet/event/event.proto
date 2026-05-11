@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package wallet.event;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/paxyside/nox-wallet/proto/gen/go/wallet/event;walletevent";
+
+// ── Unified event (WatchEvents stream) ───────────────────────────────────────
+
+message WalletEvent {
+  oneof payload {
+    GasAlertEvent gas_alert = 1;
+    LowBalanceEvent low_balance = 2;
+    TransactionEvent transaction = 3;
+  }
+}
+
+// AssetMovement is a single in/out leg of a TransactionEvent. A simple
+// Send produces one outgoing movement; a Swap produces two (outgoing
+// input asset + incoming output asset).
+message AssetMovement {
+  // Token symbol — "ETH" for native, ERC-20 ticker otherwise. Falls back
+  // to "Unknown" when the contract didn't expose `symbol()`.
+  string symbol = 1;
+  string name = 2;
+  // Empty for native ETH; lowercase 0x-prefixed contract for ERC-20.
+  string contract_address = 3;
+  // Human-readable amount, decimals already applied. "0.001234" for
+  // small numbers, "1,234.5" doesn't apply (no separators).
+  string amount = 4;
+  // Negative side from wallet's POV. For a Swap, both `is_outgoing` legs
+  // sum to "what you spent", incoming legs to "what you received".
+  bool is_outgoing = 5;
+  // The other side of the leg — for a Send, the recipient address;
+  // for a Receive, the sender; for a Swap, the pool/router. Lowercase
+  // hex.
+  string counterparty = 6;
+}
+
+// TransactionEvent is the canonical event the UI listens to. One event
+// per on-chain tx hash that involves the loaded wallet, regardless of how
+// many internal transfers / Transfer logs / native deltas it produced.
+message TransactionEvent {
+  enum Role {
+    UNKNOWN = 0;
+    SEND_ETH = 1; // wallet → counterparty, native asset
+    RECEIVE_ETH = 2; // counterparty → wallet, native asset
+    SEND_TOKEN = 3; // wallet → counterparty, ERC-20
+    RECEIVE_TOKEN = 4; // counterparty → wallet, ERC-20
+    SWAP = 5; // wallet sent X, received Y in same tx (Uniswap-style)
+    SELF_TRANSFER = 6; // from == to == wallet (legal, almost always test/sweep)
+    APPROVE = 7; // ERC-20 approve(spender, amount) — no Transfer log
+  }
+
+  string tx_hash = 1;
+  Role role = 2;
+  repeated AssetMovement movements = 3;
+  // True when this hash was in the local pending-tx tracker — i.e. the
+  // user clicked Send / Swap from this very app. Frontend suppresses the
+  // OS notification in that case (the result modal already showed the
+  // outcome) but keeps the event in the in-app history.
+  bool is_ours = 4;
+  uint64 block_number = 5;
+  google.protobuf.Timestamp timestamp = 6;
+}
+
+// Gas price changed significantly (spike or drop).
+message GasAlertEvent {
+  enum AlertType {
+    SPIKE = 0;
+    DROP = 1;
+  }
+  AlertType type = 1;
+  string current_gwei = 2;
+  string previous_gwei = 3;
+}
+
+// ETH balance fell below the critical threshold.
+message LowBalanceEvent {
+  string eth_balance = 1; // human-readable
+  string eth_balance_wei = 2; // raw decimal integer string
+}

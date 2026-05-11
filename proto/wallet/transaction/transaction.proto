@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package wallet.transaction;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/paxyside/nox-wallet/proto/gen/go/wallet/transaction;wallettransaction";
+
+message TxReceipt {
+  string tx_hash = 1;
+  uint64 block_number = 2;
+  uint64 gas_used = 3;
+  string effective_gas_price_gwei = 4;
+  bool success = 5;
+}
+
+message HistoryItem {
+  string tx_hash = 1;
+  string from = 2;
+  string to = 3;
+  string asset = 4;
+  string value = 5;
+  string raw_value = 6;
+  google.protobuf.Timestamp block_time = 7;
+  uint64 block_num = 8;
+  string category = 9;
+  string gas_fee_eth = 10; // human-readable ETH amount, e.g. "0.00005" (empty until receipt fetching impl)
+  string gas_fee_usd = 11; // USD amount, e.g. "$0.12" (empty until receipt fetching impl)
+  string value_usd = 12; // USD equivalent of value, e.g. "$130.00" (computed from price feed)
+
+  // Swap fields — populated only when is_swap = true. The two same-hash legs
+  // of a DEX swap are merged server-side into one virtual entry so the UI
+  // shows "Swap USDC → USDT" instead of two separate "Sent / Received" rows.
+  bool is_swap = 13;
+  string token_in_sym = 14; // sent token symbol, e.g. "USDC"
+  string token_in_value = 15; // sent amount, human-readable
+  string token_out_sym = 16; // received token symbol, e.g. "USDT"
+  string token_out_value = 17; // received amount, human-readable
+}

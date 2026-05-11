@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package wallet.token;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/paxyside/nox-wallet/proto/gen/go/wallet/token;wallettoken";
+
+message WatchedToken {
+  string id = 1;
+  string address = 2;
+  string symbol = 3;
+  string name = 4;
+  uint32 decimals = 5;
+  google.protobuf.Timestamp added_at = 6;
+  bool is_pinned = 7;
+  bool is_hidden = 8;
+}
+
+// Market snapshot for one token (may be empty if CoinGecko unavailable)
+message TokenMarketData {
+  string price_usd = 1; // "1.0023" or ""
+  string change_24h_pct = 2; // "5.23" or "-2.10"
+  bool change_positive = 3;
+  repeated double sparkline_7d = 4; // ~168 hourly USD prices (7 days)
+  repeated double sparkline_30d = 5; // ~30 daily USD prices  (30 days)
+}
+
+message WatchedTokenWithBalance {
+  WatchedToken token = 1;
+  string balance = 2; // formatted decimal, e.g. "1.234567"
+  string balance_usd = 3; // "$123.45" or ""
+  TokenMarketData market = 4;
+}
