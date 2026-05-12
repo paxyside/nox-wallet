@@ -14,10 +14,7 @@ class ErrorText extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(left: 4),
-    child: Text(
-      message,
-      style: AppTextStyles.bodySmall.copyWith(color: context.colors.error),
-    ),
+    child: Text(message, style: AppTextStyles.bodySmall.copyWith(color: context.colors.error)),
   );
 }
 

@@ -154,9 +154,7 @@ class _SendConfirmDialogState extends State<SendConfirmDialog> {
                 Center(
                   child: Text(
                     '≈ ${widget.amountUsd}',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: colors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
                   ),
                 ),
               ],
@@ -191,11 +189,7 @@ class _SendConfirmDialogState extends State<SendConfirmDialog> {
                   label: 'NETWORK FEE',
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.local_gas_station_rounded,
-                        size: 16,
-                        color: colors.warning,
-                      ),
+                      Icon(Icons.local_gas_station_rounded, size: 16, color: colors.warning),
                       const SizedBox(width: 8),
                       Text(
                         _gasGwei!,
@@ -209,9 +203,7 @@ class _SendConfirmDialogState extends State<SendConfirmDialog> {
                         const SizedBox(width: 8),
                         Text(
                           '· ${_gasUsd!}',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: colors.textSecondary,
-                          ),
+                          style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
                         ),
                       ],
                       const Spacer(),
@@ -247,9 +239,7 @@ class _SendConfirmDialogState extends State<SendConfirmDialog> {
                         foregroundColor: colors.textSecondary,
                         side: BorderSide(color: colors.border),
                         padding: const EdgeInsets.symmetric(vertical: 13),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: const Text('Cancel'),
                     ),
@@ -263,9 +253,7 @@ class _SendConfirmDialogState extends State<SendConfirmDialog> {
                         backgroundColor: colors.primary,
                         foregroundColor: colors.textPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 13),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: const Text(
                         'Confirm Send',
@@ -337,11 +325,7 @@ class _CopyIcon extends StatelessWidget {
         },
         child: Padding(
           padding: const EdgeInsets.all(6),
-          child: Icon(
-            Icons.copy_rounded,
-            size: 14,
-            color: context.colors.textSecondary,
-          ),
+          child: Icon(Icons.copy_rounded, size: 14, color: context.colors.textSecondary),
         ),
       ),
     );
@@ -375,9 +359,7 @@ class _SimulationBanner extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               'Simulating transaction…',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.textSecondary,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
             ),
           ],
         ),
@@ -390,9 +372,7 @@ class _SimulationBanner extends StatelessWidget {
         color: context.colors.textDisabled,
         child: Text(
           'Simulation unavailable.',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.colors.textSecondary,
-          ),
+          style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
         ),
       );
     }
@@ -404,18 +384,12 @@ class _SimulationBanner extends StatelessWidget {
         color: context.colors.error,
         child: Row(
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 14,
-              color: context.colors.error,
-            ),
+            Icon(Icons.error_outline_rounded, size: 14, color: context.colors.error),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 r.revertReason.isEmpty ? 'Will revert on chain.' : 'Will revert: ${r.revertReason}',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.colors.error,
-                ),
+                style: AppTextStyles.bodySmall.copyWith(color: context.colors.error),
               ),
             ),
           ],
@@ -428,11 +402,7 @@ class _SimulationBanner extends StatelessWidget {
       color: context.colors.success,
       child: Row(
         children: [
-          Icon(
-            Icons.verified_rounded,
-            size: 14,
-            color: context.colors.success,
-          ),
+          Icon(Icons.verified_rounded, size: 14, color: context.colors.success),
           const SizedBox(width: 8),
           Text(
             'Will succeed',
@@ -446,11 +416,7 @@ class _SimulationBanner extends StatelessWidget {
     );
   }
 
-  Widget _shell(
-    BuildContext context, {
-    required Color color,
-    required Widget child,
-  }) {
+  Widget _shell(BuildContext context, {required Color color, required Widget child}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(

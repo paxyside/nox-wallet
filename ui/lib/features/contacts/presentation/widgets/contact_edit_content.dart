@@ -31,12 +31,8 @@ class _EditContent extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       borderSide: BorderSide(color: context.colors.primary, width: 1.5),
     );
-    final style = AppTextStyles.bodyMedium.copyWith(
-      color: context.colors.textPrimary,
-    );
-    final hint = AppTextStyles.bodySmall.copyWith(
-      color: context.colors.textDisabled,
-    );
+    final style = AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary);
+    final hint = AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled);
     InputDecoration decor(String h) => InputDecoration(
       hintText: h,
       hintStyle: hint,
@@ -63,9 +59,7 @@ class _EditContent extends StatelessWidget {
         // Address field
         TextField(
           controller: addrCtrl,
-          style: AppTextStyles.monoSmall.copyWith(
-            color: context.colors.textPrimary,
-          ),
+          style: AppTextStyles.monoSmall.copyWith(color: context.colors.textPrimary),
           decoration: decor('0x…'),
           textInputAction: TextInputAction.next,
         ),
@@ -89,13 +83,8 @@ class _EditContent extends StatelessWidget {
               onPressed: saving ? null : onCancel,
               style: TextButton.styleFrom(
                 foregroundColor: context.colors.textSecondary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('Cancel'),
             ),
@@ -105,16 +94,9 @@ class _EditContent extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: context.colors.primary,
                 foregroundColor: context.colors.textPrimary,
-                disabledBackgroundColor: context.colors.primary.withValues(
-                  alpha: 0.4,
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                disabledBackgroundColor: context.colors.primary.withValues(alpha: 0.4),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 textStyle: AppTextStyles.labelMedium,
               ),
               child: saving

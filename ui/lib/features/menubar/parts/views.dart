@@ -34,11 +34,7 @@ class _HomeView extends ConsumerWidget {
           onSwap: () => onOpenAt(Routes.swap),
         ),
         const SizedBox(height: 12),
-        Expanded(
-          child: _LastActivity(
-            onSeeAll: () => onOpenAt(Routes.history),
-          ),
-        ),
+        Expanded(child: _LastActivity(onSeeAll: () => onOpenAt(Routes.history))),
         const SizedBox(height: 8),
         _Footer(onSettings: onOpenSettings, onQuit: onQuit),
       ],
@@ -51,11 +47,7 @@ class _HomeView extends ConsumerWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _NotificationsView extends ConsumerWidget {
-  const _NotificationsView({
-    required this.onBack,
-    required this.onViewAll,
-    required this.onQuit,
-  });
+  const _NotificationsView({required this.onBack, required this.onViewAll, required this.onQuit});
 
   final VoidCallback onBack;
   final VoidCallback onViewAll;
@@ -74,9 +66,8 @@ class _NotificationsView extends ConsumerWidget {
           onBack: onBack,
           trailing: unread > 0
               ? _MarkAllReadLink(
-                  onTap: () => unawaited(
-                    ref.read(notificationHistoryProvider.notifier).markAllRead(),
-                  ),
+                  onTap: () =>
+                      unawaited(ref.read(notificationHistoryProvider.notifier).markAllRead()),
                 )
               : null,
         ),
@@ -176,11 +167,7 @@ class _SettingsView extends ConsumerWidget {
                   _SettingsTapRow(
                     icon: Icons.tune_rounded,
                     label: 'All settings',
-                    trailing: Icon(
-                      Icons.chevron_right_rounded,
-                      size: 16,
-                      color: col.textSecondary,
-                    ),
+                    trailing: Icon(Icons.chevron_right_rounded, size: 16, color: col.textSecondary),
                     onTap: onOpenFullSettings,
                   ),
                 ],
@@ -189,11 +176,7 @@ class _SettingsView extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 8),
-        _Footer(
-          onSettings: onOpenFullSettings,
-          onQuit: onQuit,
-          settingsLabel: 'All settings',
-        ),
+        _Footer(onSettings: onOpenFullSettings, onQuit: onQuit, settingsLabel: 'All settings'),
       ],
     );
   }

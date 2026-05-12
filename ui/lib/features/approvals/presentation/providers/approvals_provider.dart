@@ -40,8 +40,6 @@ class ApprovalsNotifier extends _$ApprovalsNotifier {
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(approvalRepositoryProvider).list(),
-    );
+    state = await AsyncValue.guard(() => ref.read(approvalRepositoryProvider).list());
   }
 }

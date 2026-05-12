@@ -83,11 +83,7 @@ class _ExportKeystoreDialogState extends ConsumerState<ExportKeystoreDialog> {
                 children: [
                   const Text('Export Keystore', style: AppTextStyles.h3),
                   IconButton(
-                    icon: const Icon(
-                      Icons.close,
-                      color: AppColors.textSecondary,
-                      size: 20,
-                    ),
+                    icon: const Icon(Icons.close, color: AppColors.textSecondary, size: 20),
                     onPressed: () {
                       ref.read(exportKeystoreNotifierProvider.notifier).reset();
                       Navigator.of(context).pop();
@@ -104,26 +100,18 @@ class _ExportKeystoreDialogState extends ConsumerState<ExportKeystoreDialog> {
                 decoration: BoxDecoration(
                   color: AppColors.warning.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColors.warning.withValues(alpha: 0.4),
-                  ),
+                  border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.warning_amber_rounded,
-                      color: AppColors.warning,
-                      size: 18,
-                    ),
+                    const Icon(Icons.warning_amber_rounded, color: AppColors.warning, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Keep this file safe. Anyone with this file and '
                         'passphrase can access your funds.',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.warning,
-                        ),
+                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.warning),
                       ),
                     ),
                   ],
@@ -145,9 +133,7 @@ class _ExportKeystoreDialogState extends ConsumerState<ExportKeystoreDialog> {
                       _PassphraseField(
                         controller: _passphraseController,
                         obscure: _obscurePassphrase,
-                        onToggle: () => setState(
-                          () => _obscurePassphrase = !_obscurePassphrase,
-                        ),
+                        onToggle: () => setState(() => _obscurePassphrase = !_obscurePassphrase),
                         validator: (v) {
                           if (v == null || v.isEmpty) {
                             return 'Enter a passphrase';
@@ -183,9 +169,7 @@ class _ExportKeystoreDialogState extends ConsumerState<ExportKeystoreDialog> {
                           style: FilledButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                           child: isLoading
                               ? const SizedBox(
@@ -216,10 +200,7 @@ class _ExportKeystoreDialogState extends ConsumerState<ExportKeystoreDialog> {
                   ),
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(12),
-                    child: SelectableText(
-                      _exportedJson!,
-                      style: AppTextStyles.monoSmall,
-                    ),
+                    child: SelectableText(_exportedJson!, style: AppTextStyles.monoSmall),
                   ),
                 ),
 
@@ -235,9 +216,7 @@ class _ExportKeystoreDialogState extends ConsumerState<ExportKeystoreDialog> {
                       foregroundColor: AppColors.primary,
                       side: const BorderSide(color: AppColors.primary),
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
                 ),
@@ -249,10 +228,7 @@ class _ExportKeystoreDialogState extends ConsumerState<ExportKeystoreDialog> {
     );
   }
 
-  Widget _buildLabel(String text) => Text(
-    text,
-    style: AppTextStyles.labelMedium,
-  );
+  Widget _buildLabel(String text) => Text(text, style: AppTextStyles.labelMedium);
 }
 
 class _PassphraseField extends StatelessWidget {
@@ -278,10 +254,7 @@ class _PassphraseField extends StatelessWidget {
       decoration: InputDecoration(
         filled: false,
         fillColor: AppColors.surfaceHigh,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 12,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: AppColors.border),

@@ -117,10 +117,7 @@ class _ContactPickerPanelState extends State<_ContactPickerPanel> {
                           filled: false,
                           fillColor: Colors.transparent,
                           isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 12,
-                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
                         ),
                         onChanged: widget.onQueryChanged,
                       ),

@@ -18,10 +18,7 @@ class _LastActivity extends ConsumerWidget {
             children: [
               Text(
                 'Last activity',
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: col.textSecondary,
-                  fontSize: 12.5,
-                ),
+                style: AppTextStyles.labelMedium.copyWith(color: col.textSecondary, fontSize: 12.5),
               ),
               const Spacer(),
               _SeeAllLink(onTap: onSeeAll),
@@ -136,18 +133,12 @@ class _ActivityEmpty extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          text,
-          style: AppTextStyles.bodyMedium.copyWith(color: col.textSecondary),
-        ),
+        Text(text, style: AppTextStyles.bodyMedium.copyWith(color: col.textSecondary)),
         if (subtitle != null) ...[
           const SizedBox(height: 2),
           Text(
             subtitle!,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: col.textDisabled,
-              fontSize: 11.5,
-            ),
+            style: AppTextStyles.bodySmall.copyWith(color: col.textDisabled, fontSize: 11.5),
           ),
         ],
       ],
@@ -213,10 +204,7 @@ class _ActivityTile extends StatelessWidget {
         Container(
           width: 36,
           height: 36,
-          decoration: BoxDecoration(
-            color: r.tint.withValues(alpha: 0.15),
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: r.tint.withValues(alpha: 0.15), shape: BoxShape.circle),
           child: Icon(r.icon, size: 18, color: r.tint),
         ),
         const SizedBox(width: 10),
@@ -227,19 +215,13 @@ class _ActivityTile extends StatelessWidget {
             children: [
               Text(
                 r.title,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: col.textPrimary,
-                  fontSize: 13,
-                ),
+                style: AppTextStyles.labelMedium.copyWith(color: col.textPrimary, fontSize: 13),
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 2),
               Text(
                 r.subtitle,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: col.textSecondary,
-                  fontSize: 11.5,
-                ),
+                style: AppTextStyles.bodySmall.copyWith(color: col.textSecondary, fontSize: 11.5),
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -268,10 +250,7 @@ class _ActivityTile extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               timeAgo(tx.blockTime),
-              style: AppTextStyles.bodySmall.copyWith(
-                color: col.textDisabled,
-                fontSize: 10.5,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: col.textDisabled, fontSize: 10.5),
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nox/core/router/routes.dart';
+import 'package:nox/core/services/update_service.dart';
 import 'package:nox/core/state/auto_lock_provider.dart';
 import 'package:nox/core/state/privacy_provider.dart';
 import 'package:nox/core/theme/app_colors.dart';
@@ -32,10 +33,7 @@ class SettingsScreen extends ConsumerWidget {
           // Comfortable reading width, centred on wide screens.
           const maxContent = 680.0;
           const minHPad = 40.0;
-          final hPad = ((constraints.maxWidth - maxContent) / 2).clamp(
-            minHPad,
-            double.infinity,
-          );
+          final hPad = ((constraints.maxWidth - maxContent) / 2).clamp(minHPad, double.infinity);
 
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 18),
@@ -50,16 +48,12 @@ class SettingsScreen extends ConsumerWidget {
                     // ── Page header ───────────────────────────────────────
                     Text(
                       'Settings',
-                      style: AppTextStyles.h2.copyWith(
-                        color: context.colors.textPrimary,
-                      ),
+                      style: AppTextStyles.h2.copyWith(color: context.colors.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Manage your wallet, security, and preferences.',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: context.colors.textSecondary,
-                      ),
+                      style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                     ),
 
                     const SizedBox(height: 16),
@@ -116,6 +110,25 @@ class SettingsScreen extends ConsumerWidget {
 
                     const SizedBox(height: 14),
 
+                    // ── About ──────────────────────────────────────────────
+                    SettingsSection(
+                      title: 'About',
+                      rows: [
+                        SettingsRow(
+                          label: 'Updates',
+                          subtitle:
+                              'Sparkle checks hourly in the background. Use this to force a check now.',
+                          trailing: _ActionButton(
+                            label: 'Check for updates',
+                            icon: Icons.system_update_alt,
+                            onTap: () => unawaited(UpdateService.checkNow()),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 14),
+
                     // ── Danger Zone ────────────────────────────────────────
                     SettingsSection(
                       title: 'Danger Zone',
@@ -143,21 +156,11 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   void _showRevealDialog(BuildContext context) {
-    unawaited(
-      showAppDialog<void>(
-        context: context,
-        builder: (_) => const RevealSecretDialog(),
-      ),
-    );
+    unawaited(showAppDialog<void>(context: context, builder: (_) => const RevealSecretDialog()));
   }
 
   void _showExportDialog(BuildContext context) {
-    unawaited(
-      showAppDialog<void>(
-        context: context,
-        builder: (_) => const ExportKeystoreDialog(),
-      ),
-    );
+    unawaited(showAppDialog<void>(context: context, builder: (_) => const ExportKeystoreDialog()));
   }
 
   Future<void> _confirmImportNewWallet(BuildContext context) async {
@@ -172,27 +175,21 @@ class SettingsScreen extends ConsumerWidget {
         ),
         content: Text(
           'This will replace your current wallet. Make sure you have a backup.',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: context.colors.textSecondary,
-          ),
+          style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
               'Cancel',
-              style: AppTextStyles.labelLarge.copyWith(
-                color: context.colors.textSecondary,
-              ),
+              style: AppTextStyles.labelLarge.copyWith(color: context.colors.textSecondary),
             ),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: context.colors.error,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('Continue'),
           ),
@@ -224,10 +221,7 @@ class _WalletSection extends StatelessWidget {
           label: 'Address',
           trailing: _CopyableAddress(address: wallet.address),
         ),
-        SettingsRow(
-          label: 'Label',
-          value: wallet.label.isEmpty ? '—' : wallet.label,
-        ),
+        SettingsRow(label: 'Label', value: wallet.label.isEmpty ? '—' : wallet.label),
         SettingsRow(
           label: 'Secret Type',
           trailing: _SecretTypeBadge(secretKind: wallet.secretKind),
@@ -257,9 +251,7 @@ class _CopyableAddress extends StatelessWidget {
       children: [
         Text(
           address.isEmpty ? '—' : short,
-          style: AppTextStyles.mono.copyWith(
-            color: context.colors.textSecondary,
-          ),
+          style: AppTextStyles.mono.copyWith(color: context.colors.textSecondary),
         ),
         if (address.isNotEmpty) ...[
           const SizedBox(width: 6),
@@ -306,10 +298,7 @@ class _SecretTypeBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
-      child: Text(
-        label,
-        style: AppTextStyles.labelMedium.copyWith(color: color),
-      ),
+      child: Text(label, style: AppTextStyles.labelMedium.copyWith(color: color)),
     );
   }
 }
@@ -319,12 +308,7 @@ class _SecretTypeBadge extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.label,
-    required this.onTap,
-    this.icon,
-    this.color,
-  });
+  const _ActionButton({required this.label, required this.onTap, this.icon, this.color});
 
   final String label;
   final VoidCallback onTap;
@@ -337,10 +321,7 @@ class _ActionButton extends StatelessWidget {
     return OutlinedButton.icon(
       onPressed: onTap,
       icon: icon != null ? Icon(icon, size: 15, color: foreground) : const SizedBox.shrink(),
-      label: Text(
-        label,
-        style: AppTextStyles.labelLarge.copyWith(color: foreground),
-      ),
+      label: Text(label, style: AppTextStyles.labelLarge.copyWith(color: foreground)),
       style: OutlinedButton.styleFrom(
         foregroundColor: foreground,
         side: BorderSide(color: foreground.withValues(alpha: 0.5)),
@@ -396,9 +377,7 @@ class _ErrorBanner extends StatelessWidget {
           Expanded(
             child: Text(
               'Failed to load wallet: $message',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.error,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.error),
             ),
           ),
         ],
@@ -446,10 +425,7 @@ class _MiniSwitch extends StatelessWidget {
           decoration: BoxDecoration(
             color: value ? trackOn : trackOff,
             borderRadius: BorderRadius.circular(_trackHeight / 2),
-            border: Border.all(
-              color: value ? borderOn : borderOff,
-              width: 1,
-            ),
+            border: Border.all(color: value ? borderOn : borderOff, width: 1),
           ),
           child: Stack(
             children: [
@@ -465,12 +441,7 @@ class _MiniSwitch extends StatelessWidget {
                     color: value ? Colors.white : colors.textSecondary,
                     shape: BoxShape.circle,
                     boxShadow: value
-                        ? [
-                            BoxShadow(
-                              color: colors.primary.withValues(alpha: 0.4),
-                              blurRadius: 4,
-                            ),
-                          ]
+                        ? [BoxShadow(color: colors.primary.withValues(alpha: 0.4), blurRadius: 4)]
                         : null,
                   ),
                 ),
@@ -493,9 +464,7 @@ class _AutoLockSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return ThemedDropdown<AutoLockTimeout>(
       value: value,
-      items: [
-        for (final t in AutoLockTimeout.values) ThemedDropdownItem(value: t, label: t.label),
-      ],
+      items: [for (final t in AutoLockTimeout.values) ThemedDropdownItem(value: t, label: t.label)],
       onChanged: onChanged,
     );
   }

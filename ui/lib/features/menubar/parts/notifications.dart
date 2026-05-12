@@ -126,10 +126,7 @@ class _MiniNotificationTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: col.textPrimary,
-                    fontSize: 12.5,
-                  ),
+                  style: AppTextStyles.labelMedium.copyWith(color: col.textPrimary, fontSize: 12.5),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -148,10 +145,7 @@ class _MiniNotificationTile extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   timeAgo(ts),
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: col.textDisabled,
-                    fontSize: 10.5,
-                  ),
+                  style: AppTextStyles.bodySmall.copyWith(color: col.textDisabled, fontSize: 10.5),
                 ),
               ],
             ),
@@ -180,10 +174,7 @@ class _MiniEmpty extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             title,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: col.textPrimary,
-              fontSize: 13,
-            ),
+            style: AppTextStyles.labelMedium.copyWith(color: col.textPrimary, fontSize: 13),
           ),
           const SizedBox(height: 4),
           Padding(
@@ -191,10 +182,7 @@ class _MiniEmpty extends StatelessWidget {
             child: Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: col.textSecondary,
-                fontSize: 11.5,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: col.textSecondary, fontSize: 11.5),
             ),
           ),
         ],

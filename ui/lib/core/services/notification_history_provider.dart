@@ -111,9 +111,7 @@ class NotificationHistory extends _$NotificationHistory {
   /// "Clear all" action in the notification center (UI confirms first).
   Future<void> clearAll() async {
     try {
-      await GrpcClient.instance.stub.clearNotifications(
-        $wallet.ClearNotificationsRequest(),
-      );
+      await GrpcClient.instance.stub.clearNotifications($wallet.ClearNotificationsRequest());
     } on Object catch (_) {}
 
     state = const [];

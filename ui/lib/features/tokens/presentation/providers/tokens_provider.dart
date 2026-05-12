@@ -65,15 +65,9 @@ List<WatchedToken> filteredTokens(Ref ref) {
     if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
     return switch (sort) {
       TokenSortField.name => a.symbol.compareTo(b.symbol),
-      TokenSortField.balance => parseUsd(
-        b.balance,
-      ).compareTo(parseUsd(a.balance)),
-      TokenSortField.value => parseUsd(
-        b.balanceUsd,
-      ).compareTo(parseUsd(a.balanceUsd)),
-      TokenSortField.change => parseUsd(
-        b.change24hPct,
-      ).compareTo(parseUsd(a.change24hPct)),
+      TokenSortField.balance => parseUsd(b.balance).compareTo(parseUsd(a.balance)),
+      TokenSortField.value => parseUsd(b.balanceUsd).compareTo(parseUsd(a.balanceUsd)),
+      TokenSortField.change => parseUsd(b.change24hPct).compareTo(parseUsd(a.change24hPct)),
     };
   });
 }
@@ -107,9 +101,7 @@ class TokensNotifier extends _$TokensNotifier {
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(tokenRepositoryProvider).listWithBalances(),
-    );
+    state = await AsyncValue.guard(() => ref.read(tokenRepositoryProvider).listWithBalances());
   }
 
   Future<WatchedToken?> add(String contractAddress) async {
@@ -153,9 +145,7 @@ class TokensNotifier extends _$TokensNotifier {
     final pinned = !token.isPinned;
 
     // Optimistic update
-    state = AsyncData(
-      tokens.map((t) => t.id == id ? t.copyWith(isPinned: pinned) : t).toList(),
-    );
+    state = AsyncData(tokens.map((t) => t.id == id ? t.copyWith(isPinned: pinned) : t).toList());
 
     try {
       await ref.read(tokenRepositoryProvider).pin(id, pinned: pinned);

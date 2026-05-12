@@ -8,11 +8,7 @@ import 'package:nox/core/theme/app_text_styles.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 
 class WordCountToggle extends StatelessWidget {
-  const WordCountToggle({
-    required this.value,
-    required this.onChanged,
-    super.key,
-  });
+  const WordCountToggle({required this.value, required this.onChanged, super.key});
   final int value;
   final ValueChanged<int> onChanged;
 
@@ -84,18 +80,9 @@ class PasteButton extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.content_paste_rounded,
-            size: 13,
-            color: context.colors.primary,
-          ),
+          Icon(Icons.content_paste_rounded, size: 13, color: context.colors.primary),
           const SizedBox(width: 5),
-          Text(
-            'Paste',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: context.colors.primary,
-            ),
-          ),
+          Text('Paste', style: AppTextStyles.bodySmall.copyWith(color: context.colors.primary)),
         ],
       ),
     );
@@ -117,17 +104,11 @@ class ClearButton extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.clear_rounded,
-            size: 13,
-            color: context.colors.textSecondary,
-          ),
+          Icon(Icons.clear_rounded, size: 13, color: context.colors.textSecondary),
           const SizedBox(width: 5),
           Text(
             'Clear',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: context.colors.textSecondary,
-            ),
+            style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
           ),
         ],
       ),

@@ -168,10 +168,7 @@ class _AddressFieldState extends State<AddressField> {
       builder: (_) => Stack(
         children: [
           Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _closeContacts,
-            ),
+            child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: _closeContacts),
           ),
           CompositedTransformFollower(
             link: _pickerLink,
@@ -249,12 +246,7 @@ class _AddressFieldState extends State<AddressField> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: borderColor),
               boxShadow: (_focused || hasError || _showContacts)
-                  ? [
-                      BoxShadow(
-                        color: borderColor.withValues(alpha: 0.12),
-                        blurRadius: 6,
-                      ),
-                    ]
+                  ? [BoxShadow(color: borderColor.withValues(alpha: 0.12), blurRadius: 6)]
                   : null,
             ),
             child: ClipRRect(
@@ -286,17 +278,9 @@ class _AddressFieldState extends State<AddressField> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(left: 14, right: 10),
-                          child: Icon(
-                            Icons.person_outline_rounded,
-                            size: 18,
-                            color: iconColor,
-                          ),
+                          child: Icon(Icons.person_outline_rounded, size: 18, color: iconColor),
                         ),
-                        Container(
-                          width: 1,
-                          height: 20,
-                          color: context.colors.border,
-                        ),
+                        Container(width: 1, height: 20, color: context.colors.border),
                         Expanded(
                           child: TextField(
                             controller: widget.controller,
@@ -357,9 +341,7 @@ class _AddressFieldState extends State<AddressField> {
                           onTap: widget.locked
                               ? null
                               : () async {
-                                  final data = await Clipboard.getData(
-                                    Clipboard.kTextPlain,
-                                  );
+                                  final data = await Clipboard.getData(Clipboard.kTextPlain);
                                   final text = data?.text ?? '';
                                   widget.controller.text = text;
                                   widget.onChanged(text);
@@ -384,11 +366,7 @@ class _AddressFieldState extends State<AddressField> {
                   padding: const EdgeInsets.only(top: 5, left: 4),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.info_outline_rounded,
-                        size: 12,
-                        color: context.colors.error,
-                      ),
+                      Icon(Icons.info_outline_rounded, size: 12, color: context.colors.error),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
@@ -454,11 +432,7 @@ class _AddressFieldState extends State<AddressField> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.check_circle_rounded,
-              size: 12,
-              color: context.colors.success,
-            ),
+            Icon(Icons.check_circle_rounded, size: 12, color: context.colors.success),
             const SizedBox(width: 4),
             Flexible(
               child: Text(
@@ -481,18 +455,11 @@ class _AddressFieldState extends State<AddressField> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.warning_amber_rounded,
-              size: 12,
-              color: context.colors.warning,
-            ),
+            Icon(Icons.warning_amber_rounded, size: 12, color: context.colors.warning),
             const SizedBox(width: 4),
             Text(
               'ENS name not found',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.warning,
-                fontSize: 11,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.warning, fontSize: 11),
             ),
           ],
         ),

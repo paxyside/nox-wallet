@@ -30,10 +30,7 @@ class _TokenSparklineState extends State<TokenSparkline> {
 
   double _valueAt(double fraction) {
     if (widget.points.isEmpty) return 0;
-    final idx = (fraction * (widget.points.length - 1)).round().clamp(
-      0,
-      widget.points.length - 1,
-    );
+    final idx = (fraction * (widget.points.length - 1)).round().clamp(0, widget.points.length - 1);
     return widget.points[idx];
   }
 
@@ -43,9 +40,7 @@ class _TokenSparklineState extends State<TokenSparkline> {
       builder: (context, constraints) {
         final w = constraints.maxWidth;
         return MouseRegion(
-          onHover: (e) => setState(
-            () => _hoverFraction = (e.localPosition.dx / w).clamp(0.0, 1.0),
-          ),
+          onHover: (e) => setState(() => _hoverFraction = (e.localPosition.dx / w).clamp(0.0, 1.0)),
           onExit: (_) => setState(() => _hoverFraction = null),
           child: Stack(
             clipBehavior: Clip.none,
@@ -69,10 +64,7 @@ class _TokenSparklineState extends State<TokenSparkline> {
                   right: _hoverFraction! > 0.5
                       ? ((1 - _hoverFraction!) * w + 8).clamp(0, w - 60)
                       : null,
-                  child: _SparklineTooltip(
-                    value: _valueAt(_hoverFraction!),
-                    color: _color,
-                  ),
+                  child: _SparklineTooltip(value: _valueAt(_hoverFraction!), color: _color),
                 ),
             ],
           ),
@@ -111,22 +103,14 @@ class _SparklineTooltip extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
       ),
     );
   }
 }
 
 class _SparklinePainter extends CustomPainter {
-  _SparklinePainter({
-    required this.points,
-    required this.color,
-    this.hoverFraction,
-  });
+  _SparklinePainter({required this.points, required this.color, this.hoverFraction});
 
   final List<double> points;
   final Color color;
@@ -177,10 +161,7 @@ class _SparklinePainter extends CustomPainter {
           ..shader = LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              color.withValues(alpha: 0.20),
-              color.withValues(alpha: 0),
-            ],
+            colors: [color.withValues(alpha: 0.20), color.withValues(alpha: 0)],
           ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
           ..style = PaintingStyle.fill,
       )
@@ -198,10 +179,7 @@ class _SparklinePainter extends CustomPainter {
     if (hoverFraction != null) {
       final x = hoverFraction! * size.width;
       // Compute y at hovered index
-      final idx = (hoverFraction! * (points.length - 1)).round().clamp(
-        0,
-        points.length - 1,
-      );
+      final idx = (hoverFraction! * (points.length - 1)).round().clamp(0, points.length - 1);
       final dotPt = pt(idx);
 
       // Vertical dashed line
@@ -214,26 +192,14 @@ class _SparklinePainter extends CustomPainter {
       const dashGap = 3.0;
       var y = 0.0;
       while (y < size.height) {
-        canvas.drawLine(
-          Offset(x, y),
-          Offset(x, math.min(y + dashH, size.height)),
-          dashPaint,
-        );
+        canvas.drawLine(Offset(x, y), Offset(x, math.min(y + dashH, size.height)), dashPaint);
         y += dashH + dashGap;
       }
 
       // Dot at the line
       canvas
-        ..drawCircle(
-          dotPt,
-          4,
-          Paint()..color = color,
-        )
-        ..drawCircle(
-          dotPt,
-          2.5,
-          Paint()..color = Colors.white.withValues(alpha: 0.9),
-        );
+        ..drawCircle(dotPt, 4, Paint()..color = color)
+        ..drawCircle(dotPt, 2.5, Paint()..color = Colors.white.withValues(alpha: 0.9));
     }
   }
 

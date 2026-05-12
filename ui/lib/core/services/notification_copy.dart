@@ -7,11 +7,7 @@ import 'package:nox/core/wallet_events/domain/wallet_event.dart';
 ///
 /// `id` is fed to `local_notifier` to coalesce repeats within the OS.
 class NotificationCopy {
-  const NotificationCopy({
-    required this.id,
-    required this.title,
-    required this.body,
-  });
+  const NotificationCopy({required this.id, required this.title, required this.body});
 
   final String id;
   final String title;
@@ -95,11 +91,7 @@ class NotificationCopy {
         final out = tx.outgoing.firstOrNull;
         final inc = tx.incoming.firstOrNull;
         if (out == null || inc == null) {
-          return NotificationCopy(
-            id: 'tx_swap',
-            title: 'Swap completed',
-            body: tx.shortTxHash,
-          );
+          return NotificationCopy(id: 'tx_swap', title: 'Swap completed', body: tx.shortTxHash);
         }
         return NotificationCopy(
           id: 'tx_swap',
@@ -127,11 +119,7 @@ class NotificationCopy {
         );
 
       case TxRole.unknown:
-        return NotificationCopy(
-          id: 'tx_unknown',
-          title: 'New transaction',
-          body: tx.shortTxHash,
-        );
+        return NotificationCopy(id: 'tx_unknown', title: 'New transaction', body: tx.shortTxHash);
     }
   }
 

@@ -9,11 +9,8 @@ class SendUseCase {
 
   Future<GasEstimate> getGasEstimate() => _repository.getGasEstimate();
 
-  Future<TxResult> sendEth(
-    String toAddress,
-    String amount, {
-    GasOverride gas = GasOverride.auto,
-  }) => _repository.sendEth(toAddress, amount, gas: gas);
+  Future<TxResult> sendEth(String toAddress, String amount, {GasOverride gas = GasOverride.auto}) =>
+      _repository.sendEth(toAddress, amount, gas: gas);
 
   Future<TxResult> sendToken(
     String toAddress,

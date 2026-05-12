@@ -202,10 +202,7 @@ class _WordCellState extends State<_WordCell> {
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: borderColor,
-                width: _focused ? 1.5 : 1.0,
-              ),
+              border: Border.all(color: borderColor, width: _focused ? 1.5 : 1.0),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,

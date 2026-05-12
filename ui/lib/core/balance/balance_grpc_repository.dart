@@ -8,13 +8,8 @@ class BalanceGrpcRepository implements BalanceRepository {
 
   @override
   Future<WalletInfo> getWallet() async {
-    final response = await GrpcClient.instance.stub.getWallet(
-      GetWalletRequest(),
-    );
-    return WalletInfo(
-      address: response.wallet.address,
-      label: response.wallet.label,
-    );
+    final response = await GrpcClient.instance.stub.getWallet(GetWalletRequest());
+    return WalletInfo(address: response.wallet.address, label: response.wallet.label);
   }
 
   @override
@@ -29,6 +24,7 @@ class BalanceGrpcRepository implements BalanceRepository {
             address: t.address,
             balance: t.balance,
             usdValue: t.usdValue,
+            logoUrl: t.logoUrl,
           ),
         )
         .toList();
@@ -36,6 +32,7 @@ class BalanceGrpcRepository implements BalanceRepository {
       ethBalance: response.ethBalance,
       tokens: tokens,
       ethUsdValue: response.ethUsdValue,
+      ethLogoUrl: response.ethLogoUrl,
     );
   }
 
@@ -52,9 +49,7 @@ class BalanceGrpcRepository implements BalanceRepository {
 
   @override
   Future<GasStats> getGasStats() async {
-    final response = await GrpcClient.instance.stub.getGasFees(
-      GetGasFeesRequest(),
-    );
+    final response = await GrpcClient.instance.stub.getGasFees(GetGasFeesRequest());
     return GasStats(
       baseFeeGwei: response.fees.baseFeeGwei,
       maxFeeGwei: response.fees.maxFeeGwei,

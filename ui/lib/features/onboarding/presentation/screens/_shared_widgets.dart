@@ -33,19 +33,13 @@ class OnboardingTextField extends StatelessWidget {
       obscureText: obscureText,
       maxLines: obscureText ? 1 : maxLines,
       keyboardType: keyboardType,
-      style: AppTextStyles.bodyMedium.copyWith(
-        color: context.colors.textPrimary,
-      ),
+      style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: AppTextStyles.bodySmall.copyWith(
-          color: context.colors.textSecondary,
-        ),
-        hintStyle: AppTextStyles.bodySmall.copyWith(
-          color: context.colors.textSecondary,
-        ),
+        labelStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
+        hintStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
         filled: false,
         fillColor: context.colors.surface,
         border: OutlineInputBorder(
@@ -68,10 +62,7 @@ class OnboardingTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: context.colors.error, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }
@@ -97,13 +88,9 @@ class OnboardingPrimaryButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: context.colors.primary,
-          disabledBackgroundColor: context.colors.primary.withValues(
-            alpha: 0.4,
-          ),
+          disabledBackgroundColor: context.colors.primary.withValues(alpha: 0.4),
           foregroundColor: context.colors.textPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 0,
         ),
         child: isLoading
@@ -117,9 +104,7 @@ class OnboardingPrimaryButton extends StatelessWidget {
               )
             : Text(
                 label,
-                style: AppTextStyles.labelLarge.copyWith(
-                  color: context.colors.textPrimary,
-                ),
+                style: AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary),
               ),
       ),
     );

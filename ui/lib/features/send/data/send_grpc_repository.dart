@@ -7,9 +7,7 @@ class SendGrpcRepository implements SendRepository {
 
   @override
   Future<GasEstimate> getGasEstimate() async {
-    final response = await GrpcClient.instance.stub.getGasFees(
-      GetGasFeesRequest(),
-    );
+    final response = await GrpcClient.instance.stub.getGasFees(GetGasFeesRequest());
     final fees = response.fees;
     final priceStr = response.ethPriceUsd;
     final ethPrice = priceStr.isEmpty ? null : double.tryParse(priceStr);
@@ -33,10 +31,7 @@ class SendGrpcRepository implements SendRepository {
       ..amount = amount;
     if (!gas.isEmpty) request.gas = _toProto(gas);
     final response = await GrpcClient.instance.stub.sendETH(request);
-    return TxResult(
-      txHash: response.receipt.txHash,
-      success: response.receipt.success,
-    );
+    return TxResult(txHash: response.receipt.txHash, success: response.receipt.success);
   }
 
   @override
@@ -52,10 +47,7 @@ class SendGrpcRepository implements SendRepository {
       ..amount = amount;
     if (!gas.isEmpty) request.gas = _toProto(gas);
     final response = await GrpcClient.instance.stub.sendToken(request);
-    return TxResult(
-      txHash: response.receipt.txHash,
-      success: response.receipt.success,
-    );
+    return TxResult(txHash: response.receipt.txHash, success: response.receipt.success);
   }
 
   GasOptions _toProto(GasOverride g) {

@@ -13,28 +13,15 @@ class _GeneratedWallet implements GeneratedWallet {
   final String mnemonic;
 }
 
-GeneratedWallet createGeneratedWallet({
-  required String address,
-  required String mnemonic,
-}) => _GeneratedWallet(address: address, mnemonic: mnemonic);
+GeneratedWallet createGeneratedWallet({required String address, required String mnemonic}) =>
+    _GeneratedWallet(address: address, mnemonic: mnemonic);
 
 abstract class WalletRepository {
-  Future<GeneratedWallet> generateWallet(
-    String label, {
-    bool wordCount24 = false,
-  });
+  Future<GeneratedWallet> generateWallet(String label, {bool wordCount24 = false});
 
-  Future<void> importMnemonic(
-    String mnemonic,
-    String label, {
-    String derivationPath = '',
-  });
+  Future<void> importMnemonic(String mnemonic, String label, {String derivationPath = ''});
 
   Future<void> importPrivateKey(String privateKeyHex, String label);
 
-  Future<void> importKeystore(
-    List<int> keystoreJson,
-    String passphrase,
-    String label,
-  );
+  Future<void> importKeystore(List<int> keystoreJson, String passphrase, String label);
 }

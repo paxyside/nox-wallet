@@ -1,11 +1,7 @@
 import 'package:nox/core/balance/balance_repository.dart';
 
 class HomeState {
-  const HomeState({
-    required this.walletInfo,
-    required this.balanceData,
-    required this.gasStats,
-  });
+  const HomeState({required this.walletInfo, required this.balanceData, required this.gasStats});
 
   final WalletInfo walletInfo;
   final BalanceData balanceData;

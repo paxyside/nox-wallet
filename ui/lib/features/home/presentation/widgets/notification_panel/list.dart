@@ -80,10 +80,7 @@ class _IconBlock extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
             child: Icon(icon, size: 16, color: color),
           ),
           if (isUnread)
@@ -169,11 +166,7 @@ class _TextBlock extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             subtitle,
-            style: TextStyle(
-              fontSize: 12.5,
-              color: colors.textSecondary,
-              height: 1.3,
-            ),
+            style: TextStyle(fontSize: 12.5, color: colors.textSecondary, height: 1.3),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -181,11 +174,7 @@ class _TextBlock extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           timeAgo(ts),
-          style: TextStyle(
-            fontSize: 11.5,
-            color: colors.textDisabled,
-            height: 1.2,
-          ),
+          style: TextStyle(fontSize: 11.5, color: colors.textDisabled, height: 1.2),
         ),
       ],
     );
@@ -207,11 +196,7 @@ class _Trailing extends StatelessWidget {
         final e = event.gasAlert!;
         return Text(
           '${e.currentGwei} Gwei',
-          style: TextStyle(
-            fontSize: 11,
-            color: colors.warning,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(fontSize: 11, color: colors.warning, fontWeight: FontWeight.w600),
         );
       case WalletEventKind.lowBalance:
         return const SizedBox.shrink();
@@ -231,20 +216,12 @@ class _Trailing extends StatelessWidget {
             if (out != null)
               Text(
                 '-${formatAmount(out.amount)} ${out.displaySymbol}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: colors.error,
-                ),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: colors.error),
               ),
             if (inc != null)
               Text(
                 '+${formatAmount(inc.amount)} ${inc.displaySymbol}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: colors.success,
-                ),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: colors.success),
               ),
           ],
         );
@@ -269,11 +246,7 @@ class _Trailing extends StatelessWidget {
         if (out == null) return const SizedBox.shrink();
         return Text(
           '${formatAmount(out.amount)} ${out.displaySymbol}',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: colors.textSecondary,
-          ),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: colors.textSecondary),
         );
       case TxRole.approve:
       case TxRole.unknown:

@@ -35,8 +35,9 @@ class TokenApproval {
   /// Pre-formatted amount: "Unlimited" or "12.34 USDC".
   final String amountHuman;
 
-  /// CDN logo URL from Alchemy's token metadata (empty when not on file —
-  /// UI falls back to a letter avatar).
+  /// Logo URL stamped by the backend from the embedded Uniswap
+  /// Default Token List. Empty for unverified contracts — UI falls
+  /// back to a letter avatar.
   final String tokenLogoUrl;
 
   /// Stable identity for ListView keys.

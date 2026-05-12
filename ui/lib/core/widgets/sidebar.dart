@@ -31,10 +31,7 @@ class Sidebar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ── Logo header ──────────────────────────────────────────────
-            SizedBox(
-              height: _headerHeight,
-              child: _SidebarHeader(),
-            ),
+            SizedBox(height: _headerHeight, child: _SidebarHeader()),
 
             const SizedBox(height: 8),
 
@@ -136,10 +133,7 @@ class _SidebarHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          Text(
-            'Nox Wallet',
-            style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
-          ),
+          Text('Nox Wallet', style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary)),
         ],
       ),
     );
@@ -197,14 +191,8 @@ class _NavItemState extends State<_NavItem> {
                         context.colors.primary.withValues(alpha: 0.08),
                       ]
                     : _hovered
-                    ? [
-                        context.colors.surfaceHigh,
-                        context.colors.surfaceHigh,
-                      ]
-                    : [
-                        Colors.transparent,
-                        Colors.transparent,
-                      ],
+                    ? [context.colors.surfaceHigh, context.colors.surfaceHigh]
+                    : [Colors.transparent, Colors.transparent],
               ),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
@@ -234,10 +222,7 @@ class _NavItemState extends State<_NavItem> {
                     ),
                   ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 14,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                   child: Row(
                     children: [
                       Icon(widget.icon, size: 22, color: fg),
@@ -288,10 +273,8 @@ class _BottomIconRow extends ConsumerWidget {
           _IconBtn(
             icon: Icons.help_outline_rounded,
             tooltip: 'About',
-            onTap: () => showAppDialog<void>(
-              context: context,
-              builder: (_) => const AppAboutDialog(),
-            ),
+            onTap: () =>
+                showAppDialog<void>(context: context, builder: (_) => const AppAboutDialog()),
           ),
           _IconBtn(
             icon: isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
@@ -305,11 +288,7 @@ class _BottomIconRow extends ConsumerWidget {
 }
 
 class _IconBtn extends StatefulWidget {
-  const _IconBtn({
-    required this.icon,
-    required this.tooltip,
-    required this.onTap,
-  });
+  const _IconBtn({required this.icon, required this.tooltip, required this.onTap});
 
   final IconData icon;
   final String tooltip;

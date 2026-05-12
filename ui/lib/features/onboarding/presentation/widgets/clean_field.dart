@@ -69,10 +69,7 @@ class _CleanFieldState extends State<CleanField> {
               decoration: BoxDecoration(
                 color: context.colors.surface,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: borderColor,
-                  width: _focused ? 1.5 : 1.0,
-                ),
+                border: Border.all(color: borderColor, width: _focused ? 1.5 : 1.0),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
               child: Stack(
@@ -80,9 +77,7 @@ class _CleanFieldState extends State<CleanField> {
                   if (widget.controller.text.isEmpty)
                     Text(
                       widget.hint,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.colors.textDisabled,
-                      ),
+                      style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textDisabled),
                     ),
                   EditableText(
                     controller: widget.controller,
@@ -93,9 +88,7 @@ class _CleanFieldState extends State<CleanField> {
                             fontFamily: 'monospace',
                             color: context.colors.textPrimary,
                           )
-                        : AppTextStyles.bodyMedium.copyWith(
-                            color: context.colors.textPrimary,
-                          ),
+                        : AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
                     cursorColor: context.colors.primary,
                     backgroundCursorColor: Colors.transparent,
                   ),
@@ -108,9 +101,7 @@ class _CleanFieldState extends State<CleanField> {
           const SizedBox(height: 5),
           Text(
             widget.errorText!,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: context.colors.error,
-            ),
+            style: AppTextStyles.bodySmall.copyWith(color: context.colors.error),
           ),
         ],
       ],

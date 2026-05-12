@@ -20,10 +20,7 @@ class WalletEventsGrpcRepository implements WalletEventsRepository {
         final stream = stub.watchEvents(WatchEventsRequest());
         await for (final env in stream) {
           if (!env.hasEvent()) continue;
-          yield _eventFromProto(env.event).copyWith(
-            id: env.id,
-            isRead: env.isRead,
-          );
+          yield _eventFromProto(env.event).copyWith(id: env.id, isRead: env.isRead);
         }
       } on Object catch (_) {
         // Stream ended or backend restarted — wait and reconnect.
@@ -50,7 +47,7 @@ WalletEvent _eventFromProto($pb.WalletEvent proto) {
     return WalletEvent(
       kind: WalletEventKind.gasAlert,
       gasAlert: GasAlertEvent(
-        isSpike: p.type == $pb.GasAlertEvent_AlertType.SPIKE,
+        isSpike: p.type == $pb.GasAlertEvent_AlertType.ALERT_TYPE_SPIKE,
         currentGwei: p.currentGwei,
         previousGwei: p.previousGwei,
       ),
@@ -60,10 +57,7 @@ WalletEvent _eventFromProto($pb.WalletEvent proto) {
     final p = proto.lowBalance;
     return WalletEvent(
       kind: WalletEventKind.lowBalance,
-      lowBalance: LowBalanceEvent(
-        ethBalance: p.ethBalance,
-        ethBalanceWei: p.ethBalanceWei,
-      ),
+      lowBalance: LowBalanceEvent(ethBalance: p.ethBalance, ethBalanceWei: p.ethBalanceWei),
     );
   }
   if (proto.hasTransaction()) {
@@ -112,21 +106,21 @@ TransactionEvent _transactionFromProto($pb.TransactionEvent p) {
 
 TxRole _roleFromProto($pb.TransactionEvent_Role r) {
   switch (r) {
-    case $pb.TransactionEvent_Role.SEND_ETH:
+    case $pb.TransactionEvent_Role.ROLE_SEND_ETH:
       return TxRole.sendEth;
-    case $pb.TransactionEvent_Role.RECEIVE_ETH:
+    case $pb.TransactionEvent_Role.ROLE_RECEIVE_ETH:
       return TxRole.receiveEth;
-    case $pb.TransactionEvent_Role.SEND_TOKEN:
+    case $pb.TransactionEvent_Role.ROLE_SEND_TOKEN:
       return TxRole.sendToken;
-    case $pb.TransactionEvent_Role.RECEIVE_TOKEN:
+    case $pb.TransactionEvent_Role.ROLE_RECEIVE_TOKEN:
       return TxRole.receiveToken;
-    case $pb.TransactionEvent_Role.SWAP:
+    case $pb.TransactionEvent_Role.ROLE_SWAP:
       return TxRole.swap;
-    case $pb.TransactionEvent_Role.SELF_TRANSFER:
+    case $pb.TransactionEvent_Role.ROLE_SELF_TRANSFER:
       return TxRole.selfTransfer;
-    case $pb.TransactionEvent_Role.APPROVE:
+    case $pb.TransactionEvent_Role.ROLE_APPROVE:
       return TxRole.approve;
-    case $pb.TransactionEvent_Role.UNKNOWN:
+    case $pb.TransactionEvent_Role.ROLE_UNSPECIFIED:
       return TxRole.unknown;
   }
   return TxRole.unknown;

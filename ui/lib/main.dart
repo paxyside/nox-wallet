@@ -9,6 +9,7 @@ import 'package:nox/core/services/app_icon_service.dart';
 import 'package:nox/core/services/notification_history_provider.dart';
 import 'package:nox/core/services/notification_service.dart';
 import 'package:nox/core/services/notification_settings_provider.dart';
+import 'package:nox/core/services/update_service.dart';
 import 'package:nox/core/state/auth_provider.dart';
 import 'package:nox/core/state/wallet_address_provider.dart';
 import 'package:nox/core/theme/app_theme.dart';
@@ -101,6 +102,13 @@ Future<void> main() async {
   GrpcClient.instance.init();
   await NotificationService.instance.init();
 
+  // ── Sparkle auto-update ──────────────────────────────────────────────────
+  // Fire-and-forget. UpdateService internally guards on platform and
+  // swallows errors, so a misconfigured appcast / network glitch never
+  // blocks app startup. The first scheduled check fires on Sparkle's
+  // background queue per the interval baked into Info.plist.
+  unawaited(UpdateService.init());
+
   runApp(const ProviderScope(child: WalletApp()));
 }
 
@@ -154,45 +162,41 @@ class _WalletAppState extends ConsumerState<WalletApp> with TrayListener, Window
 
   void _watchWalletExistence() {
     bool? lastExists;
-    _walletExistsSub = ref.listenManual<AsyncValue<bool>>(
-      walletExistsProvider,
-      (prev, next) {
-        next.whenData((exists) {
-          if (lastExists == exists) return;
-          final wasExists = lastExists;
-          lastExists = exists;
-          _invalidateWalletScoped();
+    _walletExistsSub = ref.listenManual<AsyncValue<bool>>(walletExistsProvider, (prev, next) {
+      next.whenData((exists) {
+        if (lastExists == exists) return;
+        final wasExists = lastExists;
+        lastExists = exists;
+        _invalidateWalletScoped();
 
-          // Going false→true means a brand-new wallet was just imported.
-          // The backend kicks off an Alchemy sync that takes a few seconds
-          // before ERC-20 tokens appear in the DB and history is populated.
-          // The first invalidation above lands on still-empty data and the
-          // keepAlive providers cache the empty list. We schedule a couple
-          // of retries to catch the moment the seed actually completes.
-          if (wasExists == false && exists) {
-            // Importing/generating a wallet is itself proof of identity —
-            // the user just supplied a mnemonic / private key / keystore
-            // passphrase. Skip the post-startup Touch ID prompt that would
-            // otherwise immediately greet them on the way back to the home
-            // screen.
-            ref.read(isUnlockedProvider.notifier).unlock();
-            for (final delay in const [
-              Duration(seconds: 2),
-              Duration(seconds: 5),
-              Duration(seconds: 10),
-              Duration(seconds: 20),
-              Duration(seconds: 30),
-            ]) {
-              Future.delayed(delay, () {
-                if (!mounted) return;
-                _invalidateWalletScoped();
-              });
-            }
+        // Going false→true means a brand-new wallet was just imported.
+        // The backend kicks off an Alchemy sync that takes a few seconds
+        // before ERC-20 tokens appear in the DB and history is populated.
+        // The first invalidation above lands on still-empty data and the
+        // keepAlive providers cache the empty list. We schedule a couple
+        // of retries to catch the moment the seed actually completes.
+        if (wasExists == false && exists) {
+          // Importing/generating a wallet is itself proof of identity —
+          // the user just supplied a mnemonic / private key / keystore
+          // passphrase. Skip the post-startup Touch ID prompt that would
+          // otherwise immediately greet them on the way back to the home
+          // screen.
+          ref.read(isUnlockedProvider.notifier).unlock();
+          for (final delay in const [
+            Duration(seconds: 2),
+            Duration(seconds: 5),
+            Duration(seconds: 10),
+            Duration(seconds: 20),
+            Duration(seconds: 30),
+          ]) {
+            Future.delayed(delay, () {
+              if (!mounted) return;
+              _invalidateWalletScoped();
+            });
           }
-        });
-      },
-      fireImmediately: true,
-    );
+        }
+      });
+    }, fireImmediately: true);
   }
 
   void _invalidateWalletScoped() {
@@ -218,32 +222,26 @@ class _WalletAppState extends ConsumerState<WalletApp> with TrayListener, Window
   ProviderSubscription<AsyncValue<WalletEvent>>? _watcherSub;
 
   void _startWatcher() {
-    _watcherSub = ref.listenManual<AsyncValue<WalletEvent>>(
-      walletEventsProvider,
-      (prev, next) {
-        next.whenData((event) {
-          // Refresh balances on any chain-state change.
-          if (event.kind == WalletEventKind.transaction) {
-            ref
-              ..invalidate(homeDataProvider)
-              ..invalidate(tokensNotifierProvider);
-          }
+    _watcherSub = ref.listenManual<AsyncValue<WalletEvent>>(walletEventsProvider, (prev, next) {
+      next.whenData((event) {
+        // Refresh balances on any chain-state change.
+        if (event.kind == WalletEventKind.transaction) {
+          ref
+            ..invalidate(homeDataProvider)
+            ..invalidate(tokensNotifierProvider);
+        }
 
-          // OS notification — gated by the user's notification
-          // settings (toasts on/off, mute system, play sound). Falls
-          // back to defaults if the controller hasn't hydrated yet so
-          // events that arrive in the first second after launch still
-          // get surfaced rather than silently dropped.
-          final settings =
-              ref.read(notificationSettingsCtrlProvider).valueOrNull ??
-              const NotificationSettings.defaults();
-          unawaited(
-            NotificationService.instance.notify(event, settings: settings),
-          );
-        });
-      },
-      fireImmediately: false,
-    );
+        // OS notification — gated by the user's notification
+        // settings (toasts on/off, mute system, play sound). Falls
+        // back to defaults if the controller hasn't hydrated yet so
+        // events that arrive in the first second after launch still
+        // get surfaced rather than silently dropped.
+        final settings =
+            ref.read(notificationSettingsCtrlProvider).valueOrNull ??
+            const NotificationSettings.defaults();
+        unawaited(NotificationService.instance.notify(event, settings: settings));
+      });
+    }, fireImmediately: false);
   }
 
   // ── Tray events ──────────────────────────────────────────────────────────
@@ -302,10 +300,7 @@ class _WalletAppState extends ConsumerState<WalletApp> with TrayListener, Window
   Future<void> _showMini() async {
     ref.read(isMiniModeProvider.notifier).enter();
 
-    await windowManager.setTitleBarStyle(
-      TitleBarStyle.hidden,
-      windowButtonVisibility: false,
-    );
+    await windowManager.setTitleBarStyle(TitleBarStyle.hidden, windowButtonVisibility: false);
     await windowManager.setSize(_miniSize);
 
     // Position just below tray icon (top-right corner).
@@ -317,9 +312,7 @@ class _WalletAppState extends ConsumerState<WalletApp> with TrayListener, Window
     } else {
       // Fallback: position in top-right of screen.
       final display = await windowManager.getBounds();
-      await windowManager.setPosition(
-        Offset(display.right - _miniSize.width - 16, 32),
-      );
+      await windowManager.setPosition(Offset(display.right - _miniSize.width - 16, 32));
     }
 
     await windowManager.show();
@@ -329,10 +322,7 @@ class _WalletAppState extends ConsumerState<WalletApp> with TrayListener, Window
   Future<void> _openFull() async {
     ref.read(isMiniModeProvider.notifier).exit();
 
-    await windowManager.setTitleBarStyle(
-      TitleBarStyle.normal,
-      windowButtonVisibility: true,
-    );
+    await windowManager.setTitleBarStyle(TitleBarStyle.normal, windowButtonVisibility: true);
     await windowManager.setMinimumSize(_fullSize);
     await windowManager.setMaximumSize(_fullSize);
     await windowManager.setSize(_fullSize);

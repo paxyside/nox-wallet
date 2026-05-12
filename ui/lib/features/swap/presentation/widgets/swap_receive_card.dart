@@ -67,10 +67,7 @@ class _SwapReceiveCardState extends ConsumerState<SwapReceiveCard> {
       builder: (_) => Stack(
         children: [
           Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _closeSelector,
-            ),
+            child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: _closeSelector),
           ),
           CompositedTransformFollower(
             link: _selectorLink,
@@ -110,9 +107,7 @@ class _SwapReceiveCardState extends ConsumerState<SwapReceiveCard> {
     final borderColor = _selectorOpen
         ? context.colors.primary.withValues(alpha: 0.55)
         : context.colors.border;
-    final quoting = ref.watch(
-      swapNotifierProvider.select((st) => st.status == SwapStatus.quoting),
-    );
+    final quoting = ref.watch(swapNotifierProvider.select((st) => st.status == SwapStatus.quoting));
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
@@ -195,19 +190,12 @@ class _SwapReceiveCardState extends ConsumerState<SwapReceiveCard> {
                       onTap: _toggleSelector,
                       behavior: HitTestBehavior.opaque,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (s != null) ...[
-                              TokenIcon(
-                                symbol: s.symbol,
-                                address: s.tokenAddress,
-                                size: 22,
-                              ),
+                              TokenIcon(symbol: s.symbol, logoUrl: s.logoUrl, size: 22),
                               const SizedBox(width: 8),
                               Text(
                                 s.symbol,
@@ -261,9 +249,7 @@ class _SwapReceiveCardState extends ConsumerState<SwapReceiveCard> {
                     const SizedBox(width: 5),
                     MaskableText(
                       _fmtBalance(s),
-                      style: AppTextStyles.monoSmall.copyWith(
-                        color: context.colors.textDisabled,
-                      ),
+                      style: AppTextStyles.monoSmall.copyWith(color: context.colors.textDisabled),
                     ),
                   ],
                 ),

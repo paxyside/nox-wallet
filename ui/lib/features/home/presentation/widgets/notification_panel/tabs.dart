@@ -35,11 +35,7 @@ class _TabBar extends StatelessWidget {
 }
 
 class _TabPill extends StatefulWidget {
-  const _TabPill({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _TabPill({required this.label, required this.isSelected, required this.onTap});
 
   final String label;
   final bool isSelected;

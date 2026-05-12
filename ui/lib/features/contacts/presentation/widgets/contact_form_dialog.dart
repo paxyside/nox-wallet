@@ -94,10 +94,7 @@ class _ContactFormDialogState extends ConsumerState<ContactFormDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  _isEdit ? 'Edit Contact' : 'Add Contact',
-                  style: AppTextStyles.h3,
-                ),
+                Text(_isEdit ? 'Edit Contact' : 'Add Contact', style: AppTextStyles.h3),
                 const SizedBox(height: 24),
                 _FormField(
                   label: 'Name',
@@ -135,9 +132,7 @@ class _ContactFormDialogState extends ConsumerState<ContactFormDialog> {
                   children: [
                     TextButton(
                       onPressed: _loading ? null : () => Navigator.of(context).pop(false),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.textSecondary,
-                      ),
+                      style: TextButton.styleFrom(foregroundColor: AppColors.textSecondary),
                       child: const Text('Cancel'),
                     ),
                     const SizedBox(width: 12),
@@ -146,9 +141,7 @@ class _ContactFormDialogState extends ConsumerState<ContactFormDialog> {
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.textPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       child: _loading
                           ? const SizedBox(
@@ -201,9 +194,7 @@ class _FormField extends StatelessWidget {
           style: AppTextStyles.bodyMedium,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textDisabled,
-            ),
+            hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDisabled),
             filled: false,
             fillColor: AppColors.surfaceHigh,
             border: OutlineInputBorder(
@@ -216,10 +207,7 @@ class _FormField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppColors.primary,
-                width: 1.5,
-              ),
+              borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
@@ -229,10 +217,7 @@ class _FormField extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(color: AppColors.error, width: 1.5),
             ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           ),
         ),
       ],

@@ -116,10 +116,7 @@ class _AmountCardState extends State<AmountCard> {
       builder: (_) => Stack(
         children: [
           Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _closeSelector,
-            ),
+            child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: _closeSelector),
           ),
           CompositedTransformFollower(
             link: _selectorLink,
@@ -170,12 +167,7 @@ class _AmountCardState extends State<AmountCard> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: borderColor),
         boxShadow: (_focused || widget.hasError || _selectorOpen)
-            ? [
-                BoxShadow(
-                  color: borderColor.withValues(alpha: 0.12),
-                  blurRadius: 6,
-                ),
-              ]
+            ? [BoxShadow(color: borderColor.withValues(alpha: 0.12), blurRadius: 6)]
             : null,
       ),
       child: ClipRRect(
@@ -207,9 +199,7 @@ class _AmountCardState extends State<AmountCard> {
                     controller: widget.controller,
                     focusNode: _focus,
                     enabled: !widget.locked,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     style: AppTextStyles.mono.copyWith(
                       color: context.colors.textPrimary,
                       fontSize: 22,
@@ -250,19 +240,12 @@ class _AmountCardState extends State<AmountCard> {
                       onTap: _toggleSelector,
                       behavior: HitTestBehavior.opaque,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (s != null) ...[
-                              TokenIcon(
-                                symbol: s.symbol,
-                                address: s.tokenAddress,
-                                size: 22,
-                              ),
+                              TokenIcon(symbol: s.symbol, logoUrl: s.logoUrl, size: 22),
                               const SizedBox(width: 8),
                               Text(
                                 s.symbol,
@@ -317,9 +300,7 @@ class _AmountCardState extends State<AmountCard> {
                     const SizedBox(width: 5),
                     MaskableText(
                       _fmtBalance(s),
-                      style: AppTextStyles.monoSmall.copyWith(
-                        color: context.colors.textDisabled,
-                      ),
+                      style: AppTextStyles.monoSmall.copyWith(color: context.colors.textDisabled),
                     ),
                   ],
                   const Spacer(),
@@ -331,11 +312,7 @@ class _AmountCardState extends State<AmountCard> {
                     ),
                   ],
                   const SizedBox(width: 5),
-                  _PctButton(
-                    label: 'MAX',
-                    isMax: true,
-                    onTap: widget.onMaxPressed,
-                  ),
+                  _PctButton(label: 'MAX', isMax: true, onTap: widget.onMaxPressed),
                 ],
               ),
             ),
@@ -351,11 +328,7 @@ class _AmountCardState extends State<AmountCard> {
 // ---------------------------------------------------------------------------
 
 class _PctButton extends StatefulWidget {
-  const _PctButton({
-    required this.label,
-    required this.onTap,
-    this.isMax = false,
-  });
+  const _PctButton({required this.label, required this.onTap, this.isMax = false});
   final String label;
   final VoidCallback? onTap;
   final bool isMax;

@@ -9,9 +9,7 @@ class ContactGrpcRepository implements ContactRepository {
 
   @override
   Future<List<Contact>> list() async {
-    final response = await GrpcClient.instance.stub.listContacts(
-      ListContactsRequest(),
-    );
+    final response = await GrpcClient.instance.stub.listContacts(ListContactsRequest());
     return response.contacts.map(_fromProto).toList();
   }
 
@@ -26,12 +24,7 @@ class ContactGrpcRepository implements ContactRepository {
   }
 
   @override
-  Future<Contact> update(
-    String id,
-    String name,
-    String address,
-    String note,
-  ) async {
+  Future<Contact> update(String id, String name, String address, String note) async {
     final request = UpdateContactRequest()
       ..id = id
       ..name = name
@@ -52,9 +45,7 @@ class ContactGrpcRepository implements ContactRepository {
 
   @override
   Future<void> delete(String id) async {
-    await GrpcClient.instance.stub.deleteContact(
-      DeleteContactRequest()..id = id,
-    );
+    await GrpcClient.instance.stub.deleteContact(DeleteContactRequest()..id = id);
   }
 
   Contact _fromProto($contactpb.Contact proto) => Contact(
@@ -64,9 +55,7 @@ class ContactGrpcRepository implements ContactRepository {
     note: proto.note,
     isFavorite: proto.isFavorite,
     createdAt: proto.hasCreatedAt()
-        ? DateTime.fromMillisecondsSinceEpoch(
-            proto.createdAt.seconds.toInt() * 1000,
-          )
+        ? DateTime.fromMillisecondsSinceEpoch(proto.createdAt.seconds.toInt() * 1000)
         : DateTime.fromMillisecondsSinceEpoch(0),
   );
 }

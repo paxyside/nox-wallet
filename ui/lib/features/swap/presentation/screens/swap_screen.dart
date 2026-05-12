@@ -59,23 +59,20 @@ class _SwapScreenState extends ConsumerState<SwapScreen> {
     // Auto-scroll the form to its bottom when the user picks Custom — the
     // expanded Priority/Max inputs would otherwise be tucked under the
     // pinned Preview button. Triggered on tier-change transitions.
-    ref.listen<GasTier>(
-      swapNotifierProvider.select((s) => s.gasTier),
-      (prev, next) {
-        if (prev != next && next == GasTier.custom) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!_scroll.hasClients) return;
-            unawaited(
-              _scroll.animateTo(
-                _scroll.position.maxScrollExtent,
-                duration: const Duration(milliseconds: 280),
-                curve: Curves.easeOutCubic,
-              ),
-            );
-          });
-        }
-      },
-    );
+    ref.listen<GasTier>(swapNotifierProvider.select((s) => s.gasTier), (prev, next) {
+      if (prev != next && next == GasTier.custom) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!_scroll.hasClients) return;
+          unawaited(
+            _scroll.animateTo(
+              _scroll.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 280),
+              curve: Curves.easeOutCubic,
+            ),
+          );
+        });
+      }
+    });
 
     SwapAsset? assetFor(String address) {
       if (address.isEmpty) return null;
@@ -109,9 +106,7 @@ class _SwapScreenState extends ConsumerState<SwapScreen> {
                         // ── Scrollable form area ───────────────────────────
                         Expanded(
                           child: ScrollConfiguration(
-                            behavior: ScrollConfiguration.of(
-                              context,
-                            ).copyWith(scrollbars: false),
+                            behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
                             child: SingleChildScrollView(
                               controller: _scroll,
                               padding: const EdgeInsets.fromLTRB(28, 18, 28, 6),
@@ -133,10 +128,7 @@ class _SwapScreenState extends ConsumerState<SwapScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 10),
-                                  Divider(
-                                    height: 1,
-                                    color: context.colors.border,
-                                  ),
+                                  Divider(height: 1, color: context.colors.border),
                                   const SizedBox(height: 12),
 
                                   // Form
@@ -233,11 +225,7 @@ class _SwapScreenState extends ConsumerState<SwapScreen> {
 // ---------------------------------------------------------------------------
 
 class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.state,
-    required this.onQuote,
-    required this.onPreview,
-  });
+  const _ActionButton({required this.state, required this.onQuote, required this.onPreview});
 
   final SwapState state;
   final VoidCallback onQuote;
@@ -269,19 +257,14 @@ class _ActionButton extends StatelessWidget {
       style: FilledButton.styleFrom(
         backgroundColor: bg,
         disabledBackgroundColor: context.colors.primary.withValues(alpha: 0.25),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         elevation: 0,
       ),
       child: isLoading
           ? SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: context.colors.textPrimary,
-              ),
+              child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.textPrimary),
             )
           : Row(
               mainAxisSize: MainAxisSize.min,
@@ -367,11 +350,7 @@ class _RateBanner extends StatelessWidget {
               ),
             )
           else
-            Icon(
-              Icons.check_circle_outline_rounded,
-              size: 14,
-              color: context.colors.success,
-            ),
+            Icon(Icons.check_circle_outline_rounded, size: 14, color: context.colors.success),
           const SizedBox(width: 8),
           Text(
             _rateLabel,
@@ -407,18 +386,12 @@ class _ErrorBanner extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         child: Row(
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 16,
-              color: context.colors.error,
-            ),
+            Icon(Icons.error_outline_rounded, size: 16, color: context.colors.error),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
                 message,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.colors.error,
-                ),
+                style: AppTextStyles.bodySmall.copyWith(color: context.colors.error),
               ),
             ),
           ],

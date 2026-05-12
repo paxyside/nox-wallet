@@ -54,10 +54,7 @@ class _RevealSecretDialogState extends ConsumerState<RevealSecretDialog> {
 
       return await auth.authenticate(
         localizedReason: 'Confirm to reveal your secret phrase',
-        options: const AuthenticationOptions(
-          biometricOnly: false,
-          stickyAuth: true,
-        ),
+        options: const AuthenticationOptions(biometricOnly: false, stickyAuth: true),
       );
     } on Object {
       return false;
@@ -139,18 +136,12 @@ class _WarningView extends StatelessWidget {
                 color: context.colors.error.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.warning_amber_rounded,
-                color: context.colors.error,
-                size: 20,
-              ),
+              child: Icon(Icons.warning_amber_rounded, color: context.colors.error, size: 20),
             ),
             const SizedBox(width: 12),
             Text(
               'Reveal Secret Phrase',
-              style: AppTextStyles.h3.copyWith(
-                color: context.colors.textPrimary,
-              ),
+              style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
             ),
           ],
         ),
@@ -163,27 +154,16 @@ class _WarningView extends StatelessWidget {
           decoration: BoxDecoration(
             color: context.colors.error.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: context.colors.error.withValues(alpha: 0.3),
-            ),
+            border: Border.all(color: context.colors.error.withValues(alpha: 0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _BulletItem(
-                'Never share your secret phrase with anyone.',
-                context,
-              ),
+              _BulletItem('Never share your secret phrase with anyone.', context),
               const SizedBox(height: 6),
-              _BulletItem(
-                'Anyone with this phrase can steal all your funds.',
-                context,
-              ),
+              _BulletItem('Anyone with this phrase can steal all your funds.', context),
               const SizedBox(height: 6),
-              _BulletItem(
-                'Paxy will never ask you for it.',
-                context,
-              ),
+              _BulletItem('Paxy will never ask you for it.', context),
             ],
           ),
         ),
@@ -198,9 +178,7 @@ class _WarningView extends StatelessWidget {
               onPressed: loading ? null : onCancel,
               child: Text(
                 'Cancel',
-                style: AppTextStyles.labelLarge.copyWith(
-                  color: context.colors.textSecondary,
-                ),
+                style: AppTextStyles.labelLarge.copyWith(color: context.colors.textSecondary),
               ),
             ),
             const SizedBox(width: 10),
@@ -220,9 +198,7 @@ class _WarningView extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: context.colors.error,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 textStyle: AppTextStyles.labelLarge,
               ),
             ),
@@ -243,17 +219,9 @@ class _BulletItem extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '• ',
-          style: AppTextStyles.bodySmall.copyWith(color: context.colors.error),
-        ),
+        Text('• ', style: AppTextStyles.bodySmall.copyWith(color: context.colors.error)),
         Expanded(
-          child: Text(
-            text,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: context.colors.error,
-            ),
-          ),
+          child: Text(text, style: AppTextStyles.bodySmall.copyWith(color: context.colors.error)),
         ),
       ],
     );
@@ -285,10 +253,7 @@ class _SecretView extends StatelessWidget {
   Future<void> _copy(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: secret));
     if (context.mounted) {
-      AppSnackBar.success(
-        context,
-        _isMnemonic ? 'Seed phrase copied.' : 'Private key copied.',
-      );
+      AppSnackBar.success(context, _isMnemonic ? 'Seed phrase copied.' : 'Private key copied.');
     }
   }
 
@@ -308,18 +273,12 @@ class _SecretView extends StatelessWidget {
                 color: context.colors.success.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.key_rounded,
-                color: context.colors.success,
-                size: 20,
-              ),
+              child: Icon(Icons.key_rounded, color: context.colors.success, size: 20),
             ),
             const SizedBox(width: 12),
             Text(
               _isMnemonic ? 'Seed Phrase' : 'Private Key',
-              style: AppTextStyles.h3.copyWith(
-                color: context.colors.textPrimary,
-              ),
+              style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
             ),
           ],
         ),
@@ -388,9 +347,7 @@ class _SecretView extends StatelessWidget {
             onTap: onToggle,
             child: Text(
               'Click to hide',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.textDisabled,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
             ),
           ),
 
@@ -407,9 +364,7 @@ class _SecretView extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 foregroundColor: context.colors.textSecondary,
                 side: BorderSide(color: context.colors.border),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 textStyle: AppTextStyles.labelLarge,
               ),
             ),
@@ -419,9 +374,7 @@ class _SecretView extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: context.colors.primary,
                 foregroundColor: context.colors.textPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 textStyle: AppTextStyles.labelLarge,
               ),
               child: const Text('Done'),
@@ -480,9 +433,7 @@ class _WordColumn extends StatelessWidget {
                   width: 24,
                   child: Text(
                     '${startIndex + i}.',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: context.colors.textDisabled,
-                    ),
+                    style: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
                   ),
                 ),
                 const SizedBox(width: 4),

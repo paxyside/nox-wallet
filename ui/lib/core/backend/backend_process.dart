@@ -26,11 +26,12 @@ class BackendProcess {
 
     debugPrint('[BackendProcess] starting $binary');
 
-    _process = await Process.start(
-      binary,
-      ['--config', config, '--data-dir', dataDir],
-      mode: ProcessStartMode.normal,
-    );
+    _process = await Process.start(binary, [
+      '--config',
+      config,
+      '--data-dir',
+      dataDir,
+    ], mode: ProcessStartMode.normal);
 
     if (kDebugMode) {
       _process!.stdout
@@ -89,9 +90,7 @@ class BackendProcess {
   static String _findConfig() {
     // Production: config.yaml bundled in Contents/Resources/.
     final execDir = File(Platform.resolvedExecutable).parent.path;
-    final resourcesConfig = p.normalize(
-      p.join(execDir, '..', 'Resources', 'config.yaml'),
-    );
+    final resourcesConfig = p.normalize(p.join(execDir, '..', 'Resources', 'config.yaml'));
     if (File(resourcesConfig).existsSync()) return resourcesConfig;
 
     // Dev fallback: walk up to find <project-root>/config.yaml.
@@ -111,9 +110,7 @@ class BackendProcess {
 
   static Future<String> _ensureDataDir() async {
     final home = Platform.environment['HOME'] ?? '/tmp';
-    final dir = Directory(
-      p.join(home, 'Library', 'Application Support', 'WalletApp'),
-    );
+    final dir = Directory(p.join(home, 'Library', 'Application Support', 'WalletApp'));
     if (!dir.existsSync()) await dir.create(recursive: true);
     return dir.path;
   }

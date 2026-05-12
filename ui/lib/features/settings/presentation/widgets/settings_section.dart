@@ -8,15 +8,8 @@ import 'package:nox/core/theme/app_text_styles.dart';
 /// Supply either [value] (displays read-only text) or [trailing]
 /// (a custom widget, e.g. a button or badge).
 class SettingsRow {
-  const SettingsRow({
-    required this.label,
-    this.subtitle,
-    this.value,
-    this.trailing,
-  }) : assert(
-         value != null || trailing != null,
-         'Provide either value or trailing',
-       );
+  const SettingsRow({required this.label, this.subtitle, this.value, this.trailing})
+    : assert(value != null || trailing != null, 'Provide either value or trailing');
 
   final String label;
   final String? subtitle;
@@ -27,12 +20,7 @@ class SettingsRow {
 /// A titled section card containing a list of [SettingsRow]s separated by
 /// subtle dividers.
 class SettingsSection extends StatelessWidget {
-  const SettingsSection({
-    required this.title,
-    required this.rows,
-    super.key,
-    this.titleColor,
-  });
+  const SettingsSection({required this.title, required this.rows, super.key, this.titleColor});
 
   final String title;
   final List<SettingsRow> rows;
@@ -106,17 +94,13 @@ class _SettingsRowTile extends StatelessWidget {
             children: [
               Text(
                 row.label,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: context.colors.textPrimary,
-                ),
+                style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
               ),
               if (row.subtitle != null) ...[
                 const SizedBox(height: 2),
                 Text(
                   row.subtitle!,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: context.colors.textDisabled,
-                  ),
+                  style: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
                 ),
               ],
             ],
@@ -132,9 +116,7 @@ class _SettingsRowTile extends StatelessWidget {
                   row.trailing ??
                   Text(
                     row.value ?? '',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     textAlign: TextAlign.right,

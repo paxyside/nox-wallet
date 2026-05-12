@@ -40,14 +40,10 @@ class _HomeContent extends StatelessWidget {
 
     return homeAsync.when(
       loading: () => const _LoadingSkeleton(),
-      error: (err, _) => _ErrorState(
-        message: errorMessage(err),
-        onRetry: () => ref.invalidate(homeDataProvider),
-      ),
-      data: (state) => _LoadedContent(
-        state: state,
-        onRefresh: () => ref.invalidate(homeDataProvider),
-      ),
+      error: (err, _) =>
+          _ErrorState(message: errorMessage(err), onRetry: () => ref.invalidate(homeDataProvider)),
+      data: (state) =>
+          _LoadedContent(state: state, onRefresh: () => ref.invalidate(homeDataProvider)),
     );
   }
 }
@@ -85,13 +81,9 @@ class _LoadedContent extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: TokenList(balanceData: state.balanceData),
-                ),
+                Expanded(child: TokenList(balanceData: state.balanceData)),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: PortfolioChart(balanceData: state.balanceData),
-                ),
+                Expanded(child: PortfolioChart(balanceData: state.balanceData)),
               ],
             ),
           ),
@@ -139,11 +131,7 @@ class _LoadingSkeleton extends StatelessWidget {
 }
 
 class _SkeletonBox extends StatefulWidget {
-  const _SkeletonBox({
-    required this.height,
-    required this.borderRadius,
-    this.width,
-  });
+  const _SkeletonBox({required this.height, required this.borderRadius, this.width});
 
   final double height;
   final double borderRadius;
@@ -160,14 +148,12 @@ class _SkeletonBoxState extends State<_SkeletonBox> with SingleTickerProviderSta
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
     unawaited(_ctrl.repeat(reverse: true));
-    _anim = Tween<double>(begin: 0.3, end: 0.7).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _anim = Tween<double>(
+      begin: 0.3,
+      end: 0.7,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -209,24 +195,16 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: context.colors.error,
-            ),
+            Icon(Icons.error_outline, size: 48, color: context.colors.error),
             const SizedBox(height: 16),
             Text(
               'Failed to load wallet data',
-              style: AppTextStyles.h3.copyWith(
-                color: context.colors.textPrimary,
-              ),
+              style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.textSecondary,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),

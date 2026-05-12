@@ -91,18 +91,11 @@ class _ReceiveDialogState extends State<_ReceiveDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Title
-              Text(
-                'Receive',
-                style: AppTextStyles.h2.copyWith(
-                  color: context.colors.textPrimary,
-                ),
-              ),
+              Text('Receive', style: AppTextStyles.h2.copyWith(color: context.colors.textPrimary)),
               const SizedBox(height: 4),
               Text(
                 'Scan or copy your Ethereum address',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.colors.textSecondary,
-                ),
+                style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
               ),
               const SizedBox(height: 24),
 
@@ -118,10 +111,7 @@ class _ReceiveDialogState extends State<_ReceiveDialog> {
                   version: QrVersions.auto,
                   size: 200,
                   backgroundColor: Colors.white,
-                  eyeStyle: const QrEyeStyle(
-                    eyeShape: QrEyeShape.square,
-                    color: Colors.black,
-                  ),
+                  eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
                   dataModuleStyle: const QrDataModuleStyle(
                     dataModuleShape: QrDataModuleShape.square,
                     color: Colors.black,
@@ -136,10 +126,7 @@ class _ReceiveDialogState extends State<_ReceiveDialog> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: BoxDecoration(
                     color: _copied
                         ? context.colors.success.withValues(alpha: 0.1)
@@ -190,9 +177,7 @@ class _ReceiveDialogState extends State<_ReceiveDialog> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: context.colors.textSecondary,
                     side: BorderSide(color: context.colors.border),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   child: const Text('Close'),
@@ -262,17 +247,10 @@ class _ActionButtonState extends State<_ActionButton> {
                   end: Alignment.bottomRight,
                   colors: active
                       ? [
-                          context.colors.primary.withValues(
-                            alpha: _pressed ? 0.20 : 0.14,
-                          ),
-                          context.colors.primary.withValues(
-                            alpha: _pressed ? 0.08 : 0.05,
-                          ),
+                          context.colors.primary.withValues(alpha: _pressed ? 0.20 : 0.14),
+                          context.colors.primary.withValues(alpha: _pressed ? 0.08 : 0.05),
                         ]
-                      : [
-                          context.colors.surface,
-                          context.colors.surfaceHigh,
-                        ],
+                      : [context.colors.surface, context.colors.surfaceHigh],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 // Constant width + strokeAlignInside keeps the bounding box
@@ -280,9 +258,7 @@ class _ActionButtonState extends State<_ActionButton> {
                 // changes, so neighbour cards in the Row don't shift.
                 border: Border.all(
                   color: active
-                      ? context.colors.primary.withValues(
-                          alpha: _pressed ? 0.70 : 0.50,
-                        )
+                      ? context.colors.primary.withValues(alpha: _pressed ? 0.70 : 0.50)
                       : context.colors.border,
                   strokeAlign: BorderSide.strokeAlignInside,
                 ),
@@ -307,10 +283,7 @@ class _ActionButtonState extends State<_ActionButton> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          context.colors.primaryLight,
-                          context.colors.primary,
-                        ],
+                        colors: [context.colors.primaryLight, context.colors.primary],
                       ),
                       shape: BoxShape.circle,
                       boxShadow: [

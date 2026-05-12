@@ -14,6 +14,7 @@ class TokenBalance {
     required this.address,
     required this.balance,
     this.usdValue = '',
+    this.logoUrl = '',
   });
 
   final String symbol;
@@ -21,6 +22,11 @@ class TokenBalance {
   final String address;
   final String balance;
   final String usdValue;
+
+  /// Logo URL from the embedded Uniswap Default Token List (stamped by
+  /// the backend). Empty for unverified contracts — UI shows a letter
+  /// avatar in that case.
+  final String logoUrl;
 }
 
 class BalanceData {
@@ -28,11 +34,17 @@ class BalanceData {
     required this.ethBalance,
     required this.tokens,
     this.ethUsdValue = '',
+    this.ethLogoUrl = '',
   });
 
   final String ethBalance;
   final List<TokenBalance> tokens;
   final String ethUsdValue;
+
+  /// Native asset logo URL (e.g. ETH on mainnet). Sourced from the
+  /// network config's `native.logo_uri` — UI threads it into every
+  /// `TokenIcon(symbol: 'ETH')` rendering instead of hardcoding.
+  final String ethLogoUrl;
 }
 
 class GasStats {

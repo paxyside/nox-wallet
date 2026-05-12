@@ -9,9 +9,7 @@ class ApprovalGrpcRepository implements ApprovalRepository {
 
   @override
   Future<List<TokenApproval>> list() async {
-    final response = await GrpcClient.instance.stub.listApprovals(
-      ListApprovalsRequest(),
-    );
+    final response = await GrpcClient.instance.stub.listApprovals(ListApprovalsRequest());
     return response.approvals
         .map(
           (a) => TokenApproval(

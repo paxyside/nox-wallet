@@ -243,10 +243,7 @@ class HistoryNotifier extends _$HistoryNotifier {
       // fresh page so the pagination footer grows in real time.
       state = AsyncData(current.copyWith(isLoadingMore: true));
       try {
-        current = await _fetchPage(
-          cursor: current.nextCursor,
-          previous: current.allItems,
-        );
+        current = await _fetchPage(cursor: current.nextCursor, previous: current.allItems);
         state = AsyncData(current);
         loaded += 1;
       } on Object {
@@ -279,10 +276,7 @@ class HistoryNotifier extends _$HistoryNotifier {
 
     state = AsyncData(current.copyWith(isLoadingMore: true));
     try {
-      final next = await _fetchPage(
-        cursor: current.nextCursor,
-        previous: current.allItems,
-      );
+      final next = await _fetchPage(cursor: current.nextCursor, previous: current.allItems);
       state = AsyncData(next.copyWith(isLoadingMore: false));
     } on Object catch (e, st) {
       state = AsyncError(e, st);

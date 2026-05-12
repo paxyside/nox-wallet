@@ -107,7 +107,7 @@ class SwapConfirmDialog extends StatelessWidget {
                 label: 'YOU PAY',
                 amount: amountIn,
                 symbol: inSym,
-                tokenAddress: assetIn?.tokenAddress,
+                logoUrl: assetIn?.logoUrl,
               ),
               const SizedBox(height: 8),
               Center(
@@ -117,15 +117,9 @@ class SwapConfirmDialog extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: colors.primary.withValues(alpha: 0.18),
-                    border: Border.all(
-                      color: colors.primary.withValues(alpha: 0.4),
-                    ),
+                    border: Border.all(color: colors.primary.withValues(alpha: 0.4)),
                   ),
-                  child: Icon(
-                    Icons.arrow_downward_rounded,
-                    size: 16,
-                    color: colors.primary,
-                  ),
+                  child: Icon(Icons.arrow_downward_rounded, size: 16, color: colors.primary),
                 ),
               ),
               const SizedBox(height: 8),
@@ -133,7 +127,7 @@ class SwapConfirmDialog extends StatelessWidget {
                 label: 'YOU RECEIVE',
                 amount: quote.amountOut,
                 symbol: outSym,
-                tokenAddress: assetOut?.tokenAddress,
+                logoUrl: assetOut?.logoUrl,
                 accent: colors.success,
               ),
 
@@ -164,8 +158,8 @@ class SwapConfirmDialog extends StatelessWidget {
               _RouteRow(
                 inSymbol: inSym,
                 outSymbol: outSym,
-                inAddress: assetIn?.tokenAddress,
-                outAddress: assetOut?.tokenAddress,
+                inLogoUrl: assetIn?.logoUrl,
+                outLogoUrl: assetOut?.logoUrl,
               ),
 
               const SizedBox(height: 22),
@@ -180,9 +174,7 @@ class SwapConfirmDialog extends StatelessWidget {
                         foregroundColor: colors.textSecondary,
                         side: BorderSide(color: colors.border),
                         padding: const EdgeInsets.symmetric(vertical: 13),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: const Text('Cancel'),
                     ),
@@ -196,9 +188,7 @@ class SwapConfirmDialog extends StatelessWidget {
                         backgroundColor: colors.primary,
                         foregroundColor: colors.textPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 13),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: const Text(
                         'Confirm Swap',
@@ -223,14 +213,14 @@ class _SideCard extends StatelessWidget {
     required this.label,
     required this.amount,
     required this.symbol,
-    this.tokenAddress,
+    this.logoUrl,
     this.accent,
   });
 
   final String label;
   final String amount;
   final String symbol;
-  final String? tokenAddress;
+  final String? logoUrl;
   final Color? accent;
 
   @override
@@ -270,7 +260,7 @@ class _SideCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              TokenIcon(symbol: symbol, address: tokenAddress, size: 22),
+              TokenIcon(symbol: symbol, logoUrl: logoUrl, size: 22, showUnverifiedBadge: true),
               const SizedBox(width: 6),
               Text(
                 symbol,
@@ -315,18 +305,11 @@ class _MetaRow extends StatelessWidget {
     );
     return Row(
       children: [
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
-        ),
+        Text(label, style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary)),
         const SizedBox(width: 5),
         Tooltip(
           message: tooltip,
-          child: Icon(
-            Icons.info_outline_rounded,
-            size: 13,
-            color: colors.textDisabled,
-          ),
+          child: Icon(Icons.info_outline_rounded, size: 13, color: colors.textDisabled),
         ),
         const Spacer(),
         Text(value, style: style),
@@ -339,35 +322,28 @@ class _RouteRow extends StatelessWidget {
   const _RouteRow({
     required this.inSymbol,
     required this.outSymbol,
-    this.inAddress,
-    this.outAddress,
+    this.inLogoUrl,
+    this.outLogoUrl,
   });
 
   final String inSymbol;
   final String outSymbol;
-  final String? inAddress;
-  final String? outAddress;
+  final String? inLogoUrl;
+  final String? outLogoUrl;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Row(
       children: [
-        Text(
-          'Route',
-          style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
-        ),
+        Text('Route', style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary)),
         const SizedBox(width: 5),
         Tooltip(
           message: 'Path your swap takes through liquidity pools.',
-          child: Icon(
-            Icons.info_outline_rounded,
-            size: 13,
-            color: colors.textDisabled,
-          ),
+          child: Icon(Icons.info_outline_rounded, size: 13, color: colors.textDisabled),
         ),
         const Spacer(),
-        TokenIcon(symbol: inSymbol, address: inAddress, size: 18),
+        TokenIcon(symbol: inSymbol, logoUrl: inLogoUrl, size: 18),
         const SizedBox(width: 5),
         Text(
           inSymbol,
@@ -377,13 +353,9 @@ class _RouteRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Icon(
-          Icons.arrow_forward_rounded,
-          size: 13,
-          color: colors.textDisabled,
-        ),
+        Icon(Icons.arrow_forward_rounded, size: 13, color: colors.textDisabled),
         const SizedBox(width: 8),
-        TokenIcon(symbol: outSymbol, address: outAddress, size: 18),
+        TokenIcon(symbol: outSymbol, logoUrl: outLogoUrl, size: 18),
         const SizedBox(width: 5),
         Text(
           outSymbol,

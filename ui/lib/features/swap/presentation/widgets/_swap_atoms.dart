@@ -8,12 +8,7 @@ import 'package:nox/core/theme/app_text_styles.dart';
 // ---------------------------------------------------------------------------
 
 class PctBtn extends StatefulWidget {
-  const PctBtn({
-    required this.label,
-    required this.onTap,
-    this.isMax = false,
-    super.key,
-  });
+  const PctBtn({required this.label, required this.onTap, this.isMax = false, super.key});
 
   final String label;
   final VoidCallback? onTap;

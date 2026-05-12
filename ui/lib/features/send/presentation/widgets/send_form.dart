@@ -37,11 +37,7 @@ class _SendFormState extends ConsumerState<SendForm> {
     super.dispose();
   }
 
-  void _setAmountFromFraction(
-    double fraction,
-    SendState send,
-    SendNotifier notifier,
-  ) {
+  void _setAmountFromFraction(double fraction, SendState send, SendNotifier notifier) {
     final balance = double.tryParse(send.selectedAsset?.balance ?? '0') ?? 0;
     if (balance == 0) return;
     final raw = balance * fraction;
@@ -73,9 +69,7 @@ class _SendFormState extends ConsumerState<SendForm> {
       }
       if (next.amount != _amountCtrl.text) {
         _amountCtrl.text = next.amount;
-        _amountCtrl.selection = TextSelection.collapsed(
-          offset: _amountCtrl.text.length,
-        );
+        _amountCtrl.selection = TextSelection.collapsed(offset: _amountCtrl.text.length);
       }
     });
 
@@ -84,9 +78,7 @@ class _SendFormState extends ConsumerState<SendForm> {
 
     // Initialise available assets list on first data
     if (send.availableAssets.isEmpty && assetList.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => notifier.setAvailableAssets(assetList),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) => notifier.setAvailableAssets(assetList));
     }
 
     return Column(
@@ -106,9 +98,7 @@ class _SendFormState extends ConsumerState<SendForm> {
                 send.toAddress.toLowerCase() == ownAddress.toLowerCase();
             final alreadySaved =
                 send.toAddress.isNotEmpty &&
-                contacts.any(
-                  (c) => c.address.toLowerCase() == send.toAddress.toLowerCase(),
-                );
+                contacts.any((c) => c.address.toLowerCase() == send.toAddress.toLowerCase());
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -147,10 +137,7 @@ class _SendFormState extends ConsumerState<SendForm> {
                 child: SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: context.colors.primary,
-                  ),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
                 ),
               ),
             ),
@@ -160,9 +147,7 @@ class _SendFormState extends ConsumerState<SendForm> {
               padding: const EdgeInsets.all(16),
               child: Text(
                 'Failed to load assets',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.colors.error,
-                ),
+                style: AppTextStyles.bodySmall.copyWith(color: context.colors.error),
               ),
             ),
           ),
@@ -178,10 +163,7 @@ class _SendFormState extends ConsumerState<SendForm> {
             onFraction: locked ? null : (v) => _setAmountFromFraction(v, send, notifier),
           ),
         ),
-        if (send.amountError != null) ...[
-          const SizedBox(height: 4),
-          ErrorText(send.amountError!),
-        ],
+        if (send.amountError != null) ...[const SizedBox(height: 4), ErrorText(send.amountError!)],
       ],
     );
   }
@@ -208,19 +190,13 @@ class _SelfSendWarning extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.warning_amber_rounded,
-            size: 14,
-            color: colors.warning,
-          ),
+          Icon(Icons.warning_amber_rounded, size: 14, color: colors.warning),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               "That's your own wallet. The transfer will succeed but burn "
               'gas for no movement.',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: colors.warning,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: colors.warning),
             ),
           ),
         ],

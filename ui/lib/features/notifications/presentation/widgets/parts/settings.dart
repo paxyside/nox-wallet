@@ -233,10 +233,7 @@ class _AutoDeleteRow extends StatelessWidget {
               children: [
                 Text(
                   'Auto-delete',
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: col.textPrimary,
-                    fontSize: 13.5,
-                  ),
+                  style: AppTextStyles.labelMedium.copyWith(color: col.textPrimary, fontSize: 13.5),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -277,11 +274,7 @@ class _AutoDeleteRow extends StatelessWidget {
 }
 
 class _AutoDeleteChip extends StatelessWidget {
-  const _AutoDeleteChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
+  const _AutoDeleteChip({required this.label, required this.selected, required this.onTap});
 
   final String label;
   final bool selected;

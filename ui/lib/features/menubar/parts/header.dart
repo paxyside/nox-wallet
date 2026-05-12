@@ -80,11 +80,7 @@ class _IconChipState extends State<_IconChip> {
               ),
             ),
             if (widget.badgeCount > 0)
-              Positioned(
-                top: -5,
-                right: -5,
-                child: _UnreadDot(count: widget.badgeCount),
-              ),
+              Positioned(top: -5, right: -5, child: _UnreadDot(count: widget.badgeCount)),
           ],
         ),
       ),
@@ -125,11 +121,7 @@ class _UnreadDot extends StatelessWidget {
 }
 
 class _SubviewHeader extends StatelessWidget {
-  const _SubviewHeader({
-    required this.title,
-    required this.onBack,
-    this.trailing,
-  });
+  const _SubviewHeader({required this.title, required this.onBack, this.trailing});
 
   final String title;
   final VoidCallback onBack;

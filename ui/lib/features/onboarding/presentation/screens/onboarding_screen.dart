@@ -29,27 +29,21 @@ class OnboardingScreen extends StatelessWidget {
                 const SizedBox(height: 48),
                 Text(
                   'Welcome to Nox Wallet',
-                  style: AppTextStyles.h1.copyWith(
-                    color: context.colors.textPrimary,
-                  ),
+                  style: AppTextStyles.h1.copyWith(color: context.colors.textPrimary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'A secure, self-custodial Ethereum wallet for macOS.',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: context.colors.textSecondary,
-                  ),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 56),
                 _PrimaryButton(
                   label: 'Create new wallet',
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const GenerateWalletScreen(),
-                    ),
-                  ),
+                  onPressed: () => Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute<void>(builder: (_) => const GenerateWalletScreen())),
                 ),
                 const SizedBox(height: 16),
                 _SecondaryButton(
@@ -106,16 +100,12 @@ class _PrimaryButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: context.colors.primary,
           foregroundColor: context.colors.textPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 0,
         ),
         child: Text(
           label,
-          style: AppTextStyles.labelLarge.copyWith(
-            color: context.colors.textPrimary,
-          ),
+          style: AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary),
         ),
       ),
     );
@@ -137,15 +127,11 @@ class _SecondaryButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           foregroundColor: context.colors.textPrimary,
           side: BorderSide(color: context.colors.border, width: 1.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: Text(
           label,
-          style: AppTextStyles.labelLarge.copyWith(
-            color: context.colors.textPrimary,
-          ),
+          style: AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary),
         ),
       ),
     );
@@ -175,18 +161,12 @@ class _ImportDialog extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Import wallet',
-                      style: AppTextStyles.h3.copyWith(
-                        color: context.colors.textPrimary,
-                      ),
+                      style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: Icon(
-                      Icons.close,
-                      color: context.colors.textSecondary,
-                      size: 20,
-                    ),
+                    icon: Icon(Icons.close, color: context.colors.textSecondary, size: 20),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -195,9 +175,7 @@ class _ImportDialog extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 'Choose how you want to import your wallet.',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.colors.textSecondary,
-                ),
+                style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
               ),
               const SizedBox(height: 24),
               _ImportOption(
@@ -207,11 +185,9 @@ class _ImportDialog extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(context);
                   unawaited(
-                    Navigator.of(parentContext).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const ImportMnemonicScreen(),
-                      ),
-                    ),
+                    Navigator.of(
+                      parentContext,
+                    ).push(MaterialPageRoute<void>(builder: (_) => const ImportMnemonicScreen())),
                   );
                 },
               ),
@@ -223,11 +199,9 @@ class _ImportDialog extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(context);
                   unawaited(
-                    Navigator.of(parentContext).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const ImportPrivateKeyScreen(),
-                      ),
-                    ),
+                    Navigator.of(
+                      parentContext,
+                    ).push(MaterialPageRoute<void>(builder: (_) => const ImportPrivateKeyScreen())),
                   );
                 },
               ),
@@ -239,11 +213,9 @@ class _ImportDialog extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(context);
                   unawaited(
-                    Navigator.of(parentContext).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const ImportKeystoreScreen(),
-                      ),
-                    ),
+                    Navigator.of(
+                      parentContext,
+                    ).push(MaterialPageRoute<void>(builder: (_) => const ImportKeystoreScreen())),
                   );
                 },
               ),
@@ -298,25 +270,17 @@ class _ImportOption extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTextStyles.labelLarge.copyWith(
-                      color: context.colors.textPrimary,
-                    ),
+                    style: AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: context.colors.textSecondary,
-              size: 20,
-            ),
+            Icon(Icons.chevron_right_rounded, color: context.colors.textSecondary, size: 20),
           ],
         ),
       ),

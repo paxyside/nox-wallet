@@ -33,10 +33,7 @@ class _ImportPrivateKeyScreenState extends ConsumerState<ImportPrivateKeyScreen>
     if (!_formKey.currentState!.validate()) return;
     final success = await ref
         .read(importPrivateKeyNotifierProvider.notifier)
-        .importPrivateKey(
-          _keyController.text.trim(),
-          _labelController.text.trim(),
-        );
+        .importPrivateKey(_keyController.text.trim(), _labelController.text.trim());
     if (success && mounted) {
       ref.invalidate(walletExistsProvider);
       context.go(Routes.home);
@@ -59,10 +56,7 @@ class _ImportPrivateKeyScreenState extends ConsumerState<ImportPrivateKeyScreen>
       appBar: AppBar(
         backgroundColor: context.colors.background,
         elevation: 0,
-        leading: BackButton(
-          color: context.colors.textSecondary,
-          onPressed: () => context.pop(),
-        ),
+        leading: BackButton(color: context.colors.textSecondary, onPressed: () => context.pop()),
         title: Text(
           'Import private key',
           style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
@@ -80,17 +74,13 @@ class _ImportPrivateKeyScreenState extends ConsumerState<ImportPrivateKeyScreen>
                 children: [
                   Text(
                     'Enter private key',
-                    style: AppTextStyles.h2.copyWith(
-                      color: context.colors.textPrimary,
-                    ),
+                    style: AppTextStyles.h2.copyWith(color: context.colors.textPrimary),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Paste your hex-encoded private key below. '
                     'It will never leave this device.',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
                   ),
                   const SizedBox(height: 32),
                   _PrivateKeyField(
@@ -149,12 +139,8 @@ class _PrivateKeyField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: 'Private key',
         hintText: '0x...',
-        labelStyle: AppTextStyles.bodySmall.copyWith(
-          color: context.colors.textSecondary,
-        ),
-        hintStyle: AppTextStyles.bodySmall.copyWith(
-          color: context.colors.textSecondary,
-        ),
+        labelStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
+        hintStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
         filled: false,
         fillColor: context.colors.surface,
         suffixIcon: IconButton(
@@ -185,10 +171,7 @@ class _PrivateKeyField extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: context.colors.error, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }

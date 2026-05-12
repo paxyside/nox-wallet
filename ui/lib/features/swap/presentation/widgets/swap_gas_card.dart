@@ -43,15 +43,8 @@ class SwapGasCard extends ConsumerWidget {
             const SizedBox(height: 10),
             Divider(height: 1, color: context.colors.border),
             const SizedBox(height: 10),
-            _SpeedRow(
-              tier: state.gasTier,
-              locked: state.isLoading,
-              onChanged: notifier.setGasTier,
-            ),
-            if (showCustom) ...[
-              const SizedBox(height: 10),
-              _CustomGasInputs(state: state),
-            ],
+            _SpeedRow(tier: state.gasTier, locked: state.isLoading, onChanged: notifier.setGasTier),
+            if (showCustom) ...[const SizedBox(height: 10), _CustomGasInputs(state: state)],
           ],
         ),
       ),
@@ -96,29 +89,13 @@ class _EstimateRow extends StatelessWidget {
   ({String time, String speed, Color Function(BuildContext) color}) get _timeInfo {
     switch (state.gasTier) {
       case GasTier.fast:
-        return (
-          time: '~12 sec',
-          speed: 'Fast',
-          color: (ctx) => ctx.colors.success,
-        );
+        return (time: '~12 sec', speed: 'Fast', color: (ctx) => ctx.colors.success);
       case GasTier.normal:
-        return (
-          time: '~30 sec',
-          speed: 'Standard',
-          color: (ctx) => ctx.colors.warning,
-        );
+        return (time: '~30 sec', speed: 'Standard', color: (ctx) => ctx.colors.warning);
       case GasTier.slow:
-        return (
-          time: '~1 min',
-          speed: 'Slow',
-          color: (ctx) => ctx.colors.error,
-        );
+        return (time: '~1 min', speed: 'Slow', color: (ctx) => ctx.colors.error);
       case GasTier.custom:
-        return (
-          time: 'custom',
-          speed: 'Custom',
-          color: (ctx) => ctx.colors.primary,
-        );
+        return (time: 'custom', speed: 'Custom', color: (ctx) => ctx.colors.primary);
     }
   }
 
@@ -137,17 +114,11 @@ class _EstimateRow extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.local_gas_station_rounded,
-                    size: 16,
-                    color: context.colors.warning,
-                  ),
+                  Icon(Icons.local_gas_station_rounded, size: 16, color: context.colors.warning),
                   const SizedBox(width: 6),
                   Text(
                     'Estimated Gas',
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.labelMedium.copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -193,17 +164,11 @@ class _EstimateRow extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.timer_outlined,
-                    size: 16,
-                    color: context.colors.textSecondary,
-                  ),
+                  Icon(Icons.timer_outlined, size: 16, color: context.colors.textSecondary),
                   const SizedBox(width: 6),
                   Text(
                     'Estimated Time',
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.labelMedium.copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -221,10 +186,7 @@ class _EstimateRow extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 2,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
                       color: speedColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(5),
@@ -249,11 +211,7 @@ class _EstimateRow extends StatelessWidget {
 }
 
 class _SpeedRow extends StatelessWidget {
-  const _SpeedRow({
-    required this.tier,
-    required this.locked,
-    required this.onChanged,
-  });
+  const _SpeedRow({required this.tier, required this.locked, required this.onChanged});
 
   final GasTier tier;
   final bool locked;
@@ -263,20 +221,10 @@ class _SpeedRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          'Speed',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.colors.textDisabled,
-          ),
-        ),
+        Text('Speed', style: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled)),
         const SizedBox(width: 16),
         Expanded(
-          child: GasTierPicker(
-            selected: tier,
-            onChanged: onChanged,
-            locked: locked,
-            expand: true,
-          ),
+          child: GasTierPicker(selected: tier, onChanged: onChanged, locked: locked, expand: true),
         ),
       ],
     );
@@ -298,9 +246,7 @@ class _CustomGasInputsState extends ConsumerState<_CustomGasInputs> {
   @override
   void initState() {
     super.initState();
-    _priorityCtrl = TextEditingController(
-      text: widget.state.customPriorityGwei,
-    );
+    _priorityCtrl = TextEditingController(text: widget.state.customPriorityGwei);
     _maxCtrl = TextEditingController(text: widget.state.customMaxGwei);
   }
 
@@ -346,20 +292,12 @@ class _CustomGasInputsState extends ConsumerState<_CustomGasInputs> {
     return TextField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      style: AppTextStyles.mono.copyWith(
-        color: context.colors.textPrimary,
-        fontSize: 13,
-      ),
+      style: AppTextStyles.mono.copyWith(color: context.colors.textPrimary, fontSize: 13),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: AppTextStyles.bodySmall.copyWith(
-          color: context.colors.textDisabled,
-        ),
+        labelStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: context.colors.border),
@@ -389,9 +327,6 @@ class _CardShell extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: context.colors.border),
     ),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: child,
-    ),
+    child: Padding(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10), child: child),
   );
 }

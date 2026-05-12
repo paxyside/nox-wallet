@@ -73,10 +73,7 @@ class NotificationService {
   ///     `muteSystemAlerts` is on;
   ///   - the copy resolver returns null (no human-readable spec for
   ///     this kind — usually an unmapped legacy event).
-  Future<void> notify(
-    WalletEvent event, {
-    required NotificationSettings settings,
-  }) async {
+  Future<void> notify(WalletEvent event, {required NotificationSettings settings}) async {
     if (settings.muteSystemAlerts && _isSystemAlert(event)) return;
     if (!settings.macosToasts && !settings.playSound) return;
 
@@ -98,10 +95,7 @@ class NotificationService {
         // receives) in Notification Center.
         threadIdentifier: spec.id,
       ),
-      iOS: DarwinNotificationDetails(
-        presentSound: false,
-        threadIdentifier: spec.id,
-      ),
+      iOS: DarwinNotificationDetails(presentSound: false, threadIdentifier: spec.id),
     );
 
     await _plugin.show(_nextId++, spec.title, spec.body, details);

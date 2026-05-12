@@ -32,6 +32,7 @@ class SendAsset {
     required this.name,
     required this.balance,
     this.tokenAddress,
+    this.logoUrl = '',
   });
 
   /// null means ETH (native asset).
@@ -39,6 +40,12 @@ class SendAsset {
   final String symbol;
   final String name;
   final String balance;
+
+  /// Logo URL stamped by the backend from the embedded Uniswap
+  /// Default Token List (ERC-20s) or `native.logo_uri` (native asset).
+  /// Empty for tokens the user added by hand that aren't in the
+  /// verified list — UI falls back to a letter avatar.
+  final String logoUrl;
 
   bool get isEth => tokenAddress == null;
 
@@ -55,7 +62,9 @@ class SendAsset {
 @riverpod
 BalanceRepository balanceRepository(Ref ref) => const BalanceGrpcRepository();
 
-/// Loads ETH + token balances for the asset selector.
+/// Loads ETH + token balances for the asset selector. Logo URLs flow
+/// through from the backend (`GetBalances.eth_logo_url` for native,
+/// `TokenBalance.logo_url` for ERC-20s) — no UI-side URL construction.
 @riverpod
 Future<List<SendAsset>> sendableAssets(Ref ref) async {
   try {
@@ -65,6 +74,7 @@ Future<List<SendAsset>> sendableAssets(Ref ref) async {
         symbol: 'ETH',
         name: 'Ethereum',
         balance: balances.ethBalance,
+        logoUrl: balances.ethLogoUrl,
       ),
       ...balances.tokens.map(
         (t) => SendAsset(
@@ -72,6 +82,7 @@ Future<List<SendAsset>> sendableAssets(Ref ref) async {
           name: t.name,
           tokenAddress: t.address,
           balance: t.balance,
+          logoUrl: t.logoUrl,
         ),
       ),
     ];
@@ -342,11 +353,7 @@ class SendNotifier extends _$SendNotifier {
       final gas = state.gasOverride;
       final TxResult result;
       if (asset == null || asset.isEth) {
-        result = await useCase.sendEth(
-          state.toAddress,
-          state.amount,
-          gas: gas,
-        );
+        result = await useCase.sendEth(state.toAddress, state.amount, gas: gas);
       } else {
         result = await useCase.sendToken(
           state.toAddress,
@@ -361,10 +368,7 @@ class SendNotifier extends _$SendNotifier {
       );
       return result.success;
     } on Object catch (e) {
-      state = state.copyWith(
-        status: SendStatus.failure,
-        errorMessage: errorMessage(e),
-      );
+      state = state.copyWith(status: SendStatus.failure, errorMessage: errorMessage(e));
       return false;
     }
   }

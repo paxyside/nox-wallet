@@ -35,10 +35,7 @@ class _TokensHeaderState extends ConsumerState<_TokensHeader> {
     super.dispose();
   }
 
-  void _showAdd() => showAppDialog<void>(
-    context: context,
-    builder: (_) => const AddTokenDialog(),
-  );
+  void _showAdd() => showAppDialog<void>(context: context, builder: (_) => const AddTokenDialog());
 
   @override
   Widget build(BuildContext context) {
@@ -55,28 +52,19 @@ class _TokensHeaderState extends ConsumerState<_TokensHeader> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Tokens',
-                style: AppTextStyles.h2.copyWith(
-                  color: context.colors.textPrimary,
-                ),
-              ),
+              Text('Tokens', style: AppTextStyles.h2.copyWith(color: context.colors.textPrimary)),
               // Always render subtitle line to keep column height stable.
               Row(
                 children: [
                   if (widget.total > 0) ...[
                     Text(
                       '${widget.total} tracked',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: context.colors.textSecondary,
-                      ),
+                      style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                     ),
                     if (totalValue.isNotEmpty) ...[
                       Text(
                         ' · ',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: context.colors.textDisabled,
-                        ),
+                        style: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
                       ),
                       Text(
                         totalValue,
@@ -100,26 +88,14 @@ class _TokensHeaderState extends ConsumerState<_TokensHeader> {
             child: TextField(
               controller: _ctrl,
               onChanged: (v) => ref.read(tokensSearchProvider.notifier).updateQuery(v),
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: context.colors.textPrimary,
-              ),
+              style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Search by name or symbol…',
-                hintStyle: AppTextStyles.bodySmall.copyWith(
-                  color: context.colors.textDisabled,
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  size: 16,
-                  color: context.colors.textSecondary,
-                ),
+                hintStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
+                prefixIcon: Icon(Icons.search, size: 16, color: context.colors.textSecondary),
                 suffixIcon: _ctrl.text.isNotEmpty
                     ? IconButton(
-                        icon: Icon(
-                          Icons.close,
-                          size: 14,
-                          color: context.colors.textSecondary,
-                        ),
+                        icon: Icon(Icons.close, size: 14, color: context.colors.textSecondary),
                         onPressed: () {
                           _ctrl.clear();
                           ref.read(tokensSearchProvider.notifier).clear();
@@ -128,10 +104,7 @@ class _TokensHeaderState extends ConsumerState<_TokensHeader> {
                     : null,
                 filled: false,
                 fillColor: context.colors.surfaceHigh,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: context.colors.border),
@@ -142,10 +115,7 @@ class _TokensHeaderState extends ConsumerState<_TokensHeader> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: context.colors.primary,
-                    width: 1.5,
-                  ),
+                  borderSide: BorderSide(color: context.colors.primary, width: 1.5),
                 ),
               ),
             ),
@@ -167,9 +137,7 @@ class _TokensHeaderState extends ConsumerState<_TokensHeader> {
               backgroundColor: context.colors.primary,
               foregroundColor: context.colors.textPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               textStyle: AppTextStyles.labelLarge,
             ),
           ),
@@ -211,10 +179,7 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
     try {
       await ref.read(tokensNotifierProvider.notifier).hide(token.id, hidden: true);
       if (mounted) {
-        AppSnackBar.info(
-          context,
-          '${token.symbol.isEmpty ? 'Token' : token.symbol} hidden.',
-        );
+        AppSnackBar.info(context, '${token.symbol.isEmpty ? 'Token' : token.symbol} hidden.');
       }
     } on Object catch (_) {
       if (mounted) AppSnackBar.error(context, 'Failed to hide token.');
@@ -237,33 +202,25 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
         content: Text(
           'Remove ${token.symbol.isEmpty ? token.address : token.symbol} '
           'from your watched list?',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: context.colors.textSecondary,
-          ),
+          style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
               'Cancel',
-              style: AppTextStyles.labelLarge.copyWith(
-                color: context.colors.textSecondary,
-              ),
+              style: AppTextStyles.labelLarge.copyWith(color: context.colors.textSecondary),
             ),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: context.colors.error,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(
               'Remove',
-              style: AppTextStyles.labelLarge.copyWith(
-                color: context.colors.textPrimary,
-              ),
+              style: AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary),
             ),
           ),
         ],
@@ -275,10 +232,7 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
         await ref.read(tokensNotifierProvider.notifier).remove(token.id);
       } on Object catch (_) {
         if (mounted) {
-          AppSnackBar.error(
-            context,
-            'Failed to remove token. Please try again.',
-          );
+          AppSnackBar.error(context, 'Failed to remove token. Please try again.');
         }
       }
     }
@@ -318,24 +272,16 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.error_outline,
-                      color: context.colors.error,
-                      size: 40,
-                    ),
+                    Icon(Icons.error_outline, color: context.colors.error, size: 40),
                     const SizedBox(height: 12),
                     Text(
                       'Failed to load tokens',
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: context.colors.textPrimary,
-                      ),
+                      style: AppTextStyles.bodyLarge.copyWith(color: context.colors.textPrimary),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       err.toString(),
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: context.colors.textSecondary,
-                      ),
+                      style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
@@ -343,9 +289,7 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
                       onPressed: () => ref.read(tokensNotifierProvider.notifier).refresh(),
                       style: FilledButton.styleFrom(
                         backgroundColor: context.colors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       child: const Text('Retry'),
                     ),
@@ -397,9 +341,7 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
                           label: const Text('Add Token'),
                           style: FilledButton.styleFrom(
                             backgroundColor: context.colors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             textStyle: AppTextStyles.labelLarge,
                           ),
                         ),
@@ -414,11 +356,7 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.search_off,
-                          size: 48,
-                          color: context.colors.textDisabled,
-                        ),
+                        Icon(Icons.search_off, size: 48, color: context.colors.textDisabled),
                         const SizedBox(height: 12),
                         Text(
                           'No tokens match "$query"',
@@ -515,10 +453,7 @@ class _SkeletonTileState extends State<_SkeletonTile> with SingleTickerProviderS
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
     unawaited(_ctrl.repeat(reverse: true));
     _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
   }
@@ -563,19 +498,13 @@ class _SkeletonTileState extends State<_SkeletonTile> with SingleTickerProviderS
                   Container(
                     width: 60,
                     height: 12,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
                   ),
                   const SizedBox(height: 6),
                   Container(
                     width: 80,
                     height: 10,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
                   ),
                 ],
               ),
@@ -584,10 +513,7 @@ class _SkeletonTileState extends State<_SkeletonTile> with SingleTickerProviderS
               Expanded(
                 child: Container(
                   height: 28,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                  decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
                 ),
               ),
               const SizedBox(width: 20),
@@ -599,19 +525,13 @@ class _SkeletonTileState extends State<_SkeletonTile> with SingleTickerProviderS
                   Container(
                     width: 52,
                     height: 11,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
                   ),
                   const SizedBox(height: 6),
                   Container(
                     width: 42,
                     height: 16,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
                   ),
                 ],
               ),
@@ -624,19 +544,13 @@ class _SkeletonTileState extends State<_SkeletonTile> with SingleTickerProviderS
                   Container(
                     width: 100,
                     height: 13,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
                   ),
                   const SizedBox(height: 6),
                   Container(
                     width: 60,
                     height: 11,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
                   ),
                 ],
               ),

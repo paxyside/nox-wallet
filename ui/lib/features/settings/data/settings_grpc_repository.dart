@@ -18,9 +18,7 @@ class SettingsGrpcRepository implements SettingsRepository {
 
   @override
   Future<WalletSettings> getWallet() async {
-    final response = await GrpcClient.instance.stub.getWallet(
-      GetWalletRequest(),
-    );
+    final response = await GrpcClient.instance.stub.getWallet(GetWalletRequest());
     return WalletSettings(
       address: response.wallet.address,
       label: response.wallet.label,
@@ -37,9 +35,7 @@ class SettingsGrpcRepository implements SettingsRepository {
 
   @override
   Future<RevealedSecret> revealSecret() async {
-    final response = await GrpcClient.instance.stub.revealSecret(
-      RevealSecretRequest(),
-    );
+    final response = await GrpcClient.instance.stub.revealSecret(RevealSecretRequest());
     return RevealedSecret(
       secret: response.secret,
       secretKind: _secretKindFromProto(response.secretType),

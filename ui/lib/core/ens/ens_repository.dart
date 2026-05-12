@@ -19,9 +19,7 @@ class EnsGrpcRepository implements EnsRepository {
 
   @override
   Future<String> resolve(String name) async {
-    final response = await GrpcClient.instance.stub.resolveENS(
-      ResolveENSRequest()..name = name,
-    );
+    final response = await GrpcClient.instance.stub.resolveENS(ResolveENSRequest()..name = name);
     return response.address;
   }
 

@@ -95,10 +95,7 @@ class _ThemedDropdownState<T> extends State<ThemedDropdown<T>> {
         children: [
           // Tap-outside dismisser
           Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _close,
-            ),
+            child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: _close),
           ),
           CompositedTransformFollower(
             link: _layerLink,
@@ -154,19 +151,13 @@ class _ThemedDropdownState<T> extends State<ThemedDropdown<T>> {
             child: Row(
               children: [
                 if (widget.leadingIcon != null) ...[
-                  Icon(
-                    widget.leadingIcon,
-                    size: 14,
-                    color: colors.textSecondary,
-                  ),
+                  Icon(widget.leadingIcon, size: 14, color: colors.textSecondary),
                   const SizedBox(width: 6),
                 ],
                 Expanded(
                   child: Text(
                     selected.label,
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: colors.textPrimary,
-                    ),
+                    style: AppTextStyles.labelMedium.copyWith(color: colors.textPrimary),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -300,11 +291,7 @@ class _Panel<T> extends StatelessWidget {
 }
 
 class _PanelItem<T> extends StatefulWidget {
-  const _PanelItem({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _PanelItem({required this.label, required this.isSelected, required this.onTap});
 
   final String label;
   final bool isSelected;

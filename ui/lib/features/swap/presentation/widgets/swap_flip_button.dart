@@ -35,9 +35,7 @@ class _SwapFlipButtonState extends State<SwapFlipButton> {
                 : context.colors.primary,
             shape: BoxShape.circle,
           ),
-          child: const Center(
-            child: Icon(Icons.swap_vert_rounded, size: 15, color: Colors.white),
-          ),
+          child: const Center(child: Icon(Icons.swap_vert_rounded, size: 15, color: Colors.white)),
         ),
       ),
     );

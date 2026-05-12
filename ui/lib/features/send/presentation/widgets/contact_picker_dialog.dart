@@ -51,25 +51,15 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
               padding: const EdgeInsets.fromLTRB(20, 20, 12, 0),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.contacts_outlined,
-                    size: 18,
-                    color: context.colors.primary,
-                  ),
+                  Icon(Icons.contacts_outlined, size: 18, color: context.colors.primary),
                   const SizedBox(width: 8),
                   Text(
                     'Choose recipient',
-                    style: AppTextStyles.h3.copyWith(
-                      color: context.colors.textPrimary,
-                    ),
+                    style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: Icon(
-                      Icons.close,
-                      size: 18,
-                      color: context.colors.textSecondary,
-                    ),
+                    icon: Icon(Icons.close, size: 18, color: context.colors.textSecondary),
                     onPressed: () => Navigator.of(context).pop(),
                     splashRadius: 16,
                   ),
@@ -88,29 +78,17 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
                 child: TextField(
                   controller: _searchCtrl,
                   autofocus: true,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: context.colors.textPrimary,
-                  ),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
                   decoration: InputDecoration(
                     hintText: 'Search by name or address…',
                     border: InputBorder.none,
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 11,
-                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
                     prefixIcon: Padding(
                       padding: const EdgeInsets.only(left: 10, right: 6),
-                      child: Icon(
-                        Icons.search,
-                        size: 16,
-                        color: context.colors.textSecondary,
-                      ),
+                      child: Icon(Icons.search, size: 16, color: context.colors.textSecondary),
                     ),
-                    prefixIconConstraints: const BoxConstraints(
-                      minWidth: 0,
-                      minHeight: 0,
-                    ),
+                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
                   ),
                   onChanged: (v) => setState(() => _query = v.trim()),
                 ),
@@ -194,9 +172,7 @@ class _ContactPickerTileState extends State<ContactPickerTile> {
                 child: Center(
                   child: Text(
                     widget.contact.name.isNotEmpty ? widget.contact.name[0].toUpperCase() : '?',
-                    style: AppTextStyles.labelLarge.copyWith(
-                      color: context.colors.primary,
-                    ),
+                    style: AppTextStyles.labelLarge.copyWith(color: context.colors.primary),
                   ),
                 ),
               ),
@@ -207,28 +183,20 @@ class _ContactPickerTileState extends State<ContactPickerTile> {
                   children: [
                     Text(
                       widget.contact.name,
-                      style: AppTextStyles.labelLarge.copyWith(
-                        color: context.colors.textPrimary,
-                      ),
+                      style: AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary),
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _short,
-                      style: AppTextStyles.monoSmall.copyWith(
-                        color: context.colors.textSecondary,
-                      ),
+                      style: AppTextStyles.monoSmall.copyWith(color: context.colors.textSecondary),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 12,
-                color: context.colors.textDisabled,
-              ),
+              Icon(Icons.arrow_forward_ios_rounded, size: 12, color: context.colors.textDisabled),
             ],
           ),
         ),

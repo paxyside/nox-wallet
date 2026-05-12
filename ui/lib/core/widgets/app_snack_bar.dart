@@ -33,11 +33,7 @@ abstract final class AppSnackBar {
   /// Success snackbar with a "View on Etherscan" action button that opens
   /// `https://etherscan.io/tx/<txHash>` in the default browser. Tapping the
   /// action also dismisses the snackbar (default Material would leave it).
-  static void successWithLink(
-    BuildContext context,
-    String message,
-    String txHash,
-  ) => _show(
+  static void successWithLink(BuildContext context, String message, String txHash) => _show(
     context,
     message,
     _Kind.success,
@@ -63,16 +59,8 @@ void _show(
   final colors = context.colors;
 
   final (bg, fg, icon) = switch (kind) {
-    _Kind.info => (
-      const Color(0xFF2A2A3E),
-      colors.textPrimary,
-      Icons.info_outline_rounded,
-    ),
-    _Kind.success => (
-      colors.success,
-      Colors.white,
-      Icons.check_circle_outline_rounded,
-    ),
+    _Kind.info => (const Color(0xFF2A2A3E), colors.textPrimary, Icons.info_outline_rounded),
+    _Kind.success => (colors.success, Colors.white, Icons.check_circle_outline_rounded),
     _Kind.error => (colors.error, Colors.white, Icons.error_outline_rounded),
   };
 
@@ -91,12 +79,7 @@ void _show(
             Flexible(
               child: Text(
                 message,
-                style: TextStyle(
-                  color: fg,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  height: 1.4,
-                ),
+                style: TextStyle(color: fg, fontSize: 13, fontWeight: FontWeight.w500, height: 1.4),
               ),
             ),
           ],
@@ -105,19 +88,11 @@ void _show(
         behavior: SnackBarBehavior.floating,
         duration: duration,
         action: (actionLabel != null && onAction != null)
-            ? SnackBarAction(
-                label: actionLabel,
-                textColor: fg,
-                onPressed: onAction,
-              )
+            ? SnackBarAction(label: actionLabel, textColor: fg, onPressed: onAction)
             : null,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
-          side: BorderSide(
-            color: Colors.white.withValues(
-              alpha: kind == _Kind.info ? 0.08 : 0.0,
-            ),
-          ),
+          side: BorderSide(color: Colors.white.withValues(alpha: kind == _Kind.info ? 0.08 : 0.0)),
         ),
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         elevation: 4,

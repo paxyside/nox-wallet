@@ -9,10 +9,7 @@ class HistoryGrpcRepository implements HistoryRepository {
   final String walletAddress;
 
   @override
-  Future<HistoryPage> getHistory({
-    String cursor = '',
-    int limit = 20,
-  }) async {
+  Future<HistoryPage> getHistory({String cursor = '', int limit = 20}) async {
     final pageParams = PageParams()
       ..limit = limit
       ..cursor = cursor;
@@ -25,9 +22,7 @@ class HistoryGrpcRepository implements HistoryRepository {
 
     final items = response.items.map((item) {
       final dt = item.hasBlockTime()
-          ? DateTime.fromMillisecondsSinceEpoch(
-              item.blockTime.seconds.toInt() * 1000,
-            )
+          ? DateTime.fromMillisecondsSinceEpoch(item.blockTime.seconds.toInt() * 1000)
           : DateTime.fromMillisecondsSinceEpoch(0);
 
       return Transaction(

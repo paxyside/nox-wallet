@@ -44,11 +44,7 @@ class TokenChangeBadge extends StatelessWidget {
           ],
           Text(
             '$display%',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
           ),
         ],
       ),

@@ -125,9 +125,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                         // Form content — scrollable, scrollbar hidden
                         Expanded(
                           child: ScrollConfiguration(
-                            behavior: ScrollConfiguration.of(
-                              context,
-                            ).copyWith(scrollbars: false),
+                            behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
                             child: SingleChildScrollView(
                               padding: const EdgeInsets.fromLTRB(28, 24, 28, 8),
                               child: Column(
@@ -148,10 +146,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 14),
-                                  Divider(
-                                    height: 1,
-                                    color: context.colors.border,
-                                  ),
+                                  Divider(height: 1, color: context.colors.border),
                                   const SizedBox(height: 16),
 
                                   const SendForm(),
@@ -289,18 +284,12 @@ class _ErrorBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Row(
         children: [
-          Icon(
-            Icons.error_outline_rounded,
-            size: 16,
-            color: context.colors.error,
-          ),
+          Icon(Icons.error_outline_rounded, size: 16, color: context.colors.error),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.error,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.error),
             ),
           ),
         ],

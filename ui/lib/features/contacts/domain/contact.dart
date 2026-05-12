@@ -18,12 +18,7 @@ class Contact {
   final bool isFavorite;
   final DateTime createdAt;
 
-  Contact copyWith({
-    String? name,
-    String? address,
-    String? note,
-    bool? isFavorite,
-  }) => Contact(
+  Contact copyWith({String? name, String? address, String? note, bool? isFavorite}) => Contact(
     id: id,
     name: name ?? this.name,
     address: address ?? this.address,

@@ -10,12 +10,7 @@ class TxResult {
 
 abstract class SwapRepository {
   /// Fetches a quote for the given token pair and amount.
-  Future<SwapQuote> quote(
-    String tokenIn,
-    String tokenOut,
-    String amountIn,
-    int poolFee,
-  );
+  Future<SwapQuote> quote(String tokenIn, String tokenOut, String amountIn, int poolFee);
 
   /// Executes the swap and returns the transaction result.
   ///

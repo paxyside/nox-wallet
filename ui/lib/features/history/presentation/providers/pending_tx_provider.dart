@@ -8,9 +8,7 @@ import 'package:nox/features/history/data/pending_tx_repository.dart';
 /// only in process memory on the backend, so a short poll is fine — the list
 /// is typically empty and resolves within a block or two.
 final AutoDisposeFutureProvider<List<PendingTxItem>> pendingTxsProvider =
-    FutureProvider.autoDispose<List<PendingTxItem>>((
-      ref,
-    ) async {
+    FutureProvider.autoDispose<List<PendingTxItem>>((ref) async {
       const repo = PendingTxGrpcRepository();
 
       final timer = Timer.periodic(const Duration(seconds: 3), (_) {

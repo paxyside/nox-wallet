@@ -47,9 +47,7 @@ class _AddToContactsChipState extends State<AddToContactsChip> {
                 ? context.colors.primary.withValues(alpha: 0.12)
                 : context.colors.primary.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: context.colors.primary.withValues(alpha: 0.35),
-            ),
+            border: Border.all(color: context.colors.primary.withValues(alpha: 0.35)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

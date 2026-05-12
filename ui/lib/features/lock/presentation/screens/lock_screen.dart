@@ -27,13 +27,11 @@ class _LockScreenState extends ConsumerState<LockScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _shakeCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-    _shakeAnim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _shakeCtrl, curve: Curves.elasticIn),
-    );
+    _shakeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _shakeAnim = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _shakeCtrl, curve: Curves.elasticIn));
     unawaited(_init());
   }
 
@@ -73,10 +71,7 @@ class _LockScreenState extends ConsumerState<LockScreen> with SingleTickerProvid
     try {
       final ok = await _auth.authenticate(
         localizedReason: 'Unlock Nox to access your wallet',
-        options: const AuthenticationOptions(
-          biometricOnly: false,
-          stickyAuth: true,
-        ),
+        options: const AuthenticationOptions(biometricOnly: false, stickyAuth: true),
       );
       if (!mounted) return;
       if (ok) {
@@ -141,9 +136,7 @@ class _LockScreenState extends ConsumerState<LockScreen> with SingleTickerProvid
             const SizedBox(height: 6),
             Text(
               'Your Ethereum wallet',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: col.textSecondary,
-              ),
+              style: AppTextStyles.bodyMedium.copyWith(color: col.textSecondary),
             ),
 
             const SizedBox(height: 48),
@@ -162,16 +155,9 @@ class _LockScreenState extends ConsumerState<LockScreen> with SingleTickerProvid
                               10
                           ? 6.0
                           : -6.0);
-                return Transform.translate(
-                  offset: Offset(offset, 0),
-                  child: child,
-                );
+                return Transform.translate(offset: Offset(offset, 0), child: child);
               },
-              child: _UnlockButton(
-                loading: _loading,
-                hasTouchId: _hasTouchId,
-                onTap: _unlock,
-              ),
+              child: _UnlockButton(loading: _loading, hasTouchId: _hasTouchId, onTap: _unlock),
             ),
 
             // ── Error message ────────────────────────────────────────────
@@ -182,9 +168,7 @@ class _LockScreenState extends ConsumerState<LockScreen> with SingleTickerProvid
                       padding: const EdgeInsets.only(top: 16),
                       child: Text(
                         _error!,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: col.error,
-                        ),
+                        style: AppTextStyles.bodySmall.copyWith(color: col.error),
                       ),
                     )
                   : const SizedBox.shrink(),
@@ -201,11 +185,7 @@ class _LockScreenState extends ConsumerState<LockScreen> with SingleTickerProvid
 // ---------------------------------------------------------------------------
 
 class _UnlockButton extends StatefulWidget {
-  const _UnlockButton({
-    required this.loading,
-    required this.hasTouchId,
-    required this.onTap,
-  });
+  const _UnlockButton({required this.loading, required this.hasTouchId, required this.onTap});
 
   final bool loading;
   final bool hasTouchId;

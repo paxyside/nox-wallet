@@ -26,6 +26,7 @@ class TokenGrpcRepository implements TokenRepository {
       name: response.token.name,
       decimals: response.token.decimals,
       balance: '',
+      logoUrl: response.token.logoUrl,
       isPinned: response.token.isPinned,
     );
   }
@@ -62,6 +63,7 @@ class TokenGrpcRepository implements TokenRepository {
       name: proto.token.name,
       decimals: proto.token.decimals,
       balance: proto.balance,
+      logoUrl: proto.token.logoUrl,
       isPinned: proto.token.isPinned,
       isHidden: proto.token.isHidden,
       balanceUsd: proto.balanceUsd,

@@ -34,6 +34,7 @@ class _BalanceCard extends StatelessWidget {
         data: (state) => _BalanceContent(
           ethBalance: state.balanceData.ethBalance,
           ethUsd: state.balanceData.ethUsdValue,
+          ethLogoUrl: state.balanceData.ethLogoUrl,
           address: state.walletInfo.address,
         ),
       ),
@@ -64,11 +65,13 @@ class _BalanceContent extends StatelessWidget {
   const _BalanceContent({
     required this.ethBalance,
     required this.ethUsd,
+    required this.ethLogoUrl,
     required this.address,
   });
 
   final String ethBalance;
   final String ethUsd;
+  final String ethLogoUrl;
   final String address;
 
   String get _shortAddr => address.length > 12
@@ -103,7 +106,7 @@ class _BalanceContent extends StatelessWidget {
               const SizedBox(height: 6),
               Row(
                 children: [
-                  const TokenIcon(symbol: 'ETH', size: 16),
+                  TokenIcon(symbol: 'ETH', logoUrl: ethLogoUrl, size: 16),
                   const SizedBox(width: 6),
                   MaskableText(
                     '$_ethFormatted ETH',
@@ -159,10 +162,7 @@ class _AddressChipState extends State<_AddressChip> {
           children: [
             Text(
               widget.shortAddr,
-              style: AppTextStyles.mono.copyWith(
-                color: col.textDisabled,
-                fontSize: 11,
-              ),
+              style: AppTextStyles.mono.copyWith(color: col.textDisabled, fontSize: 11),
             ),
             const SizedBox(width: 4),
             Icon(
@@ -194,10 +194,7 @@ class _NetworkChipState extends ConsumerState<_NetworkChip> {
     unawaited(
       showDialog<void>(
         context: context,
-        builder: (_) => _NetworkInfoDialog(
-          gasStats: state?.gasStats,
-          refreshedAt: refreshedAt,
-        ),
+        builder: (_) => _NetworkInfoDialog(gasStats: state?.gasStats, refreshedAt: refreshedAt),
       ),
     );
   }
@@ -307,10 +304,7 @@ class _NetworkInfoDialog extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Text(
                     'Ethereum · Mainnet',
-                    style: AppTextStyles.h3.copyWith(
-                      color: col.textPrimary,
-                      fontSize: 15,
-                    ),
+                    style: AppTextStyles.h3.copyWith(color: col.textPrimary, fontSize: 15),
                   ),
                   const Spacer(),
                   IconButton(
@@ -353,15 +347,10 @@ class _NetworkInfoDialog extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Text(
                     refreshedAt == null ? 'Never updated' : 'Updated ${timeAgo(refreshedAt!)}',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: col.textDisabled,
-                      fontSize: 11,
-                    ),
+                    style: AppTextStyles.bodySmall.copyWith(color: col.textDisabled, fontSize: 11),
                   ),
                   const Spacer(),
-                  _DialogRefreshButton(
-                    onTap: () => ref.invalidate(homeDataProvider),
-                  ),
+                  _DialogRefreshButton(onTap: () => ref.invalidate(homeDataProvider)),
                 ],
               ),
             ],
@@ -373,11 +362,7 @@ class _NetworkInfoDialog extends ConsumerWidget {
 }
 
 class _NetworkInfoRow extends StatelessWidget {
-  const _NetworkInfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+  const _NetworkInfoRow({required this.icon, required this.label, required this.value});
 
   final IconData icon;
   final String label;
@@ -392,10 +377,7 @@ class _NetworkInfoRow extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           label,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: col.textSecondary,
-            fontSize: 12.5,
-          ),
+          style: AppTextStyles.bodySmall.copyWith(color: col.textSecondary, fontSize: 12.5),
         ),
         const Spacer(),
         Text(
@@ -453,9 +435,7 @@ class _DialogRefreshButtonState extends State<_DialogRefreshButton>
           decoration: BoxDecoration(
             color: _hovered ? col.surfaceHigh : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: _hovered ? col.border : Colors.transparent,
-            ),
+            border: Border.all(color: _hovered ? col.border : Colors.transparent),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

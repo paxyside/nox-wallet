@@ -8,8 +8,5 @@ abstract class HistoryRepository {
   ///
   /// [cursor] — pagination cursor from the previous [HistoryPage.nextCursor].
   /// [limit]  — maximum number of items to return (default 20).
-  Future<HistoryPage> getHistory({
-    String cursor = '',
-    int limit = 20,
-  });
+  Future<HistoryPage> getHistory({String cursor = '', int limit = 20});
 }

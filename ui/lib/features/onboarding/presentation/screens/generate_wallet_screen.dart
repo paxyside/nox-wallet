@@ -101,9 +101,7 @@ class _GenerateWalletScreenState extends ConsumerState<GenerateWalletScreen> {
           const SizedBox(height: 8),
           Text(
             'Give this wallet a label so you can identify it later.',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: context.colors.textSecondary,
-            ),
+            style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 32),
           OnboardingTextField(
@@ -138,9 +136,7 @@ class _GenerateWalletScreenState extends ConsumerState<GenerateWalletScreen> {
           Text(
             'Write down these words in the exact order shown. '
             'Store them safely — they are the only way to recover your wallet.',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: context.colors.textSecondary,
-            ),
+            style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 24),
           _WarningBanner(),
@@ -173,25 +169,17 @@ class _WarningBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.warning.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: context.colors.warning.withValues(alpha: 0.35),
-        ),
+        border: Border.all(color: context.colors.warning.withValues(alpha: 0.35)),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.warning_amber_rounded,
-            color: context.colors.warning,
-            size: 20,
-          ),
+          Icon(Icons.warning_amber_rounded, color: context.colors.warning, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               'Never share your recovery phrase with anyone. '
               'Anyone with these words can access your funds.',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.warning,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.warning),
             ),
           ),
         ],
@@ -217,9 +205,7 @@ class _MnemonicGrid extends StatelessWidget {
       child: Wrap(
         spacing: 10,
         runSpacing: 10,
-        children: [
-          for (int i = 0; i < words.length; i++) _WordChip(index: i + 1, word: words[i]),
-        ],
+        children: [for (int i = 0; i < words.length; i++) _WordChip(index: i + 1, word: words[i])],
       ),
     );
   }
@@ -245,17 +231,10 @@ class _WordChip extends StatelessWidget {
         children: [
           Text(
             '$index.',
-            style: AppTextStyles.monoSmall.copyWith(
-              color: context.colors.textDisabled,
-            ),
+            style: AppTextStyles.monoSmall.copyWith(color: context.colors.textDisabled),
           ),
           const SizedBox(width: 6),
-          Text(
-            word,
-            style: AppTextStyles.mono.copyWith(
-              color: context.colors.textPrimary,
-            ),
-          ),
+          Text(word, style: AppTextStyles.mono.copyWith(color: context.colors.textPrimary)),
         ],
       ),
     );
@@ -292,9 +271,7 @@ class _CopyButtonState extends State<_CopyButton> {
       ),
       label: Text(
         _copied ? 'Copied!' : 'Copy to clipboard',
-        style: AppTextStyles.bodySmall.copyWith(
-          color: context.colors.textSecondary,
-        ),
+        style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
       ),
     );
   }
@@ -316,9 +293,7 @@ class _ConfirmCheckbox extends StatelessWidget {
         decoration: BoxDecoration(
           color: value ? context.colors.primary.withValues(alpha: 0.08) : context.colors.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: value ? context.colors.primary : context.colors.border,
-          ),
+          border: Border.all(color: value ? context.colors.primary : context.colors.border),
         ),
         child: Row(
           children: [
@@ -332,9 +307,7 @@ class _ConfirmCheckbox extends StatelessWidget {
             Expanded(
               child: Text(
                 'I have written down my recovery phrase and stored it securely.',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: context.colors.textPrimary,
-                ),
+                style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
               ),
             ),
           ],

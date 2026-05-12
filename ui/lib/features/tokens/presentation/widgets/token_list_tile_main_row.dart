@@ -83,7 +83,7 @@ class TokenListTileMainRow extends StatelessWidget {
           ),
 
           // ── Icon ────────────────────────────────────────────────────────────
-          TokenIcon(symbol: t.symbol, address: t.address, size: 40),
+          TokenIcon(symbol: t.symbol, logoUrl: t.logoUrl, size: 40),
           const SizedBox(width: 12),
 
           // ── Name ────────────────────────────────────────────────────────────
@@ -97,18 +97,14 @@ class TokenListTileMainRow extends StatelessWidget {
                   children: [
                     Text(
                       t.symbol.toUpperCase(),
-                      style: AppTextStyles.labelLarge.copyWith(
-                        color: context.colors.textPrimary,
-                      ),
+                      style: AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary),
                     ),
                   ],
                 ),
                 const SizedBox(height: 2),
                 Text(
                   t.name,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: context.colors.textSecondary,
-                  ),
+                  style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -132,11 +128,7 @@ class TokenListTileMainRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         if (hasMarket && sparkline.isNotEmpty)
-                          TokenSparkline(
-                            points: sparkline,
-                            positive: t.changePositive,
-                            height: 24,
-                          )
+                          TokenSparkline(points: sparkline, positive: t.changePositive, height: 24)
                         else
                           const SizedBox(height: 24),
                         const SizedBox(height: 4),
@@ -183,18 +175,14 @@ class TokenListTileMainRow extends StatelessWidget {
               children: [
                 MaskableText(
                   t.balance.isEmpty ? '—' : _truncBalance(t.balance),
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: context.colors.textPrimary,
-                  ),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (t.balanceUsd.isNotEmpty)
                   MaskableText(
                     t.balanceUsd,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                   ),
               ],
             ),

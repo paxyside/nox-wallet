@@ -57,23 +57,14 @@ class _ErrorState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.error_outline_rounded,
-            size: 48,
-            color: context.colors.error,
-          ),
+          Icon(Icons.error_outline_rounded, size: 48, color: context.colors.error),
           const SizedBox(height: 12),
           Text(
             'Failed to load contacts',
             style: AppTextStyles.h3.copyWith(color: context.colors.error),
           ),
           const SizedBox(height: 8),
-          Text(
-            error,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: context.colors.textSecondary,
-            ),
-          ),
+          Text(error, style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary)),
         ],
       ),
     );

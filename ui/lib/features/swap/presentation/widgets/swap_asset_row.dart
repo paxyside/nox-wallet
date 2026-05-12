@@ -46,33 +46,23 @@ class _SwapAssetRowState extends State<SwapAssetRow> {
               : Colors.transparent,
           child: Row(
             children: [
-              TokenIcon(
-                symbol: widget.asset.symbol,
-                address: widget.asset.tokenAddress,
-                size: 28,
-              ),
+              TokenIcon(symbol: widget.asset.symbol, logoUrl: widget.asset.logoUrl, size: 28),
               const SizedBox(width: 12),
               Text(
                 widget.asset.symbol,
-                style: AppTextStyles.labelLarge.copyWith(
-                  color: context.colors.textPrimary,
-                ),
+                style: AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary),
               ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   widget.asset.name,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: context.colors.textSecondary,
-                  ),
+                  style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Text(
                 widget.asset.balance,
-                style: AppTextStyles.monoSmall.copyWith(
-                  color: context.colors.textSecondary,
-                ),
+                style: AppTextStyles.monoSmall.copyWith(color: context.colors.textSecondary),
               ),
               if (widget.isSelected) ...[
                 const SizedBox(width: 6),

@@ -51,9 +51,7 @@ class _SwapFormState extends ConsumerState<SwapForm> {
       SwapAsset? findByAddress(String addr) {
         if (addr.isEmpty) return null;
         try {
-          return assets.firstWhere(
-            (a) => a.address.toLowerCase() == addr.toLowerCase(),
-          );
+          return assets.firstWhere((a) => a.address.toLowerCase() == addr.toLowerCase());
         } on Object catch (_) {
           return null;
         }
@@ -110,9 +108,7 @@ class _SwapFormState extends ConsumerState<SwapForm> {
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(swapNotifierProvider.select((s) => s.isLoading));
-    final quoteOut = ref.watch(
-      swapNotifierProvider.select((s) => s.quote?.amountOut ?? ''),
-    );
+    final quoteOut = ref.watch(swapNotifierProvider.select((s) => s.quote?.amountOut ?? ''));
     final assetsAsync = ref.watch(swappableAssetsProvider);
 
     return assetsAsync.when(
@@ -128,12 +124,8 @@ class _SwapFormState extends ConsumerState<SwapForm> {
       ),
       data: (assets) {
         _initAssets(assets);
-        final exceedsBalance = ref.watch(
-          swapNotifierProvider.select((s) => s.exceedsBalance),
-        );
-        final hasQuote = ref.watch(
-          swapNotifierProvider.select((s) => s.quote != null),
-        );
+        final exceedsBalance = ref.watch(swapNotifierProvider.select((s) => s.exceedsBalance));
+        final hasQuote = ref.watch(swapNotifierProvider.select((s) => s.quote != null));
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

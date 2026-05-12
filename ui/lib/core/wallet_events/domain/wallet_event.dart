@@ -2,11 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 
-enum WalletEventKind {
-  gasAlert,
-  lowBalance,
-  transaction,
-}
+enum WalletEventKind { gasAlert, lowBalance, transaction }
 
 /// Unified wallet event — exactly one of the payload fields is non-null.
 ///
@@ -71,10 +67,7 @@ class GasAlertEvent {
 
 @immutable
 class LowBalanceEvent {
-  const LowBalanceEvent({
-    required this.ethBalance,
-    required this.ethBalanceWei,
-  });
+  const LowBalanceEvent({required this.ethBalance, required this.ethBalanceWei});
 
   final String ethBalance;
   final String ethBalanceWei;
@@ -85,16 +78,7 @@ class LowBalanceEvent {
 /// Maps to the backend's TransactionEvent.Role. One value per
 /// user-action — the UI uses this to pick a notification template and
 /// to render the rich panel tile.
-enum TxRole {
-  unknown,
-  sendEth,
-  receiveEth,
-  sendToken,
-  receiveToken,
-  swap,
-  selfTransfer,
-  approve,
-}
+enum TxRole { unknown, sendEth, receiveEth, sendToken, receiveToken, swap, selfTransfer, approve }
 
 @immutable
 class AssetMovement {

@@ -108,9 +108,7 @@ class WalletHeader extends StatelessWidget {
                     // Wallet name (no edit icon)
                     Text(
                       walletInfo.label.isNotEmpty ? walletInfo.label : 'My Wallet',
-                      style: AppTextStyles.h3.copyWith(
-                        color: context.colors.textPrimary,
-                      ),
+                      style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
                     ),
                     const SizedBox(height: 4),
                     // Address + copy
@@ -149,7 +147,7 @@ class WalletHeader extends StatelessWidget {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const TokenIcon(symbol: 'ETH', size: 18),
+                          TokenIcon(symbol: 'ETH', logoUrl: balanceData.ethLogoUrl, size: 18),
                           const SizedBox(width: 6),
                           MaskableText(
                             '${formatEth(balanceData.ethBalance)} ETH',
@@ -164,7 +162,7 @@ class WalletHeader extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
-                          const TokenIcon(symbol: 'ETH', size: 32),
+                          TokenIcon(symbol: 'ETH', logoUrl: balanceData.ethLogoUrl, size: 32),
                           const SizedBox(width: 10),
                           MaskableText(
                             '${formatEth(balanceData.ethBalance)} ETH',
@@ -192,18 +190,11 @@ class WalletHeader extends StatelessWidget {
                   // Ethereum badge + bell
                   Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _EthereumBadge(),
-                      const SizedBox(width: 8),
-                      _NotificationBell(),
-                    ],
+                    children: [_EthereumBadge(), const SizedBox(width: 8), _NotificationBell()],
                   ),
                   const SizedBox(height: 36),
                   // Gas + Block chips
-                  WalletNetworkStats(
-                    gasStats: gasStats,
-                    balanceData: balanceData,
-                  ),
+                  WalletNetworkStats(gasStats: gasStats, balanceData: balanceData),
                 ],
               ),
             ],
@@ -261,9 +252,7 @@ class _EthereumBadgeState extends ConsumerState<_EthereumBadge> {
       decoration: BoxDecoration(
         color: _hovered ? context.colors.surfaceHigh : context.colors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: context.colors.border,
-        ),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -271,10 +260,7 @@ class _EthereumBadgeState extends ConsumerState<_EthereumBadge> {
           Container(
             width: 6,
             height: 6,
-            decoration: BoxDecoration(
-              color: context.colors.success,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: context.colors.success, shape: BoxShape.circle),
           ),
           const SizedBox(width: 6),
           Text(
@@ -394,10 +380,7 @@ class _NotificationBellState extends ConsumerState<_NotificationBell> {
         return Stack(
           children: [
             Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: _close,
-              ),
+              child: GestureDetector(behavior: HitTestBehavior.translucent, onTap: _close),
             ),
             CompositedTransformFollower(
               link: _link,
@@ -447,9 +430,7 @@ class _NotificationBellState extends ConsumerState<_NotificationBell> {
                 decoration: BoxDecoration(
                   color: _hovered ? context.colors.surfaceHigh : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: context.colors.border,
-                  ),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: Icon(
                   Icons.notifications_outlined,
@@ -492,12 +473,7 @@ class _Badge extends StatelessWidget {
         color: colors.error,
         shape: isPill ? BoxShape.rectangle : BoxShape.circle,
         borderRadius: isPill ? BorderRadius.circular(9) : null,
-        boxShadow: [
-          BoxShadow(
-            color: colors.error.withValues(alpha: 0.5),
-            blurRadius: 6,
-          ),
-        ],
+        boxShadow: [BoxShadow(color: colors.error.withValues(alpha: 0.5), blurRadius: 6)],
       ),
       child: Text(
         isPill ? '9+' : '$count',
@@ -522,10 +498,7 @@ class _MeshPainter extends CustomPainter {
 
   // Generate dots once
   static final List<Offset> _dots = List.generate(28, (_) {
-    return Offset(
-      _rng.nextDouble(),
-      _rng.nextDouble(),
-    );
+    return Offset(_rng.nextDouble(), _rng.nextDouble());
   });
 
   @override
@@ -541,10 +514,7 @@ class _MeshPainter extends CustomPainter {
       for (var j = i + 1; j < pts.length; j++) {
         final dist = (pts[i] - pts[j]).distance;
         if (dist < size.width * 0.28) {
-          final alpha = ((1 - dist / (size.width * 0.28)) * 0.25).clamp(
-            0.0,
-            1.0,
-          );
+          final alpha = ((1 - dist / (size.width * 0.28)) * 0.25).clamp(0.0, 1.0);
           canvas.drawLine(
             pts[i],
             pts[j],

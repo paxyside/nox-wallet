@@ -82,17 +82,11 @@ class _NoResults extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.search_off_rounded,
-            size: 48,
-            color: context.colors.textDisabled,
-          ),
+          Icon(Icons.search_off_rounded, size: 48, color: context.colors.textDisabled),
           const SizedBox(height: 12),
           Text(
             'No results for "$query"',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: context.colors.textSecondary,
-            ),
+            style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
           ),
         ],
       ),

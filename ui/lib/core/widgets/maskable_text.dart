@@ -28,12 +28,6 @@ class MaskableText extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(hideBalancesProvider);
     final shown = hidden ? '•' * maskLength : value;
-    return Text(
-      shown,
-      style: style,
-      textAlign: textAlign,
-      maxLines: maxLines,
-      overflow: overflow,
-    );
+    return Text(shown, style: style, textAlign: textAlign, maxLines: maxLines, overflow: overflow);
   }
 }

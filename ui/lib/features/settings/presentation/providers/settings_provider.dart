@@ -55,9 +55,7 @@ class RevealSecretNotifier extends _$RevealSecretNotifier {
 
   Future<bool> reveal() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(settingsRepositoryProvider).revealSecret(),
-    );
+    state = await AsyncValue.guard(() => ref.read(settingsRepositoryProvider).revealSecret());
     return !state.hasError;
   }
 

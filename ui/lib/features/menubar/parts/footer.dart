@@ -24,11 +24,7 @@ class _Footer extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: _FooterAction(
-              icon: settingsIcon,
-              label: settingsLabel,
-              onTap: onSettings,
-            ),
+            child: _FooterAction(icon: settingsIcon, label: settingsLabel, onTap: onSettings),
           ),
           _FooterDivider(),
           Expanded(

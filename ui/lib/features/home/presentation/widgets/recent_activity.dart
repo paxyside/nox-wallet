@@ -30,10 +30,7 @@ class RecentActivitySection extends ConsumerWidget {
     final async = ref.watch(recentActivityProvider);
 
     return async.when(
-      loading: () => _SectionShell(
-        items: const [],
-        loadingChild: _LoadingRows(),
-      ),
+      loading: () => _SectionShell(items: const [], loadingChild: _LoadingRows()),
       error: (e, s) => const SizedBox.shrink(),
       data: (items) {
         if (items.isEmpty) return const SizedBox.shrink();
@@ -48,10 +45,7 @@ class RecentActivitySection extends ConsumerWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _SectionShell extends StatelessWidget {
-  const _SectionShell({
-    required this.items,
-    this.loadingChild,
-  });
+  const _SectionShell({required this.items, this.loadingChild});
 
   final List<Transaction> items;
   final Widget? loadingChild;
@@ -88,17 +82,13 @@ class _SectionShell extends StatelessWidget {
           children: [
             Text(
               'Recent Activity',
-              style: AppTextStyles.h3.copyWith(
-                color: context.colors.textPrimary,
-              ),
+              style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
             ),
             GestureDetector(
               onTap: () => context.go(Routes.history),
               child: Text(
                 'View all →',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.colors.primary,
-                ),
+                style: AppTextStyles.bodySmall.copyWith(color: context.colors.primary),
               ),
             ),
           ],
@@ -111,10 +101,7 @@ class _SectionShell extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  context.colors.surface,
-                  context.colors.surfaceHigh,
-                ],
+                colors: [context.colors.surface, context.colors.surfaceHigh],
               ),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: context.colors.border),
@@ -174,10 +161,7 @@ class _ActivityRowState extends State<_ActivityRow> {
               Container(
                 width: 36,
                 height: 36,
-                decoration: BoxDecoration(
-                  color: color.withAlpha(25),
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: color.withAlpha(25), shape: BoxShape.circle),
                 child: Icon(icon, color: color, size: 17),
               ),
               const SizedBox(width: 12),
@@ -197,10 +181,7 @@ class _ActivityRowState extends State<_ActivityRow> {
                         ),
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 1,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                           decoration: BoxDecoration(
                             color: context.colors.surfaceHigh,
                             borderRadius: BorderRadius.circular(4),
@@ -220,9 +201,7 @@ class _ActivityRowState extends State<_ActivityRow> {
                     const SizedBox(height: 2),
                     Text(
                       incoming ? 'From ${_truncate(tx.from)}' : 'To ${_truncate(tx.to)}',
-                      style: AppTextStyles.monoSmall.copyWith(
-                        color: context.colors.textSecondary,
-                      ),
+                      style: AppTextStyles.monoSmall.copyWith(color: context.colors.textSecondary),
                     ),
                   ],
                 ),
@@ -232,10 +211,7 @@ class _ActivityRowState extends State<_ActivityRow> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  MaskableText(
-                    valueText,
-                    style: AppTextStyles.labelMedium.copyWith(color: color),
-                  ),
+                  MaskableText(valueText, style: AppTextStyles.labelMedium.copyWith(color: color)),
                   const SizedBox(height: 2),
                   Text(
                     _dateFmt.format(tx.blockTime.toLocal()),
@@ -248,11 +224,7 @@ class _ActivityRowState extends State<_ActivityRow> {
               ),
 
               const SizedBox(width: 6),
-              Icon(
-                Icons.open_in_new_rounded,
-                size: 11,
-                color: context.colors.textDisabled,
-              ),
+              Icon(Icons.open_in_new_rounded, size: 11, color: context.colors.textDisabled),
             ],
           ),
         ),
@@ -304,11 +276,7 @@ class _LoadingRows extends StatelessWidget {
 }
 
 class _Skel extends StatelessWidget {
-  const _Skel({
-    required this.width,
-    required this.height,
-    required this.radius,
-  });
+  const _Skel({required this.width, required this.height, required this.radius});
 
   final double width;
   final double height;

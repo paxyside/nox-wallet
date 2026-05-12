@@ -66,10 +66,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 180),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 180));
     _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
   }
 
@@ -164,11 +161,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
               clipBehavior: Clip.antiAlias,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: Color.lerp(
-                    context.colors.surface,
-                    context.colors.surfaceHigh,
-                    t,
-                  ),
+                  color: Color.lerp(context.colors.surface, context.colors.surfaceHigh, t),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: Color.lerp(
@@ -187,11 +180,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
                       bottom: 0,
                       child: Container(
                         width: 3,
-                        color: Color.lerp(
-                          accentColor.withValues(alpha: 0.45),
-                          accentColor,
-                          t,
-                        ),
+                        color: Color.lerp(accentColor.withValues(alpha: 0.45), accentColor, t),
                       ),
                     ),
 
@@ -206,11 +195,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                _TxIcon(
-                                  icon: directionIcon,
-                                  color: accentColor,
-                                  glowValue: t,
-                                ),
+                                _TxIcon(icon: directionIcon, color: accentColor, glowValue: t),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
@@ -412,11 +397,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
 // ---------------------------------------------------------------------------
 
 class _TxIcon extends StatelessWidget {
-  const _TxIcon({
-    required this.icon,
-    required this.color,
-    required this.glowValue,
-  });
+  const _TxIcon({required this.icon, required this.color, required this.glowValue});
 
   final IconData icon;
   final Color color;
@@ -437,9 +418,7 @@ class _TxIcon extends StatelessWidget {
             spreadRadius: 0,
           ),
         ],
-        border: Border.all(
-          color: color.withValues(alpha: 0.15 + 0.20 * glowValue),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.15 + 0.20 * glowValue)),
       ),
       child: Icon(icon, color: color, size: 16),
     );
@@ -538,10 +517,7 @@ class _MiniBtnState extends State<_MiniBtn> {
                           c.withValues(alpha: _pressed ? 0.22 : 0.15),
                           c.withValues(alpha: _pressed ? 0.10 : 0.06),
                         ]
-                      : [
-                          c.withValues(alpha: 0.08),
-                          c.withValues(alpha: 0.08),
-                        ],
+                      : [c.withValues(alpha: 0.08), c.withValues(alpha: 0.08)],
                 ),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
@@ -560,9 +536,7 @@ class _MiniBtnState extends State<_MiniBtn> {
                       ]
                     : null,
               ),
-              child: Center(
-                child: Icon(widget.icon, size: 17, color: c),
-              ),
+              child: Center(child: Icon(widget.icon, size: 17, color: c)),
             ),
           ),
         ),

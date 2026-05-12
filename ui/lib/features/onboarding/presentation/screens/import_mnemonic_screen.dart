@@ -32,10 +32,7 @@ class _ImportMnemonicScreenState extends ConsumerState<ImportMnemonicScreen> {
 
   // ── Phrase state ────────────────────────────────────────────────────────────
   int _wordCount = 12;
-  final List<TextEditingController> _wc = List.generate(
-    24,
-    (_) => TextEditingController(),
-  );
+  final List<TextEditingController> _wc = List.generate(24, (_) => TextEditingController());
   final List<FocusNode> _fn = List.generate(24, (_) => FocusNode());
   bool _phraseSubmitted = false;
 
@@ -105,10 +102,7 @@ class _ImportMnemonicScreenState extends ConsumerState<ImportMnemonicScreen> {
     final words = raw.split(RegExp(r'\s+'));
     if (words.length != 12 && words.length != 24) {
       if (mounted) {
-        showErrorSnackBar(
-          context,
-          'Expected 12 or 24 words, got ${words.length}',
-        );
+        showErrorSnackBar(context, 'Expected 12 or 24 words, got ${words.length}');
       }
       return;
     }
@@ -185,10 +179,7 @@ class _ImportMnemonicScreenState extends ConsumerState<ImportMnemonicScreen> {
       appBar: AppBar(
         backgroundColor: context.colors.background,
         elevation: 0,
-        leading: BackButton(
-          color: context.colors.textSecondary,
-          onPressed: _onBack,
-        ),
+        leading: BackButton(color: context.colors.textSecondary, onPressed: _onBack),
         title: AnimatedSwitcher(
           duration: const Duration(milliseconds: 220),
           transitionBuilder: (child, anim) => FadeTransition(
@@ -286,16 +277,12 @@ class _PhrasePage extends StatelessWidget {
                   children: [
                     Text(
                       'Enter your phrase',
-                      style: AppTextStyles.h2.copyWith(
-                        color: context.colors.textPrimary,
-                      ),
+                      style: AppTextStyles.h2.copyWith(color: context.colors.textPrimary),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Type or paste each word in the correct order.',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.colors.textSecondary,
-                      ),
+                      style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
                     ),
                   ],
                 ),
@@ -311,9 +298,7 @@ class _PhrasePage extends StatelessWidget {
               if (showError)
                 Text(
                   'Fill in all words',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: context.colors.error,
-                  ),
+                  style: AppTextStyles.bodySmall.copyWith(color: context.colors.error),
                 )
               else
                 const SizedBox.shrink(),
@@ -335,11 +320,7 @@ class _PhrasePage extends StatelessWidget {
             showError: showError,
           ),
           const SizedBox(height: 32),
-          OnboardingPrimaryButton(
-            label: 'Continue',
-            isLoading: false,
-            onPressed: onContinue,
-          ),
+          OnboardingPrimaryButton(label: 'Continue', isLoading: false, onPressed: onContinue),
         ],
       ),
     );
@@ -387,9 +368,7 @@ class _DetailsPage extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'Choose a name so you can identify this wallet later.',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: context.colors.textSecondary,
-            ),
+            style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 32),
           CleanField(
@@ -412,9 +391,7 @@ class _DetailsPage extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   'Custom derivation path',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: context.colors.textSecondary,
-                  ),
+                  style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                 ),
               ],
             ),

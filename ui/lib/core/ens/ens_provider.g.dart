@@ -93,9 +93,7 @@ class EnsReverseFamily extends Family<AsyncValue<String>> {
   }
 
   @override
-  EnsReverseProvider getProviderOverride(
-    covariant EnsReverseProvider provider,
-  ) {
+  EnsReverseProvider getProviderOverride(covariant EnsReverseProvider provider) {
     return call(provider.address);
   }
 
@@ -158,9 +156,7 @@ class EnsReverseProvider extends FutureProvider<String> {
   final String address;
 
   @override
-  Override overrideWith(
-    FutureOr<String> Function(EnsReverseRef provider) create,
-  ) {
+  Override overrideWith(FutureOr<String> Function(EnsReverseRef provider) create) {
     return ProviderOverride(
       origin: this,
       override: EnsReverseProvider._internal(

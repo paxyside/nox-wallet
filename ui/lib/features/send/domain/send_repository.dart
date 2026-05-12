@@ -32,11 +32,7 @@ class GasEstimate {
 }
 
 abstract class SendRepository {
-  Future<TxResult> sendEth(
-    String toAddress,
-    String amount, {
-    GasOverride gas = GasOverride.auto,
-  });
+  Future<TxResult> sendEth(String toAddress, String amount, {GasOverride gas = GasOverride.auto});
   Future<TxResult> sendToken(
     String toAddress,
     String tokenAddress,

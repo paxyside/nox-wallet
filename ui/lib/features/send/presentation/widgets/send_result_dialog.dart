@@ -70,9 +70,7 @@ class SendResultDialog extends StatelessWidget {
                     ? 'Your transfer has been broadcast to the network.'
                     : (errorMessage ?? 'Something went wrong. Please retry.'),
                 textAlign: TextAlign.center,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                ),
+                style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
               ),
 
               // ── Amount pill (success only) ─────────────────────────────
@@ -80,16 +78,11 @@ class SendResultDialog extends StatelessWidget {
                 const SizedBox(height: 16),
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: accent.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: accent.withValues(alpha: 0.3),
-                      ),
+                      border: Border.all(color: accent.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       '$amount $symbol',
@@ -127,9 +120,7 @@ class SendResultDialog extends StatelessWidget {
                       Expanded(
                         child: Text(
                           _truncateTxHash(txHash),
-                          style: AppTextStyles.mono.copyWith(
-                            color: colors.textPrimary,
-                          ),
+                          style: AppTextStyles.mono.copyWith(color: colors.textPrimary),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -138,21 +129,12 @@ class SendResultDialog extends StatelessWidget {
                         child: InkWell(
                           borderRadius: BorderRadius.circular(6),
                           onTap: () {
-                            unawaited(
-                              Clipboard.setData(ClipboardData(text: txHash)),
-                            );
-                            AppSnackBar.info(
-                              context,
-                              'Transaction hash copied.',
-                            );
+                            unawaited(Clipboard.setData(ClipboardData(text: txHash)));
+                            AppSnackBar.info(context, 'Transaction hash copied.');
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(8),
-                            child: Icon(
-                              Icons.copy_rounded,
-                              size: 14,
-                              color: colors.textSecondary,
-                            ),
+                            child: Icon(Icons.copy_rounded, size: 14, color: colors.textSecondary),
                           ),
                         ),
                       ),
@@ -175,9 +157,7 @@ class SendResultDialog extends StatelessWidget {
                         foregroundColor: colors.textSecondary,
                         side: BorderSide(color: colors.border),
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: const Text('Close'),
                     ),
@@ -190,9 +170,7 @@ class SendResultDialog extends StatelessWidget {
                         backgroundColor: colors.primary,
                         foregroundColor: colors.textPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: const Text('Send Another'),
                     ),
@@ -230,10 +208,7 @@ class _GlowIconState extends State<_GlowIcon> with SingleTickerProviderStateMixi
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800));
     unawaited(_ctrl.repeat(reverse: true));
   }
 
@@ -292,17 +267,11 @@ class _EtherscanButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.open_in_new_rounded,
-                size: 14,
-                color: colors.primaryLight,
-              ),
+              Icon(Icons.open_in_new_rounded, size: 14, color: colors.primaryLight),
               const SizedBox(width: 8),
               Text(
                 'View on Etherscan',
-                style: AppTextStyles.labelLarge.copyWith(
-                  color: colors.primaryLight,
-                ),
+                style: AppTextStyles.labelLarge.copyWith(color: colors.primaryLight),
               ),
             ],
           ),

@@ -77,9 +77,8 @@ const _maxTokens = 4;
 /// from `GetBalances`). Same pinned-first / USD-desc semantics as above; the
 /// fallback list has no pinning info, so we sort purely by USD descending.
 List<MapEntry<String, double>> _fromBalanceData(BalanceData data) {
-  final items = [
-    for (final t in data.tokens) MapEntry(t.symbol, _parseUsd(t.usdValue)),
-  ]..sort((a, b) => b.value.compareTo(a.value));
+  final items = [for (final t in data.tokens) MapEntry(t.symbol, _parseUsd(t.usdValue))]
+    ..sort((a, b) => b.value.compareTo(a.value));
   return items.take(_maxTokens).toList();
 }
 
@@ -231,10 +230,7 @@ class _PortfolioChartState extends ConsumerState<PortfolioChart> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Header ────────────────────────────────────────────────────────
-          Text(
-            'Portfolio',
-            style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
-          ),
+          Text('Portfolio', style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary)),
           const SizedBox(height: 12),
 
           if (slices.isEmpty)
@@ -326,11 +322,7 @@ class _PortfolioChartState extends ConsumerState<PortfolioChart> {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 16,
-                    color: context.colors.primary,
-                  ),
+                  Icon(Icons.chevron_right_rounded, size: 16, color: context.colors.primary),
                 ],
               ),
             ),
@@ -387,12 +379,7 @@ class _LegendRow extends StatelessWidget {
                 color: dotColor,
                 shape: BoxShape.circle,
                 boxShadow: isHovered
-                    ? [
-                        BoxShadow(
-                          color: slice.color.withValues(alpha: 0.5),
-                          blurRadius: 6,
-                        ),
-                      ]
+                    ? [BoxShadow(color: slice.color.withValues(alpha: 0.5), blurRadius: 6)]
                     : null,
               ),
             ),
@@ -454,11 +441,7 @@ class _DonutCenter extends StatelessWidget {
     super.key,
   });
 
-  factory _DonutCenter.total(
-    String totalStr,
-    BuildContext context, {
-    Key? key,
-  }) => _DonutCenter._(
+  factory _DonutCenter.total(String totalStr, BuildContext context, {Key? key}) => _DonutCenter._(
     key: key,
     line1: totalStr,
     line2: 'Total',
@@ -497,11 +480,7 @@ class _DonutCenter extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           line2,
-          style: TextStyle(
-            fontSize: 11,
-            color: context.colors.textSecondary,
-            letterSpacing: 0.3,
-          ),
+          style: TextStyle(fontSize: 11, color: context.colors.textSecondary, letterSpacing: 0.3),
         ),
       ],
     );
@@ -520,17 +499,11 @@ class _EmptyChart extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 36),
         child: Column(
           children: [
-            Icon(
-              Icons.pie_chart_outline_rounded,
-              size: 36,
-              color: context.colors.textDisabled,
-            ),
+            Icon(Icons.pie_chart_outline_rounded, size: 36, color: context.colors.textDisabled),
             const SizedBox(height: 10),
             Text(
               'No asset data yet',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.textSecondary,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
             ),
           ],
         ),
@@ -544,11 +517,7 @@ class _EmptyChart extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _DonutPainter extends CustomPainter {
-  const _DonutPainter({
-    required this.slices,
-    required this.trackColor,
-    this.hoveredSlice,
-  });
+  const _DonutPainter({required this.slices, required this.trackColor, this.hoveredSlice});
 
   final List<_Slice> slices;
   final _Slice? hoveredSlice;

@@ -28,25 +28,17 @@ class ContactEmptyState extends ConsumerWidget {
               shape: BoxShape.circle,
               border: Border.all(color: context.colors.border),
             ),
-            child: Icon(
-              Icons.people_outline_rounded,
-              size: 32,
-              color: context.colors.textDisabled,
-            ),
+            child: Icon(Icons.people_outline_rounded, size: 32, color: context.colors.textDisabled),
           ),
           const SizedBox(height: 20),
           Text(
             'No contacts yet',
-            style: AppTextStyles.h3.copyWith(
-              color: context.colors.textSecondary,
-            ),
+            style: AppTextStyles.h3.copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 6),
           Text(
             'Save addresses you send to frequently.',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: context.colors.textSecondary,
-            ),
+            style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
           ),
         ],
       ),

@@ -1,11 +1,7 @@
 part of '../mini_widget.dart';
 
 class _QuickActions extends StatelessWidget {
-  const _QuickActions({
-    required this.onDashboard,
-    required this.onSend,
-    required this.onSwap,
-  });
+  const _QuickActions({required this.onDashboard, required this.onSend, required this.onSwap});
 
   final VoidCallback onDashboard;
   final VoidCallback onSend;
@@ -24,11 +20,7 @@ class _QuickActions extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _QuickAction(
-            icon: Icons.dashboard_rounded,
-            label: 'Dashboard',
-            onTap: onDashboard,
-          ),
+          _QuickAction(icon: Icons.dashboard_rounded, label: 'Dashboard', onTap: onDashboard),
           _QuickAction(icon: Icons.arrow_upward_rounded, label: 'Send', onTap: onSend),
           _QuickAction(icon: Icons.swap_horiz_rounded, label: 'Swap', onTap: onSwap),
         ],

@@ -24,12 +24,7 @@ class SwapGrpcRepository implements SwapRepository {
   }
 
   @override
-  Future<SwapQuote> quote(
-    String tokenIn,
-    String tokenOut,
-    String amountIn,
-    int poolFee,
-  ) async {
+  Future<SwapQuote> quote(String tokenIn, String tokenOut, String amountIn, int poolFee) async {
     final request = QuoteSwapRequest()
       ..tokenIn = tokenIn
       ..tokenOut = tokenOut
@@ -74,9 +69,6 @@ class SwapGrpcRepository implements SwapRepository {
 
     final response = await GrpcClient.instance.stub.executeSwap(request);
 
-    return TxResult(
-      txHash: response.receipt.txHash,
-      success: response.receipt.success,
-    );
+    return TxResult(txHash: response.receipt.txHash, success: response.receipt.success);
   }
 }

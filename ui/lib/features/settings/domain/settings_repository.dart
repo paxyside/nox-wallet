@@ -1,18 +1,10 @@
 // Domain models and abstract repository for settings.
 
 /// Type of secret backing a wallet — domain-level enum, decoupled from proto.
-enum SecretKind {
-  unspecified,
-  mnemonic,
-  privateKey,
-}
+enum SecretKind { unspecified, mnemonic, privateKey }
 
 class WalletSettings {
-  const WalletSettings({
-    required this.address,
-    required this.label,
-    required this.secretKind,
-  });
+  const WalletSettings({required this.address, required this.label, required this.secretKind});
 
   final String address;
   final String label;

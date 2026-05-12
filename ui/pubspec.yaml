@@ -1,7 +1,7 @@
 name: nox
 description: Nox — Ethereum wallet for macOS.
 publish_to: none
-version: 1.0.0+1
+version: 0.1.0+1
 
 environment:
   sdk: ^3.11.5
@@ -44,6 +44,10 @@ dependencies:
   freezed_annotation: ^2.4.4
   json_annotation: ^4.9.0
   url_launcher: ^6.3.2
+
+  # Sparkle-backed auto-update (macOS / Windows). See Info.plist
+  # (SUFeedURL / SUPublicEDKey) and lib/core/services/update_service.dart.
+  auto_updater: ^1.0.0
 
 dev_dependencies:
   flutter_test:

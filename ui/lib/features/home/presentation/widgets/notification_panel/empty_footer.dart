@@ -31,29 +31,15 @@ class _EmptyState extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: colors.border),
             ),
-            child: Icon(
-              Icons.notifications_none_rounded,
-              size: 18,
-              color: colors.textDisabled,
-            ),
+            child: Icon(Icons.notifications_none_rounded, size: 18, color: colors.textDisabled),
           ),
           const SizedBox(height: 10),
           Text(
             'Nothing here yet',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: colors.textPrimary,
-            ),
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.textPrimary),
           ),
           const SizedBox(height: 2),
-          Text(
-            _subtitle,
-            style: TextStyle(
-              fontSize: 11.5,
-              color: colors.textSecondary,
-            ),
-          ),
+          Text(_subtitle, style: TextStyle(fontSize: 11.5, color: colors.textSecondary)),
         ],
       ),
     );

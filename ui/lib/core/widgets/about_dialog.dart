@@ -43,20 +43,14 @@ class AppAboutDialog extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Name
-                  Text(
-                    'Nox Wallet',
-                    style: AppTextStyles.h2.copyWith(color: col.textPrimary),
-                  ),
+                  Text('Nox Wallet', style: AppTextStyles.h2.copyWith(color: col.textPrimary)),
                   const SizedBox(height: 8),
 
                   // Description
                   Text(
                     'Self-custody Ethereum wallet for macOS.\nYour keys, your coins — stored locally, never shared.',
                     textAlign: TextAlign.center,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: col.textSecondary,
-                      height: 1.6,
-                    ),
+                    style: AppTextStyles.bodySmall.copyWith(color: col.textSecondary, height: 1.6),
                   ),
 
                   const SizedBox(height: 24),
@@ -68,15 +62,9 @@ class AppAboutDialog extends StatelessWidget {
                   const SizedBox(height: 10),
                   const _InfoRow(label: 'Network', value: 'Ethereum Mainnet'),
                   const SizedBox(height: 10),
-                  const _InfoRow(
-                    label: 'Backend',
-                    value: 'gRPC · 127.0.0.1:50055',
-                  ),
+                  const _InfoRow(label: 'Backend', value: 'gRPC · 127.0.0.1:50055'),
                   const SizedBox(height: 10),
-                  const _InfoRow(
-                    label: 'Protocol',
-                    value: 'Protocol Buffers v3',
-                  ),
+                  const _InfoRow(label: 'Protocol', value: 'Protocol Buffers v3'),
                 ],
               ),
             ),
@@ -104,12 +92,7 @@ class _InfoRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.colors.textSecondary,
-          ),
-        ),
+        Text(label, style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary)),
         Text(
           value,
           style: AppTextStyles.bodySmall.copyWith(

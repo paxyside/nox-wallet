@@ -32,10 +32,7 @@ class _Header extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             'Notification center',
-            style: AppTextStyles.h2.copyWith(
-              color: col.textPrimary,
-              fontSize: 17,
-            ),
+            style: AppTextStyles.h2.copyWith(color: col.textPrimary, fontSize: 17),
           ),
           if (unread > 0) ...[
             const SizedBox(width: 10),
@@ -56,11 +53,7 @@ class _Header extends StatelessWidget {
             ),
           ],
           const Spacer(),
-          _HeaderAction(
-            icon: Icons.done_all_rounded,
-            label: 'Mark all read',
-            onTap: onMarkAllRead,
-          ),
+          _HeaderAction(icon: Icons.done_all_rounded, label: 'Mark all read', onTap: onMarkAllRead),
           const SizedBox(width: 6),
           _HeaderAction(
             icon: Icons.delete_outline_rounded,
@@ -78,11 +71,7 @@ class _Header extends StatelessWidget {
             tooltip: 'Notification settings',
           ),
           const SizedBox(width: 4),
-          _HeaderIconButton(
-            icon: Icons.close_rounded,
-            onTap: onClose,
-            tooltip: 'Close',
-          ),
+          _HeaderIconButton(icon: Icons.close_rounded, onTap: onClose, tooltip: 'Close'),
         ],
       ),
     );
@@ -90,12 +79,7 @@ class _Header extends StatelessWidget {
 }
 
 class _HeaderAction extends StatefulWidget {
-  const _HeaderAction({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.color,
-  });
+  const _HeaderAction({required this.icon, required this.label, required this.onTap, this.color});
 
   final IconData icon;
   final String label;

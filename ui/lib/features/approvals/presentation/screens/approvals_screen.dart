@@ -7,6 +7,7 @@ import 'package:nox/core/utils/error_message.dart';
 import 'package:nox/core/widgets/app_dialog.dart';
 import 'package:nox/core/widgets/app_snack_bar.dart';
 import 'package:nox/core/widgets/pagination.dart';
+import 'package:nox/core/widgets/token_icon.dart';
 import 'package:nox/features/approvals/domain/approval.dart';
 import 'package:nox/features/approvals/presentation/providers/approvals_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -46,11 +47,8 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
           ),
           Expanded(
             child: async.when(
-              loading: () => Center(
-                child: CircularProgressIndicator(
-                  color: context.colors.primary,
-                ),
-              ),
+              loading: () =>
+                  Center(child: CircularProgressIndicator(color: context.colors.primary)),
               error: (e, _) => _ErrorState(
                 message: errorMessage(e),
                 onRetry: () => ref.read(approvalsNotifierProvider.notifier).refresh(),
@@ -73,10 +71,8 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
                         padding: const EdgeInsets.fromLTRB(28, 16, 28, 8),
                         itemCount: pageItems.length,
                         separatorBuilder: (_, _) => const SizedBox(height: 8),
-                        itemBuilder: (_, i) => _ApprovalTile(
-                          key: ValueKey(pageItems[i].id),
-                          approval: pageItems[i],
-                        ),
+                        itemBuilder: (_, i) =>
+                            _ApprovalTile(key: ValueKey(pageItems[i].id), approval: pageItems[i]),
                       ),
                     ),
                     if (totalPages > 1)
@@ -101,11 +97,7 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _Header extends StatelessWidget {
-  const _Header({
-    required this.count,
-    required this.isLoading,
-    required this.onRefresh,
-  });
+  const _Header({required this.count, required this.isLoading, required this.onRefresh});
 
   final int count;
   final bool isLoading;
@@ -126,9 +118,7 @@ class _Header extends StatelessWidget {
             children: [
               Text(
                 'Approvals',
-                style: AppTextStyles.h2.copyWith(
-                  color: context.colors.textPrimary,
-                ),
+                style: AppTextStyles.h2.copyWith(color: context.colors.textPrimary),
               ),
               Text(
                 isLoading
@@ -136,9 +126,7 @@ class _Header extends StatelessWidget {
                     : count == 0
                     ? 'No active allowances'
                     : '$count active ${count == 1 ? 'approval' : 'approvals'}',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.colors.textSecondary,
-                ),
+                style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
               ),
             ],
           ),
@@ -151,9 +139,7 @@ class _Header extends StatelessWidget {
               foregroundColor: context.colors.textSecondary,
               side: BorderSide(color: context.colors.border),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           ),
         ],
@@ -195,16 +181,12 @@ class _ApprovalTileState extends ConsumerState<_ApprovalTile> {
           'Submit an on-chain transaction to set ${widget.approval.tokenSymbol} '
           'allowance for ${widget.approval.spenderLabel} to zero. '
           'This costs gas.',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: context.colors.textSecondary,
-          ),
+          style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            style: TextButton.styleFrom(
-              foregroundColor: context.colors.textSecondary,
-            ),
+            style: TextButton.styleFrom(foregroundColor: context.colors.textSecondary),
             child: const Text('Cancel'),
           ),
           FilledButton(
@@ -212,9 +194,7 @@ class _ApprovalTileState extends ConsumerState<_ApprovalTile> {
             style: FilledButton.styleFrom(
               backgroundColor: context.colors.error,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('Revoke'),
           ),
@@ -240,9 +220,7 @@ class _ApprovalTileState extends ConsumerState<_ApprovalTile> {
   }
 
   Future<void> _openExplorer() async {
-    await launchUrl(
-      Uri.parse('https://etherscan.io/address/${widget.approval.spender}'),
-    );
+    await launchUrl(Uri.parse('https://etherscan.io/address/${widget.approval.spender}'));
   }
 
   @override
@@ -260,8 +238,8 @@ class _ApprovalTileState extends ConsumerState<_ApprovalTile> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // ── Token avatar (CDN logo from Alchemy, fallback to letter) ─────
-          _TokenAvatar(symbol: a.tokenSymbol, logoUrl: a.tokenLogoUrl),
+          // ── Token avatar — logo from Uniswap Default List, fallback letter ─
+          TokenIcon(symbol: a.tokenSymbol, logoUrl: a.tokenLogoUrl, size: 40),
           const SizedBox(width: 12),
 
           // ── Token + spender info ─────────────────────────────────────────
@@ -281,10 +259,7 @@ class _ApprovalTileState extends ConsumerState<_ApprovalTile> {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: isUnlimited
                             ? context.colors.error.withValues(alpha: 0.1)
@@ -312,9 +287,7 @@ class _ApprovalTileState extends ConsumerState<_ApprovalTile> {
                   children: [
                     Text(
                       'Granted to ',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: context.colors.textDisabled,
-                      ),
+                      style: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
                     ),
                     Text(
                       a.spenderLabel,
@@ -326,18 +299,12 @@ class _ApprovalTileState extends ConsumerState<_ApprovalTile> {
                     const SizedBox(width: 6),
                     GestureDetector(
                       onTap: () async {
-                        await Clipboard.setData(
-                          ClipboardData(text: a.spender),
-                        );
+                        await Clipboard.setData(ClipboardData(text: a.spender));
                         if (context.mounted) {
                           AppSnackBar.info(context, 'Spender address copied.');
                         }
                       },
-                      child: Icon(
-                        Icons.copy_rounded,
-                        size: 12,
-                        color: context.colors.textDisabled,
-                      ),
+                      child: Icon(Icons.copy_rounded, size: 12, color: context.colors.textDisabled),
                     ),
                   ],
                 ),
@@ -349,11 +316,7 @@ class _ApprovalTileState extends ConsumerState<_ApprovalTile> {
           IconButton(
             onPressed: _openExplorer,
             tooltip: 'View spender on Etherscan',
-            icon: Icon(
-              Icons.open_in_new_rounded,
-              size: 16,
-              color: context.colors.textSecondary,
-            ),
+            icon: Icon(Icons.open_in_new_rounded, size: 16, color: context.colors.textSecondary),
           ),
           const SizedBox(width: 4),
           FilledButton.icon(
@@ -372,74 +335,13 @@ class _ApprovalTileState extends ConsumerState<_ApprovalTile> {
             style: FilledButton.styleFrom(
               backgroundColor: context.colors.error,
               foregroundColor: Colors.white,
-              disabledBackgroundColor: context.colors.error.withValues(
-                alpha: 0.4,
-              ),
+              disabledBackgroundColor: context.colors.error.withValues(alpha: 0.4),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               textStyle: AppTextStyles.labelMedium,
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Token avatar — CDN logo with letter-fallback
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _TokenAvatar extends StatelessWidget {
-  const _TokenAvatar({required this.symbol, required this.logoUrl});
-
-  final String symbol;
-  final String logoUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    final placeholder = _LetterAvatar(symbol: symbol);
-
-    if (logoUrl.isEmpty) return placeholder;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Image.network(
-        logoUrl,
-        width: 40,
-        height: 40,
-        fit: BoxFit.cover,
-        // 404 / network failure → silently fall back to the letter avatar.
-        errorBuilder: (_, _, _) => placeholder,
-        loadingBuilder: (_, child, progress) => progress == null ? child : placeholder,
-      ),
-    );
-  }
-}
-
-class _LetterAvatar extends StatelessWidget {
-  const _LetterAvatar({required this.symbol});
-  final String symbol;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: context.colors.surfaceHigh,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: context.colors.border),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        symbol.isEmpty ? '?' : symbol.substring(0, 1).toUpperCase(),
-        style: AppTextStyles.labelLarge.copyWith(
-          color: context.colors.textPrimary,
-          fontWeight: FontWeight.w700,
-        ),
       ),
     );
   }
@@ -464,22 +366,14 @@ class _EmptyState extends StatelessWidget {
             decoration: BoxDecoration(
               color: context.colors.success.withValues(alpha: 0.1),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: context.colors.success.withValues(alpha: 0.3),
-              ),
+              border: Border.all(color: context.colors.success.withValues(alpha: 0.3)),
             ),
-            child: Icon(
-              Icons.shield_rounded,
-              size: 32,
-              color: context.colors.success,
-            ),
+            child: Icon(Icons.shield_rounded, size: 32, color: context.colors.success),
           ),
           const SizedBox(height: 20),
           Text(
             'No active approvals',
-            style: AppTextStyles.h3.copyWith(
-              color: context.colors.textPrimary,
-            ),
+            style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
           ),
           const SizedBox(height: 6),
           SizedBox(
@@ -489,9 +383,7 @@ class _EmptyState extends StatelessWidget {
               'routers. Approvals appear here after the first swap of a '
               'given ERC-20 token.',
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.textSecondary,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
             ),
           ),
         ],
@@ -512,20 +404,14 @@ class _ErrorState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.error_outline_rounded,
-            size: 32,
-            color: context.colors.error,
-          ),
+          Icon(Icons.error_outline_rounded, size: 32, color: context.colors.error),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.error,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.error),
             ),
           ),
           const SizedBox(height: 12),

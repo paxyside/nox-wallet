@@ -120,9 +120,7 @@ class _NotificationCenterBodyState extends ConsumerState<_NotificationCenterBody
             onToggleSettings: () => setState(() => _showSettings = !_showSettings),
             onMarkAllRead: unread == 0
                 ? null
-                : () => unawaited(
-                    ref.read(notificationHistoryProvider.notifier).markAllRead(),
-                  ),
+                : () => unawaited(ref.read(notificationHistoryProvider.notifier).markAllRead()),
             onClearAll: events.isEmpty ? null : () => unawaited(_confirmClear(context, ref)),
             onClose: () => Navigator.of(context).pop(),
           ),
@@ -147,11 +145,7 @@ class _NotificationCenterBodyState extends ConsumerState<_NotificationCenterBody
                             onTap: (e) {
                               if (e.id.isNotEmpty && !e.isRead) {
                                 unawaited(
-                                  ref
-                                      .read(
-                                        notificationHistoryProvider.notifier,
-                                      )
-                                      .markRead(e.id),
+                                  ref.read(notificationHistoryProvider.notifier).markRead(e.id),
                                 );
                               }
                               // For transaction events, open Etherscan
@@ -161,11 +155,7 @@ class _NotificationCenterBodyState extends ConsumerState<_NotificationCenterBody
                               // those are just mark-read no-ops.
                               final hash = _txHashOf(e);
                               if (hash.isNotEmpty) {
-                                unawaited(
-                                  launchUrl(
-                                    Uri.parse('https://etherscan.io/tx/$hash'),
-                                  ),
-                                );
+                                unawaited(launchUrl(Uri.parse('https://etherscan.io/tx/$hash')));
                               }
                             },
                           ),
@@ -196,10 +186,7 @@ class _NotificationCenterBodyState extends ConsumerState<_NotificationCenterBody
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: col.textSecondary),
-            ),
+            child: Text('Cancel', style: TextStyle(color: col.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),

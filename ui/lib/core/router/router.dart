@@ -64,17 +64,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: notifier,
     redirect: notifier.redirect,
     routes: [
-      GoRoute(
-        path: Routes.onboarding,
-        builder: (context, state) => const OnboardingScreen(),
-      ),
+      GoRoute(path: Routes.onboarding, builder: (context, state) => const OnboardingScreen()),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
-          GoRoute(
-            path: Routes.home,
-            builder: (context, state) => const HomeScreen(),
-          ),
+          GoRoute(path: Routes.home, builder: (context, state) => const HomeScreen()),
           GoRoute(
             path: Routes.send,
             builder: (context, state) => SendScreen(
@@ -90,26 +84,11 @@ final routerProvider = Provider<GoRouter>((ref) {
               initialTokenInAddress: state.uri.queryParameters['tokenIn'],
             ),
           ),
-          GoRoute(
-            path: Routes.history,
-            builder: (context, state) => const HistoryScreen(),
-          ),
-          GoRoute(
-            path: Routes.contacts,
-            builder: (context, state) => const ContactsScreen(),
-          ),
-          GoRoute(
-            path: Routes.tokens,
-            builder: (context, state) => const TokensScreen(),
-          ),
-          GoRoute(
-            path: Routes.approvals,
-            builder: (context, state) => const ApprovalsScreen(),
-          ),
-          GoRoute(
-            path: Routes.settings,
-            builder: (context, state) => const SettingsScreen(),
-          ),
+          GoRoute(path: Routes.history, builder: (context, state) => const HistoryScreen()),
+          GoRoute(path: Routes.contacts, builder: (context, state) => const ContactsScreen()),
+          GoRoute(path: Routes.tokens, builder: (context, state) => const TokensScreen()),
+          GoRoute(path: Routes.approvals, builder: (context, state) => const ApprovalsScreen()),
+          GoRoute(path: Routes.settings, builder: (context, state) => const SettingsScreen()),
         ],
       ),
     ],
@@ -225,10 +204,7 @@ class AppShell extends ConsumerWidget {
           Expanded(
             child: ScaffoldMessenger(
               key: AppSnackBar.messengerKey,
-              child: Scaffold(
-                backgroundColor: context.colors.background,
-                body: child,
-              ),
+              child: Scaffold(backgroundColor: context.colors.background, body: child),
             ),
           ),
         ],

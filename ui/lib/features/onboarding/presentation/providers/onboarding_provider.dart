@@ -21,9 +21,7 @@ class GenerateWalletNotifier extends _$GenerateWalletNotifier {
 
   Future<void> generateWallet(String label) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(onboardingUseCaseProvider).generateWallet(label),
-    );
+    state = await AsyncValue.guard(() => ref.read(onboardingUseCaseProvider).generateWallet(label));
   }
 
   void reset() => state = const AsyncData(null);
@@ -35,11 +33,7 @@ class ImportMnemonicNotifier extends _$ImportMnemonicNotifier {
   @override
   AsyncValue<void> build() => const AsyncData(null);
 
-  Future<bool> importMnemonic(
-    String mnemonic,
-    String label, {
-    String derivationPath = '',
-  }) async {
+  Future<bool> importMnemonic(String mnemonic, String label, {String derivationPath = ''}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
       () => ref
@@ -71,11 +65,7 @@ class ImportKeystoreNotifier extends _$ImportKeystoreNotifier {
   @override
   AsyncValue<void> build() => const AsyncData(null);
 
-  Future<bool> importKeystore(
-    List<int> keystoreJson,
-    String passphrase,
-    String label,
-  ) async {
+  Future<bool> importKeystore(List<int> keystoreJson, String passphrase, String label) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
       () => ref.read(onboardingUseCaseProvider).importKeystore(keystoreJson, passphrase, label),

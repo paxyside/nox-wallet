@@ -40,11 +40,7 @@ String _formatBlock(int n) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class WalletNetworkStats extends StatelessWidget {
-  const WalletNetworkStats({
-    required this.gasStats,
-    required this.balanceData,
-    super.key,
-  });
+  const WalletNetworkStats({required this.gasStats, required this.balanceData, super.key});
 
   final GasStats gasStats;
   final BalanceData balanceData;
@@ -86,11 +82,7 @@ class WalletNetworkStats extends StatelessWidget {
 }
 
 class _StatChip extends StatelessWidget {
-  const _StatChip({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+  const _StatChip({required this.icon, required this.label, required this.value});
 
   final IconData icon;
   final String label;

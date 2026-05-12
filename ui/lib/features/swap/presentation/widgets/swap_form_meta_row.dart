@@ -18,11 +18,7 @@ import 'package:nox/features/swap/presentation/providers/swap_provider.dart';
 // ---------------------------------------------------------------------------
 
 class SwapFormMetaRow extends ConsumerWidget {
-  const SwapFormMetaRow({
-    required this.assetIn,
-    required this.assetOut,
-    super.key,
-  });
+  const SwapFormMetaRow({required this.assetIn, required this.assetOut, super.key});
 
   final SwapAsset? assetIn;
   final SwapAsset? assetOut;
@@ -94,10 +90,7 @@ class _Row extends StatelessWidget {
       children: [
         Icon(icon, size: 13, color: colors.textDisabled),
         const SizedBox(width: 8),
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
-        ),
+        Text(label, style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary)),
         const Spacer(),
         value,
       ],
@@ -117,11 +110,7 @@ class _RoutePreview extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        TokenIcon(
-          symbol: assetIn.symbol,
-          address: assetIn.tokenAddress,
-          size: 16,
-        ),
+        TokenIcon(symbol: assetIn.symbol, logoUrl: assetIn.logoUrl, size: 16),
         const SizedBox(width: 4),
         Text(
           assetIn.symbol,
@@ -134,11 +123,7 @@ class _RoutePreview extends StatelessWidget {
         const SizedBox(width: 6),
         Icon(Icons.arrow_forward_rounded, size: 11, color: colors.textDisabled),
         const SizedBox(width: 6),
-        TokenIcon(
-          symbol: assetOut.symbol,
-          address: assetOut.tokenAddress,
-          size: 16,
-        ),
+        TokenIcon(symbol: assetOut.symbol, logoUrl: assetOut.logoUrl, size: 16),
         const SizedBox(width: 4),
         Text(
           assetOut.symbol,

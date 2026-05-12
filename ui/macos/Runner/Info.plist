@@ -35,5 +35,28 @@
 		<string>https</string>
 		<string>http</string>
 	</array>
+
+	<!-- ─── Sparkle auto-update ────────────────────────────────────────
+	     SUFeedURL          appcast.xml — always /latest/ on Releases.
+	     SUPublicEDKey      base64 EdDSA pubkey; matched against the
+	                        sparkle:edSignature attribute inside the
+	                        appcast.xml. CI signs releases with the
+	                        matching private key (kept as the
+	                        SPARKLE_ED_PRIVATE_KEY GitHub Secret).
+	                        See RELEASING.md → "Sparkle setup" for
+	                        how to generate the keypair the first time.
+	     SUEnableAutomaticChecks    on by default once the interval is set.
+	     SUScheduledCheckInterval   3600s = once an hour. Sparkle does
+	                                the check off the main thread; user
+	                                only sees a dialog when a newer
+	                                version exists. -->
+	<key>SUFeedURL</key>
+	<string>https://github.com/paxyside/nox-wallet/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>J4ehHPBP+trTmSPKpdh9HM8JXQo/b/JkQePxPcsV2es=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>3600</integer>
 </dict>
 </plist>

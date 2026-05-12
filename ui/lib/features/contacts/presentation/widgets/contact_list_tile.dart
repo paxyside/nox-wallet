@@ -75,18 +75,14 @@ class _ContactListTileState extends State<ContactListTile> {
                   children: [
                     Text(
                       widget.contact.name,
-                      style: AppTextStyles.labelLarge.copyWith(
-                        color: context.colors.textPrimary,
-                      ),
+                      style: AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _truncatedAddress,
-                      style: AppTextStyles.monoSmall.copyWith(
-                        color: context.colors.textSecondary,
-                      ),
+                      style: AppTextStyles.monoSmall.copyWith(color: context.colors.textSecondary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -151,11 +147,7 @@ class _Avatar extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         letter,
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-          color: _bg,
-        ),
+        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _bg),
       ),
     );
   }

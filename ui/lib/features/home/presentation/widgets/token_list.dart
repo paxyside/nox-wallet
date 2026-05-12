@@ -13,20 +13,12 @@ import 'package:nox/features/tokens/presentation/providers/tokens_provider.dart'
 import 'package:nox/features/tokens/presentation/widgets/add_token_dialog.dart';
 
 class TokenList extends ConsumerWidget {
-  const TokenList({
-    required this.balanceData,
-    super.key,
-  });
+  const TokenList({required this.balanceData, super.key});
 
   final BalanceData balanceData;
 
   void _showAddToken(BuildContext context) {
-    unawaited(
-      showAppDialog<void>(
-        context: context,
-        builder: (_) => const AddTokenDialog(),
-      ),
-    );
+    unawaited(showAppDialog<void>(context: context, builder: (_) => const AddTokenDialog()));
   }
 
   // Dashboard's compact list shows ERC-20 tokens only (ETH lives in the
@@ -89,9 +81,7 @@ class TokenList extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(20, 14, 16, 12),
             child: Text(
               'Tokens',
-              style: AppTextStyles.h3.copyWith(
-                color: context.colors.textPrimary,
-              ),
+              style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
             ),
           ),
           Divider(height: 1, color: context.colors.border),
@@ -100,12 +90,7 @@ class TokenList extends ConsumerWidget {
           for (int i = 0; i < visibleTokens.length; i++) ...[
             _TokenRow(token: visibleTokens[i]),
             if (i < visibleTokens.length - 1)
-              Divider(
-                height: 1,
-                indent: 20,
-                endIndent: 20,
-                color: context.colors.border,
-              ),
+              Divider(height: 1, indent: 20, endIndent: 20, color: context.colors.border),
           ],
 
           // ── Empty state ──────────────────────────────────────────
@@ -114,17 +99,11 @@ class TokenList extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 32),
               child: Column(
                 children: [
-                  Icon(
-                    Icons.token_outlined,
-                    size: 36,
-                    color: context.colors.textDisabled,
-                  ),
+                  Icon(Icons.token_outlined, size: 36, color: context.colors.textDisabled),
                   const SizedBox(height: 10),
                   Text(
                     'No tokens yet',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -169,17 +148,14 @@ class _TokenRowState extends State<_TokenRow> {
               ? LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
-                  colors: [
-                    context.colors.primary.withValues(alpha: 0.08),
-                    Colors.transparent,
-                  ],
+                  colors: [context.colors.primary.withValues(alpha: 0.08), Colors.transparent],
                 )
               : null,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
         child: Row(
           children: [
-            TokenIcon(symbol: t.symbol, address: t.address, size: 32),
+            TokenIcon(symbol: t.symbol, logoUrl: t.logoUrl, size: 32),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -194,9 +170,7 @@ class _TokenRowState extends State<_TokenRow> {
                   ),
                   Text(
                     t.name,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -214,9 +188,7 @@ class _TokenRowState extends State<_TokenRow> {
                 if (t.usdValue.isNotEmpty)
                   MaskableText(
                     t.usdValue,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                   ),
               ],
             ),

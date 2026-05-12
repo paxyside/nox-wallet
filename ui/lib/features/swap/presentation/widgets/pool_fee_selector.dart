@@ -26,9 +26,7 @@ class PoolFeeSelector extends ConsumerWidget {
       children: [
         Text(
           'Pool fee',
-          style: AppTextStyles.labelMedium.copyWith(
-            color: context.colors.textSecondary,
-          ),
+          style: AppTextStyles.labelMedium.copyWith(color: context.colors.textSecondary),
         ),
         const SizedBox(height: 8),
         Container(
@@ -55,9 +53,7 @@ class PoolFeeSelector extends ConsumerWidget {
                       child: Text(
                         fee.label,
                         style: isSelected
-                            ? AppTextStyles.labelLarge.copyWith(
-                                color: context.colors.textPrimary,
-                              )
+                            ? AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary)
                             : AppTextStyles.labelMedium.copyWith(
                                 color: context.colors.textSecondary,
                               ),

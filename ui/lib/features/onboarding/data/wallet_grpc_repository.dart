@@ -6,26 +6,16 @@ class WalletGrpcRepository implements WalletRepository {
   const WalletGrpcRepository();
 
   @override
-  Future<GeneratedWallet> generateWallet(
-    String label, {
-    bool wordCount24 = false,
-  }) async {
+  Future<GeneratedWallet> generateWallet(String label, {bool wordCount24 = false}) async {
     final request = GenerateWalletRequest()
       ..label = label
       ..wordCount24 = wordCount24;
     final response = await GrpcClient.instance.stub.generateWallet(request);
-    return createGeneratedWallet(
-      address: response.wallet.address,
-      mnemonic: response.mnemonic,
-    );
+    return createGeneratedWallet(address: response.wallet.address, mnemonic: response.mnemonic);
   }
 
   @override
-  Future<void> importMnemonic(
-    String mnemonic,
-    String label, {
-    String derivationPath = '',
-  }) async {
+  Future<void> importMnemonic(String mnemonic, String label, {String derivationPath = ''}) async {
     final request = ImportMnemonicRequest()
       ..mnemonic = mnemonic
       ..label = label
@@ -42,11 +32,7 @@ class WalletGrpcRepository implements WalletRepository {
   }
 
   @override
-  Future<void> importKeystore(
-    List<int> keystoreJson,
-    String passphrase,
-    String label,
-  ) async {
+  Future<void> importKeystore(List<int> keystoreJson, String passphrase, String label) async {
     final request = ImportKeystoreRequest()
       ..keystoreJson = keystoreJson
       ..passphrase = passphrase

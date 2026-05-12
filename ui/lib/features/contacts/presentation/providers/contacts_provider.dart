@@ -78,16 +78,9 @@ class ContactsNotifier extends _$ContactsNotifier {
     return contact;
   }
 
-  Future<Contact?> edit(
-    String id,
-    String name,
-    String address,
-    String note,
-  ) async {
+  Future<Contact?> edit(String id, String name, String address, String note) async {
     final updated = await ref.read(contactRepositoryProvider).update(id, name, address, note);
-    state = AsyncData(
-      (state.valueOrNull ?? []).map((c) => c.id == id ? updated : c).toList(),
-    );
+    state = AsyncData((state.valueOrNull ?? []).map((c) => c.id == id ? updated : c).toList());
     return updated;
   }
 
@@ -97,9 +90,7 @@ class ContactsNotifier extends _$ContactsNotifier {
     final next = !contact.isFavorite;
 
     // Optimistic update
-    state = AsyncData(
-      contacts.map((c) => c.id == id ? c.copyWith(isFavorite: next) : c).toList(),
-    );
+    state = AsyncData(contacts.map((c) => c.id == id ? c.copyWith(isFavorite: next) : c).toList());
     try {
       await ref.read(contactRepositoryProvider).favorite(id, favorite: next);
     } catch (e) {
@@ -121,9 +112,7 @@ class ContactsNotifier extends _$ContactsNotifier {
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(contactRepositoryProvider).list(),
-    );
+    state = await AsyncValue.guard(() => ref.read(contactRepositoryProvider).list());
   }
 }
 

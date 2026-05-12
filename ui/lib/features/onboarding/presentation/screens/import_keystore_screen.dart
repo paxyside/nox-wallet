@@ -40,11 +40,7 @@ class _ImportKeystoreScreenState extends ConsumerState<ImportKeystoreScreen> {
 
     final success = await ref
         .read(importKeystoreNotifierProvider.notifier)
-        .importKeystore(
-          jsonBytes,
-          _passphraseController.text,
-          _labelController.text.trim(),
-        );
+        .importKeystore(jsonBytes, _passphraseController.text, _labelController.text.trim());
     if (success && mounted) {
       ref.invalidate(walletExistsProvider);
       context.go(Routes.home);
@@ -67,10 +63,7 @@ class _ImportKeystoreScreenState extends ConsumerState<ImportKeystoreScreen> {
       appBar: AppBar(
         backgroundColor: context.colors.background,
         elevation: 0,
-        leading: BackButton(
-          color: context.colors.textSecondary,
-          onPressed: () => context.pop(),
-        ),
+        leading: BackButton(color: context.colors.textSecondary, onPressed: () => context.pop()),
         title: Text(
           'Import keystore',
           style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
@@ -88,16 +81,12 @@ class _ImportKeystoreScreenState extends ConsumerState<ImportKeystoreScreen> {
                 children: [
                   Text(
                     'Enter keystore JSON',
-                    style: AppTextStyles.h2.copyWith(
-                      color: context.colors.textPrimary,
-                    ),
+                    style: AppTextStyles.h2.copyWith(color: context.colors.textPrimary),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Paste the contents of your keystore file and enter its passphrase.',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
                   ),
                   const SizedBox(height: 32),
                   OnboardingTextField(
@@ -122,9 +111,7 @@ class _ImportKeystoreScreenState extends ConsumerState<ImportKeystoreScreen> {
                   _PassphraseField(
                     controller: _passphraseController,
                     obscure: _obscurePassphrase,
-                    onToggle: () => setState(
-                      () => _obscurePassphrase = !_obscurePassphrase,
-                    ),
+                    onToggle: () => setState(() => _obscurePassphrase = !_obscurePassphrase),
                   ),
                   const SizedBox(height: 16),
                   OnboardingTextField(
@@ -150,11 +137,7 @@ class _ImportKeystoreScreenState extends ConsumerState<ImportKeystoreScreen> {
 }
 
 class _PassphraseField extends StatelessWidget {
-  const _PassphraseField({
-    required this.controller,
-    required this.obscure,
-    required this.onToggle,
-  });
+  const _PassphraseField({required this.controller, required this.obscure, required this.onToggle});
 
   final TextEditingController controller;
   final bool obscure;
@@ -165,19 +148,13 @@ class _PassphraseField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       obscureText: obscure,
-      style: AppTextStyles.bodyMedium.copyWith(
-        color: context.colors.textPrimary,
-      ),
+      style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
       validator: (v) => (v == null || v.isEmpty) ? 'Passphrase is required' : null,
       decoration: InputDecoration(
         labelText: 'Passphrase',
         hintText: 'Keystore passphrase',
-        labelStyle: AppTextStyles.bodySmall.copyWith(
-          color: context.colors.textSecondary,
-        ),
-        hintStyle: AppTextStyles.bodySmall.copyWith(
-          color: context.colors.textSecondary,
-        ),
+        labelStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
+        hintStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
         filled: false,
         fillColor: context.colors.surface,
         suffixIcon: IconButton(
@@ -208,10 +185,7 @@ class _PassphraseField extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: context.colors.error, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }

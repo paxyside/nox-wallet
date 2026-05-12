@@ -84,10 +84,7 @@ class _WalletNotificationPanelState extends ConsumerState<WalletNotificationPane
                   WalletNotificationPanel._notchSize * 2,
                   WalletNotificationPanel._notchSize,
                 ),
-                painter: _NotchPainter(
-                  fill: colors.surfaceHigh,
-                  stroke: colors.border,
-                ),
+                painter: _NotchPainter(fill: colors.surfaceHigh, stroke: colors.border),
               ),
             ),
 
@@ -122,18 +119,11 @@ class _WalletNotificationPanelState extends ConsumerState<WalletNotificationPane
                         onMarkAllRead: unreadCount == 0
                             ? null
                             : () => unawaited(
-                                ref
-                                    .read(
-                                      notificationHistoryProvider.notifier,
-                                    )
-                                    .markAllRead(),
+                                ref.read(notificationHistoryProvider.notifier).markAllRead(),
                               ),
                       ),
                       Divider(height: 1, color: colors.border),
-                      _TabBar(
-                        selected: _selected,
-                        onChanged: (t) => setState(() => _selected = t),
-                      ),
+                      _TabBar(selected: _selected, onChanged: (t) => setState(() => _selected = t)),
                       Divider(height: 1, color: colors.border),
                       Flexible(
                         child: filtered.isEmpty

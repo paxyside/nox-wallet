@@ -17,17 +17,13 @@ class ReplacementGrpcRepository implements ReplacementRepository {
 
   @override
   Future<String> speedUp(String txHash) async {
-    final response = await GrpcClient.instance.stub.speedUpTx(
-      SpeedUpTxRequest()..txHash = txHash,
-    );
+    final response = await GrpcClient.instance.stub.speedUpTx(SpeedUpTxRequest()..txHash = txHash);
     return response.newTxHash;
   }
 
   @override
   Future<String> cancel(String txHash) async {
-    final response = await GrpcClient.instance.stub.cancelTx(
-      CancelTxRequest()..txHash = txHash,
-    );
+    final response = await GrpcClient.instance.stub.cancelTx(CancelTxRequest()..txHash = txHash);
     return response.newTxHash;
   }
 }

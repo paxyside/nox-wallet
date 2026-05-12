@@ -70,15 +70,9 @@ class _AddTokenDialogState extends ConsumerState<AddTokenDialog> {
                 // Header
                 Row(
                   children: [
-                    const Expanded(
-                      child: Text('Add ERC-20 Token', style: AppTextStyles.h3),
-                    ),
+                    const Expanded(child: Text('Add ERC-20 Token', style: AppTextStyles.h3)),
                     IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        color: AppColors.textSecondary,
-                        size: 18,
-                      ),
+                      icon: const Icon(Icons.close, color: AppColors.textSecondary, size: 18),
                       onPressed: _loading ? null : () => Navigator.of(context).pop(),
                       splashRadius: 16,
                     ),
@@ -94,9 +88,7 @@ class _AddTokenDialogState extends ConsumerState<AddTokenDialog> {
                   decoration: InputDecoration(
                     labelText: 'Contract address',
                     hintText: '0x...',
-                    hintStyle: AppTextStyles.mono.copyWith(
-                      color: AppColors.textDisabled,
-                    ),
+                    hintStyle: AppTextStyles.mono.copyWith(color: AppColors.textDisabled),
                     labelStyle: const TextStyle(color: AppColors.textSecondary),
                     filled: false,
                     fillColor: AppColors.surfaceHigh,
@@ -139,24 +131,16 @@ class _AddTokenDialogState extends ConsumerState<AddTokenDialog> {
                     decoration: BoxDecoration(
                       color: AppColors.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColors.error.withValues(alpha: 0.4),
-                      ),
+                      border: Border.all(color: AppColors.error.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.error_outline,
-                          color: AppColors.error,
-                          size: 16,
-                        ),
+                        const Icon(Icons.error_outline, color: AppColors.error, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _errorMessage!,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.error,
-                            ),
+                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
                           ),
                         ),
                       ],
@@ -174,9 +158,7 @@ class _AddTokenDialogState extends ConsumerState<AddTokenDialog> {
                       onPressed: _loading ? null : () => Navigator.of(context).pop(),
                       child: Text(
                         'Cancel',
-                        style: AppTextStyles.labelLarge.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                        style: AppTextStyles.labelLarge.copyWith(color: AppColors.textSecondary),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -184,30 +166,17 @@ class _AddTokenDialogState extends ConsumerState<AddTokenDialog> {
                       onPressed: _loading ? null : _submit,
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        disabledBackgroundColor: AppColors.primary.withValues(
-                          alpha: 0.5,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
+                        disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       ),
                       child: _loading
                           ? const SizedBox(
                               width: 16,
                               height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             )
-                          : const Text(
-                              'Add Token',
-                              style: AppTextStyles.labelLarge,
-                            ),
+                          : const Text('Add Token', style: AppTextStyles.labelLarge),
                     ),
                   ],
                 ),

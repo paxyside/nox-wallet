@@ -13,9 +13,7 @@ class GrpcClient {
     _channel = ClientChannel(
       host,
       port: port,
-      options: const ChannelOptions(
-        credentials: ChannelCredentials.insecure(),
-      ),
+      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
     stub = WalletServiceClient(_channel);
   }

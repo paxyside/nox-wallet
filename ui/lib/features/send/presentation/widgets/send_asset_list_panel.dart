@@ -92,11 +92,7 @@ class _SendAssetListPanelState extends State<SendAssetListPanel> {
 }
 
 class _AssetRow extends StatefulWidget {
-  const _AssetRow({
-    required this.asset,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _AssetRow({required this.asset, required this.isSelected, required this.onTap});
 
   final SendAsset asset;
   final bool isSelected;
@@ -128,11 +124,7 @@ class _AssetRowState extends State<_AssetRow> {
               : Colors.transparent,
           child: Row(
             children: [
-              TokenIcon(
-                symbol: widget.asset.symbol,
-                address: widget.asset.tokenAddress,
-                size: 22,
-              ),
+              TokenIcon(symbol: widget.asset.symbol, logoUrl: widget.asset.logoUrl, size: 22),
               const SizedBox(width: 10),
               Text(
                 widget.asset.symbol,
@@ -145,25 +137,17 @@ class _AssetRowState extends State<_AssetRow> {
               Expanded(
                 child: Text(
                   widget.asset.name,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: context.colors.textSecondary,
-                  ),
+                  style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Text(
                 widget.asset.balance,
-                style: AppTextStyles.monoSmall.copyWith(
-                  color: context.colors.textSecondary,
-                ),
+                style: AppTextStyles.monoSmall.copyWith(color: context.colors.textSecondary),
               ),
               if (widget.isSelected) ...[
                 const SizedBox(width: 6),
-                Icon(
-                  Icons.check_rounded,
-                  size: 14,
-                  color: context.colors.primaryLight,
-                ),
+                Icon(Icons.check_rounded, size: 14, color: context.colors.primaryLight),
               ],
             ],
           ),

@@ -37,10 +37,7 @@ class GasEstimateCard extends ConsumerWidget {
       child: isEstimating
           ? const _LoadingCard(key: ValueKey('loading'))
           : estimate != null
-          ? _CombinedCard(
-              key: const ValueKey('estimate'),
-              state: send,
-            )
+          ? _CombinedCard(key: const ValueKey('estimate'), state: send)
           : const SizedBox.shrink(key: ValueKey('empty')),
     );
   }
@@ -71,17 +68,10 @@ class _CombinedCard extends ConsumerWidget {
             const SizedBox(height: 14),
             Divider(height: 1, color: context.colors.border),
             const SizedBox(height: 12),
-            _SpeedRow(
-              tier: state.gasTier,
-              locked: state.isBusy,
-              onChanged: notifier.setGasTier,
-            ),
+            _SpeedRow(tier: state.gasTier, locked: state.isBusy, onChanged: notifier.setGasTier),
             // AnimatedSize handles the expand/collapse without an explicit
             // tween — the child's intrinsic size animates to fit.
-            if (showCustom) ...[
-              const SizedBox(height: 12),
-              _CustomGasInputs(state: state),
-            ],
+            if (showCustom) ...[const SizedBox(height: 12), _CustomGasInputs(state: state)],
           ],
         ),
       ),
@@ -125,47 +115,23 @@ class _EstimateRow extends StatelessWidget {
   ({String time, String speed, Color Function(BuildContext) color}) get _timeInfo {
     switch (state.gasTier) {
       case GasTier.fast:
-        return (
-          time: '~12 sec',
-          speed: 'Fast',
-          color: (ctx) => ctx.colors.success,
-        );
+        return (time: '~12 sec', speed: 'Fast', color: (ctx) => ctx.colors.success);
       case GasTier.normal:
-        return (
-          time: '~30 sec',
-          speed: 'Standard',
-          color: (ctx) => ctx.colors.warning,
-        );
+        return (time: '~30 sec', speed: 'Standard', color: (ctx) => ctx.colors.warning);
       case GasTier.slow:
-        return (
-          time: '~1 min',
-          speed: 'Slow',
-          color: (ctx) => ctx.colors.error,
-        );
+        return (time: '~1 min', speed: 'Slow', color: (ctx) => ctx.colors.error);
       case GasTier.custom:
         // Same heuristic as before for Custom: maxFee vs baseFee ratio.
         final est = state.gasEstimate;
         final base = double.tryParse(est?.baseFee ?? '') ?? 0;
         final cap = state.effectiveMaxFeeGwei;
         if (base <= 0 || cap >= base * 1.5) {
-          return (
-            time: '~12 sec',
-            speed: 'Fast',
-            color: (ctx) => ctx.colors.success,
-          );
+          return (time: '~12 sec', speed: 'Fast', color: (ctx) => ctx.colors.success);
         }
         if (cap >= base * 1.1) {
-          return (
-            time: '~30 sec',
-            speed: 'Standard',
-            color: (ctx) => ctx.colors.warning,
-          );
+          return (time: '~30 sec', speed: 'Standard', color: (ctx) => ctx.colors.warning);
         }
-        return (
-          time: '~1 min',
-          speed: 'Slow',
-          color: (ctx) => ctx.colors.error,
-        );
+        return (time: '~1 min', speed: 'Slow', color: (ctx) => ctx.colors.error);
     }
   }
 
@@ -185,17 +151,11 @@ class _EstimateRow extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.local_gas_station_rounded,
-                    size: 16,
-                    color: context.colors.warning,
-                  ),
+                  Icon(Icons.local_gas_station_rounded, size: 16, color: context.colors.warning),
                   const SizedBox(width: 6),
                   Text(
                     'Estimated Gas',
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.labelMedium.copyWith(color: context.colors.textSecondary),
                   ),
                   const SizedBox(width: 4),
                   Tooltip(
@@ -254,17 +214,11 @@ class _EstimateRow extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.timer_outlined,
-                    size: 16,
-                    color: context.colors.textSecondary,
-                  ),
+                  Icon(Icons.timer_outlined, size: 16, color: context.colors.textSecondary),
                   const SizedBox(width: 6),
                   Text(
                     'Estimated Time',
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.labelMedium.copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -282,10 +236,7 @@ class _EstimateRow extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 2,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
                       color: speedColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(5),
@@ -312,11 +263,7 @@ class _EstimateRow extends StatelessWidget {
 // ── Speed row (label + tier picker) ──────────────────────────────────────────
 
 class _SpeedRow extends StatelessWidget {
-  const _SpeedRow({
-    required this.tier,
-    required this.locked,
-    required this.onChanged,
-  });
+  const _SpeedRow({required this.tier, required this.locked, required this.onChanged});
 
   final GasTier tier;
   final bool locked;
@@ -326,20 +273,10 @@ class _SpeedRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          'Speed',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.colors.textDisabled,
-          ),
-        ),
+        Text('Speed', style: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled)),
         const SizedBox(width: 16),
         Expanded(
-          child: GasTierPicker(
-            selected: tier,
-            onChanged: onChanged,
-            locked: locked,
-            expand: true,
-          ),
+          child: GasTierPicker(selected: tier, onChanged: onChanged, locked: locked, expand: true),
         ),
       ],
     );
@@ -363,9 +300,7 @@ class _CustomGasInputsState extends ConsumerState<_CustomGasInputs> {
   @override
   void initState() {
     super.initState();
-    _priorityCtrl = TextEditingController(
-      text: widget.state.customPriorityGwei,
-    );
+    _priorityCtrl = TextEditingController(text: widget.state.customPriorityGwei);
     _maxCtrl = TextEditingController(text: widget.state.customMaxGwei);
   }
 
@@ -411,20 +346,12 @@ class _CustomGasInputsState extends ConsumerState<_CustomGasInputs> {
     return TextField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      style: AppTextStyles.mono.copyWith(
-        color: context.colors.textPrimary,
-        fontSize: 13,
-      ),
+      style: AppTextStyles.mono.copyWith(color: context.colors.textPrimary, fontSize: 13),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: AppTextStyles.bodySmall.copyWith(
-          color: context.colors.textDisabled,
-        ),
+        labelStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: context.colors.border),
@@ -455,17 +382,12 @@ class _LoadingCard extends StatelessWidget {
         SizedBox(
           width: 14,
           height: 14,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: context.colors.primary,
-          ),
+          child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
         ),
         const SizedBox(width: 10),
         Text(
           'Estimating gas…',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.colors.textSecondary,
-          ),
+          style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
         ),
       ],
     ),
@@ -483,9 +405,6 @@ class _CardShell extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: context.colors.border),
     ),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: child,
-    ),
+    child: Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), child: child),
   );
 }

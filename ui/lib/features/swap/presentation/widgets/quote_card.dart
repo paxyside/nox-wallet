@@ -138,11 +138,7 @@ class QuoteCard extends StatelessWidget {
               ),
               const Spacer(),
               // In token
-              TokenIcon(
-                symbol: assetIn?.symbol ?? '',
-                address: assetIn?.tokenAddress,
-                size: 18,
-              ),
+              TokenIcon(symbol: assetIn?.symbol ?? '', logoUrl: assetIn?.logoUrl, size: 18),
               const SizedBox(width: 5),
               Text(
                 inSym,
@@ -152,18 +148,10 @@ class QuoteCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_rounded,
-                size: 13,
-                color: context.colors.textDisabled,
-              ),
+              Icon(Icons.arrow_forward_rounded, size: 13, color: context.colors.textDisabled),
               const SizedBox(width: 8),
               // Out token
-              TokenIcon(
-                symbol: assetOut?.symbol ?? '',
-                address: assetOut?.tokenAddress,
-                size: 18,
-              ),
+              TokenIcon(symbol: assetOut?.symbol ?? '', logoUrl: assetOut?.logoUrl, size: 18),
               const SizedBox(width: 5),
               Text(
                 outSym,
@@ -231,20 +219,11 @@ class _LabelWithTooltip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.colors.textSecondary,
-          ),
-        ),
+        Text(label, style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary)),
         const SizedBox(width: 5),
         Tooltip(
           message: tooltip,
-          child: Icon(
-            Icons.info_outline_rounded,
-            size: 13,
-            color: context.colors.textDisabled,
-          ),
+          child: Icon(Icons.info_outline_rounded, size: 13, color: context.colors.textDisabled),
         ),
       ],
     );

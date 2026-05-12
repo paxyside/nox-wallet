@@ -131,16 +131,12 @@ class _ContactCardState extends ConsumerState<ContactCard> {
         ),
         content: Text(
           'Remove "${c.name}" from your contacts? This cannot be undone.',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: context.colors.textSecondary,
-          ),
+          style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            style: TextButton.styleFrom(
-              foregroundColor: context.colors.textSecondary,
-            ),
+            style: TextButton.styleFrom(foregroundColor: context.colors.textSecondary),
             child: const Text('Cancel'),
           ),
           FilledButton(
@@ -148,9 +144,7 @@ class _ContactCardState extends ConsumerState<ContactCard> {
             style: FilledButton.styleFrom(
               backgroundColor: context.colors.error,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('Delete'),
           ),
@@ -232,11 +226,7 @@ class _ContactCardState extends ConsumerState<ContactCard> {
               alignment: Alignment.center,
               child: Text(
                 _letter,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: col,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: col),
               ),
             ),
 
@@ -260,9 +250,7 @@ class _ContactCardState extends ConsumerState<ContactCard> {
                     context.go(Routes.send);
                   },
                   onCopy: () {
-                    unawaited(
-                      Clipboard.setData(ClipboardData(text: c.address)),
-                    );
+                    unawaited(Clipboard.setData(ClipboardData(text: c.address)));
                     AppSnackBar.info(context, 'Address copied.');
                   },
                   onEdit: _startEdit,
@@ -312,15 +300,9 @@ class _NormalContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nameTxt = AppTextStyles.labelLarge.copyWith(
-      color: context.colors.textPrimary,
-    );
-    final addrTxt = AppTextStyles.monoSmall.copyWith(
-      color: context.colors.textSecondary,
-    );
-    final noteTxt = AppTextStyles.bodySmall.copyWith(
-      color: context.colors.textDisabled,
-    );
+    final nameTxt = AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary);
+    final addrTxt = AppTextStyles.monoSmall.copyWith(color: context.colors.textSecondary);
+    final noteTxt = AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -336,12 +318,7 @@ class _NormalContent extends StatelessWidget {
               _HighlightText(text: shortAddr, query: query, style: addrTxt),
               if (note.isNotEmpty) ...[
                 const SizedBox(height: 3),
-                Text(
-                  note,
-                  style: noteTxt,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text(note, style: noteTxt, maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
             ],
           ),
@@ -452,10 +429,7 @@ class _MiniBtnState extends State<_MiniBtn> {
                           c.withValues(alpha: _pressed ? 0.22 : 0.15),
                           c.withValues(alpha: _pressed ? 0.10 : 0.06),
                         ]
-                      : [
-                          c.withValues(alpha: 0.08),
-                          c.withValues(alpha: 0.08),
-                        ],
+                      : [c.withValues(alpha: 0.08), c.withValues(alpha: 0.08)],
                 ),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
@@ -474,9 +448,7 @@ class _MiniBtnState extends State<_MiniBtn> {
                       ]
                     : null,
               ),
-              child: Center(
-                child: Icon(widget.icon, size: 16, color: c),
-              ),
+              child: Center(child: Icon(widget.icon, size: 16, color: c)),
             ),
           ),
         ),
@@ -490,11 +462,7 @@ class _MiniBtnState extends State<_MiniBtn> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _HighlightText extends StatelessWidget {
-  const _HighlightText({
-    required this.text,
-    required this.query,
-    required this.style,
-  });
+  const _HighlightText({required this.text, required this.query, required this.style});
 
   final String text;
   final String query;

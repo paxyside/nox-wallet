@@ -60,10 +60,7 @@ class _SettingsToggleRow extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: col.textPrimary,
-                  fontSize: 13,
-                ),
+                style: AppTextStyles.labelMedium.copyWith(color: col.textPrimary, fontSize: 13),
               ),
             ),
             Transform.scale(
@@ -112,10 +109,7 @@ class _SettingsTapRow extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: col.textPrimary,
-                  fontSize: 13,
-                ),
+                style: AppTextStyles.labelMedium.copyWith(color: col.textPrimary, fontSize: 13),
               ),
             ),
             ?trailing,

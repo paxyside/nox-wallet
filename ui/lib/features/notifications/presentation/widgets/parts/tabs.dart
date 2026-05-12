@@ -5,11 +5,7 @@ part of '../notification_center.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _TabBar extends StatelessWidget {
-  const _TabBar({
-    required this.selected,
-    required this.unread,
-    required this.onChanged,
-  });
+  const _TabBar({required this.selected, required this.unread, required this.onChanged});
 
   final _Tab selected;
   final int unread;
@@ -42,12 +38,7 @@ class _TabBar extends StatelessWidget {
 }
 
 class _TabPill extends StatefulWidget {
-  const _TabPill({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-    this.count,
-  });
+  const _TabPill({required this.label, required this.isSelected, required this.onTap, this.count});
 
   final String label;
   final bool isSelected;
@@ -79,9 +70,7 @@ class _TabPillState extends State<_TabPill> {
                 ? col.primary.withValues(alpha: 0.18)
                 : (_hovered ? col.surface : Colors.transparent),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: selected ? col.primary.withValues(alpha: 0.5) : col.border,
-            ),
+            border: Border.all(color: selected ? col.primary.withValues(alpha: 0.5) : col.border),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -97,10 +86,7 @@ class _TabPillState extends State<_TabPill> {
               if (widget.count != null && widget.count! > 0) ...[
                 const SizedBox(width: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 1,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                   decoration: BoxDecoration(
                     color: col.primary,
                     borderRadius: BorderRadius.circular(8),

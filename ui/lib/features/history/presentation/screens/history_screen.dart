@@ -52,9 +52,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           children: [
             const _Header(total: 0, isLoading: true),
             Expanded(
-              child: Center(
-                child: CircularProgressIndicator(color: context.colors.primary),
-              ),
+              child: Center(child: CircularProgressIndicator(color: context.colors.primary)),
             ),
           ],
         ),
@@ -80,10 +78,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _Header(
-                total: state.totalCount,
-                hasMore: false,
-              ),
+              _Header(total: state.totalCount, hasMore: false),
               const PendingTxStrip(),
               Expanded(
                 child: items.isEmpty
@@ -126,11 +121,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _Header extends ConsumerStatefulWidget {
-  const _Header({
-    required this.total,
-    this.hasMore = false,
-    this.isLoading = false,
-  });
+  const _Header({required this.total, this.hasMore = false, this.isLoading = false});
 
   final int total;
   final bool hasMore;
@@ -189,15 +180,11 @@ class _HeaderState extends ConsumerState<_Header> {
                 children: [
                   Text(
                     'History',
-                    style: AppTextStyles.h2.copyWith(
-                      color: context.colors.textPrimary,
-                    ),
+                    style: AppTextStyles.h2.copyWith(color: context.colors.textPrimary),
                   ),
                   Text(
                     countLabel,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -205,10 +192,7 @@ class _HeaderState extends ConsumerState<_Header> {
               const SizedBox(width: 24),
 
               // Direction pills
-              _DirectionToggle(
-                selected: filter.direction,
-                onChanged: notifier.setDirection,
-              ),
+              _DirectionToggle(selected: filter.direction, onChanged: notifier.setDirection),
 
               const Spacer(),
 
@@ -221,10 +205,7 @@ class _HeaderState extends ConsumerState<_Header> {
                 const SizedBox(width: 12),
               ],
 
-              _DateDropdown(
-                selected: filter.dateRange,
-                onChanged: notifier.setDateRange,
-              ),
+              _DateDropdown(selected: filter.dateRange, onChanged: notifier.setDateRange),
             ],
           ),
 
@@ -234,26 +215,14 @@ class _HeaderState extends ConsumerState<_Header> {
           TextField(
             controller: _searchCtrl,
             onChanged: notifier.setQuery,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: context.colors.textPrimary,
-            ),
+            style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
             decoration: InputDecoration(
               hintText: 'Search by tx hash, address, or asset…',
-              hintStyle: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.textDisabled,
-              ),
-              prefixIcon: Icon(
-                Icons.search,
-                size: 16,
-                color: context.colors.textSecondary,
-              ),
+              hintStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
+              prefixIcon: Icon(Icons.search, size: 16, color: context.colors.textSecondary),
               suffixIcon: _searchCtrl.text.isNotEmpty
                   ? IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        size: 14,
-                        color: context.colors.textSecondary,
-                      ),
+                      icon: Icon(Icons.close, size: 14, color: context.colors.textSecondary),
                       onPressed: () {
                         _searchCtrl.clear();
                         notifier.setQuery('');
@@ -261,10 +230,7 @@ class _HeaderState extends ConsumerState<_Header> {
                     )
                   : null,
               filled: false,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 10,
-              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(color: context.colors.border),
@@ -275,10 +241,7 @@ class _HeaderState extends ConsumerState<_Header> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: context.colors.primary,
-                  width: 1.5,
-                ),
+                borderSide: BorderSide(color: context.colors.primary, width: 1.5),
               ),
             ),
           ),
@@ -293,10 +256,7 @@ class _HeaderState extends ConsumerState<_Header> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _DirectionToggle extends StatelessWidget {
-  const _DirectionToggle({
-    required this.selected,
-    required this.onChanged,
-  });
+  const _DirectionToggle({required this.selected, required this.onChanged});
 
   final TxDirection selected;
   final ValueChanged<TxDirection> onChanged;
@@ -388,11 +348,7 @@ class _Pill extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _TokenDropdown extends StatelessWidget {
-  const _TokenDropdown({
-    required this.assets,
-    required this.selected,
-    required this.onChanged,
-  });
+  const _TokenDropdown({required this.assets, required this.selected, required this.onChanged});
 
   final List<String> assets;
   final String selected;
@@ -429,9 +385,7 @@ class _DateDropdown extends StatelessWidget {
       value: selected,
       width: 156,
       leadingIcon: Icons.calendar_today_rounded,
-      items: [
-        for (final r in DateRange.values) ThemedDropdownItem(value: r, label: r.label),
-      ],
+      items: [for (final r in DateRange.values) ThemedDropdownItem(value: r, label: r.label)],
       onChanged: onChanged,
     );
   }
@@ -474,27 +428,19 @@ class _EmptyState extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: context.colors.border),
             ),
-            child: Icon(
-              Icons.receipt_long_outlined,
-              color: context.colors.textSecondary,
-              size: 28,
-            ),
+            child: Icon(Icons.receipt_long_outlined, color: context.colors.textSecondary, size: 28),
           ),
           const SizedBox(height: 16),
           Text(
             _message,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: context.colors.textPrimary,
-            ),
+            style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
           ),
           const SizedBox(height: 4),
           Text(
             _hasFilters
                 ? 'Try changing the filters.'
                 : 'Once you send or receive ETH, it will show up here.',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: context.colors.textSecondary,
-            ),
+            style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
             textAlign: TextAlign.center,
           ),
           if (!_hasFilters) ...[
@@ -506,9 +452,7 @@ class _EmptyState extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: context.colors.primary,
                 foregroundColor: context.colors.textPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
             ),
           ],
@@ -531,24 +475,16 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 48,
-              color: context.colors.error,
-            ),
+            Icon(Icons.error_outline_rounded, size: 48, color: context.colors.error),
             const SizedBox(height: 16),
             Text(
               'Failed to load history',
-              style: AppTextStyles.h3.copyWith(
-                color: context.colors.textPrimary,
-              ),
+              style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.colors.textSecondary,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -559,9 +495,7 @@ class _ErrorState extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: context.colors.primary,
                 foregroundColor: context.colors.textPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
             ),
           ],

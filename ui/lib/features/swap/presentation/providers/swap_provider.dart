@@ -24,12 +24,20 @@ class SwapAsset {
     required this.name,
     required this.balance,
     this.tokenAddress,
+    this.logoUrl = '',
   });
 
   final String? tokenAddress; // null = ETH
   final String symbol;
   final String name;
   final String balance;
+
+  /// Logo URL stamped by the backend from the embedded Uniswap
+  /// Default Token List (for ERC-20s) or `native.logo_uri` (for ETH).
+  /// Empty for tokens the user added by hand that aren't in the
+  /// verified list — UI then shows a letter avatar, optionally with
+  /// an unverified-badge in money-on-the-line confirm dialogs.
+  final String logoUrl;
 
   bool get isEth => tokenAddress == null;
 
@@ -42,94 +50,36 @@ class SwapAsset {
   int get hashCode => tokenAddress.hashCode;
 }
 
-/// Well-known Ethereum mainnet tokens always shown in the swap selector.
-/// Balances are overridden if the user has them in their wallet.
-const _kWellKnown = [
-  SwapAsset(symbol: 'ETH', name: 'Ethereum', tokenAddress: null, balance: '0'),
-  SwapAsset(
-    symbol: 'WETH',
-    name: 'Wrapped Ether',
-    tokenAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    balance: '0',
-  ),
-  SwapAsset(
-    symbol: 'USDC',
-    name: 'USD Coin',
-    tokenAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    balance: '0',
-  ),
-  SwapAsset(
-    symbol: 'USDT',
-    name: 'Tether USD',
-    tokenAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-    balance: '0',
-  ),
-  SwapAsset(
-    symbol: 'DAI',
-    name: 'Dai Stablecoin',
-    tokenAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    balance: '0',
-  ),
-  SwapAsset(
-    symbol: 'WBTC',
-    name: 'Wrapped Bitcoin',
-    tokenAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-    balance: '0',
-  ),
-];
-
+/// Build the swap asset list directly from the user's wallet —
+/// native ETH plus every watched ERC-20. Logo URLs are pre-stamped
+/// by the backend, so no separate lookup or hardcoded list is needed.
+///
+/// Implication: to swap *into* a token the user doesn't yet own, they
+/// have to Add Token first. That's the trade-off for not maintaining
+/// a hand-curated swap-only list — and it nudges users to confirm the
+/// contract address (anti-spam) before any swap can include it.
 @riverpod
 Future<List<SwapAsset>> swappableAssets(Ref ref) async {
-  // Fetch user's token balances (watched tokens only).
-  final userBalances = <String?, String>{};
-  try {
-    const repo = BalanceGrpcRepository();
-    final res = await repo.getBalances();
-    // ETH native balance
-    userBalances[null] = res.ethBalance;
-    for (final t in res.tokens) {
-      userBalances[t.address.toLowerCase()] = t.balance;
-    }
-  } on Object catch (_) {
-    // proceed with zero balances
-  }
+  const repo = BalanceGrpcRepository();
+  final res = await repo.getBalances();
 
-  String balanceFor(String? addr) => userBalances[addr?.toLowerCase()] ?? '0';
+  final assets = <SwapAsset>[
+    SwapAsset(symbol: 'ETH', name: 'Ethereum', balance: res.ethBalance, logoUrl: res.ethLogoUrl),
+  ];
 
-  // Merge: well-known tokens with real balances first.
-  final result = _kWellKnown
-      .map(
-        (a) => SwapAsset(
-          symbol: a.symbol,
-          name: a.name,
-          tokenAddress: a.tokenAddress,
-          balance: balanceFor(a.tokenAddress),
-        ),
-      )
-      .toList();
-
-  // Append any user-watched tokens not in the well-known list.
-  final knownAddrs = _kWellKnown
-      .where((a) => a.tokenAddress != null)
-      .map((a) => a.tokenAddress!.toLowerCase())
-      .toSet();
-
-  for (final entry in userBalances.entries) {
-    final addr = entry.key;
-    if (addr == null) continue; // ETH already included
-    if (knownAddrs.contains(addr.toLowerCase())) continue;
-    // Unknown ERC-20 the user is watching — include it.
-    result.add(
+  for (final t in res.tokens) {
+    assets.add(
       SwapAsset(
-        symbol: addr.substring(0, 6).toUpperCase(),
-        name: addr,
-        tokenAddress: addr,
-        balance: entry.value,
+        symbol: t.symbol,
+        name: t.name,
+        tokenAddress: t.address,
+        balance: t.balance,
+        logoUrl: t.logoUrl,
       ),
     );
   }
 
-  return result;
+  return assets;
 }
 
 // ---------------------------------------------------------------------------
@@ -397,11 +347,7 @@ class SwapNotifier extends _$SwapNotifier {
     // Apply 0.5% slippage to compute amountOutMin.
     final amountOutMin = _applySlippage(quote.amountOut, slippagePct: 0.005);
 
-    state = state.copyWith(
-      status: SwapStatus.swapping,
-      clearError: true,
-      clearTx: true,
-    );
+    state = state.copyWith(status: SwapStatus.swapping, clearError: true, clearTx: true);
     try {
       final result = await _repository.execute(
         state.tokenIn,
@@ -417,10 +363,7 @@ class SwapNotifier extends _$SwapNotifier {
         errorMessage: result.success ? null : 'Transaction failed',
       );
     } on Object catch (e) {
-      state = state.copyWith(
-        status: SwapStatus.failure,
-        errorMessage: errorMessage(e),
-      );
+      state = state.copyWith(status: SwapStatus.failure, errorMessage: errorMessage(e));
     }
   }
 

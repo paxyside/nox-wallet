@@ -22,10 +22,7 @@ class _SkeletonCardState extends State<SkeletonCard> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
     unawaited(_ctrl.repeat(reverse: true));
     _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
   }
@@ -41,11 +38,7 @@ class _SkeletonCardState extends State<SkeletonCard> with SingleTickerProviderSt
     return AnimatedBuilder(
       animation: _anim,
       builder: (context, _) {
-        final color = Color.lerp(
-          context.colors.surfaceHigh,
-          context.colors.border,
-          _anim.value,
-        )!;
+        final color = Color.lerp(context.colors.surfaceHigh, context.colors.border, _anim.value)!;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -60,10 +53,7 @@ class _SkeletonCardState extends State<SkeletonCard> with SingleTickerProviderSt
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10)),
               ),
               const SizedBox(width: 12),
 

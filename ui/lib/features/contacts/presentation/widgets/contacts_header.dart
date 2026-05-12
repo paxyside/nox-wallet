@@ -13,11 +13,7 @@ import 'package:nox/features/contacts/presentation/widgets/contact_form_dialog.d
 // ─────────────────────────────────────────────────────────────────────────────
 
 class ContactsHeader extends ConsumerStatefulWidget {
-  const ContactsHeader({
-    required this.total,
-    this.isLoading = false,
-    super.key,
-  });
+  const ContactsHeader({required this.total, this.isLoading = false, super.key});
   final int total;
   final bool isLoading;
 
@@ -48,19 +44,12 @@ class _ContactsHeaderState extends ConsumerState<ContactsHeader> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Contacts',
-                style: AppTextStyles.h2.copyWith(
-                  color: context.colors.textPrimary,
-                ),
-              ),
+              Text('Contacts', style: AppTextStyles.h2.copyWith(color: context.colors.textPrimary)),
               // Always render the subtitle line so the column stays two-line
               // tall (matching the Tokens header height).
               Text(
                 widget.total > 0 ? '${widget.total} saved' : '',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.colors.textSecondary,
-                ),
+                style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
               ),
             ],
           ),
@@ -73,26 +62,14 @@ class _ContactsHeaderState extends ConsumerState<ContactsHeader> {
               controller: _ctrl,
               enabled: !widget.isLoading,
               onChanged: (v) => ref.read(contactsSearchProvider.notifier).updateQuery(v),
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: context.colors.textPrimary,
-              ),
+              style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Search by name or address…',
-                hintStyle: AppTextStyles.bodySmall.copyWith(
-                  color: context.colors.textDisabled,
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  size: 16,
-                  color: context.colors.textSecondary,
-                ),
+                hintStyle: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
+                prefixIcon: Icon(Icons.search, size: 16, color: context.colors.textSecondary),
                 suffixIcon: _ctrl.text.isNotEmpty
                     ? IconButton(
-                        icon: Icon(
-                          Icons.close,
-                          size: 14,
-                          color: context.colors.textSecondary,
-                        ),
+                        icon: Icon(Icons.close, size: 14, color: context.colors.textSecondary),
                         onPressed: () {
                           _ctrl.clear();
                           ref.read(contactsSearchProvider.notifier).clear();
@@ -101,10 +78,7 @@ class _ContactsHeaderState extends ConsumerState<ContactsHeader> {
                     : null,
                 filled: false,
                 fillColor: context.colors.surfaceHigh,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: context.colors.border),
@@ -115,10 +89,7 @@ class _ContactsHeaderState extends ConsumerState<ContactsHeader> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: context.colors.primary,
-                    width: 1.5,
-                  ),
+                  borderSide: BorderSide(color: context.colors.primary, width: 1.5),
                 ),
                 disabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -143,13 +114,9 @@ class _ContactsHeaderState extends ConsumerState<ContactsHeader> {
             style: FilledButton.styleFrom(
               backgroundColor: context.colors.primary,
               foregroundColor: context.colors.textPrimary,
-              disabledBackgroundColor: context.colors.primary.withValues(
-                alpha: 0.4,
-              ),
+              disabledBackgroundColor: context.colors.primary.withValues(alpha: 0.4),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               textStyle: AppTextStyles.labelLarge,
             ),
           ),

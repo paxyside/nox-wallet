@@ -54,10 +54,7 @@ class AppTheme {
           borderSide: BorderSide(color: c.primary, width: 1.5),
         ),
         hintStyle: AppTextStyles.bodyMedium.copyWith(color: c.textDisabled),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       // Text-selection highlight — without an override Material draws an
       // opaque dark block under the selection that, in our dark theme, looks
@@ -73,9 +70,7 @@ class AppTheme {
           backgroundColor: c.primary,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 52),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           textStyle: AppTextStyles.labelLarge,
         ),
       ),

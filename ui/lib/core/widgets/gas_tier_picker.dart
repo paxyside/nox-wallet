@@ -16,8 +16,7 @@ enum GasTier {
   slow,
   normal,
   fast,
-  custom
-  ;
+  custom;
 
   String get label => switch (this) {
     GasTier.slow => 'Slow',
@@ -105,11 +104,7 @@ class GasTierPicker extends StatelessWidget {
 }
 
 class _Segment extends StatefulWidget {
-  const _Segment({
-    required this.tier,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _Segment({required this.tier, required this.isSelected, required this.onTap});
 
   final GasTier tier;
   final bool isSelected;

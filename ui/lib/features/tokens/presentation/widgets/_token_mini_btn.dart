@@ -65,10 +65,7 @@ class _TokenMiniBtnState extends State<TokenMiniBtn> {
                           c.withValues(alpha: _pressed ? 0.22 : 0.15),
                           c.withValues(alpha: _pressed ? 0.10 : 0.06),
                         ]
-                      : [
-                          c.withValues(alpha: 0.08),
-                          c.withValues(alpha: 0.08),
-                        ],
+                      : [c.withValues(alpha: 0.08), c.withValues(alpha: 0.08)],
                 ),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(

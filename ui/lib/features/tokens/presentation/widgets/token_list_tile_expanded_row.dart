@@ -28,9 +28,7 @@ class TokenListTileExpandedRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: context.colors.border.withValues(alpha: 0.5)),
-        ),
+        border: Border(top: BorderSide(color: context.colors.border.withValues(alpha: 0.5))),
       ),
       padding: const EdgeInsets.fromLTRB(40, 10, 16, 12),
       child: Row(
@@ -46,10 +44,7 @@ class TokenListTileExpandedRow extends StatelessWidget {
             icon: Icons.copy_outlined,
           ),
           const SizedBox(width: 10),
-          _DetailChip(
-            label: 'Decimals',
-            value: '${token.decimals}',
-          ),
+          _DetailChip(label: 'Decimals', value: '${token.decimals}'),
           const SizedBox(width: 10),
           _DetailChip(
             label: 'Etherscan',
@@ -62,12 +57,7 @@ class TokenListTileExpandedRow extends StatelessWidget {
           //    auto-seed dedup map still recognises it). Remove is the hard
           //    permanent delete. Both live in the expanded row to keep them
           //    away from accidental row-tap.
-          _DetailChip(
-            label: '',
-            value: 'Hide',
-            onTap: onHide,
-            icon: Icons.visibility_off_outlined,
-          ),
+          _DetailChip(label: '', value: 'Hide', onTap: onHide, icon: Icons.visibility_off_outlined),
           const SizedBox(width: 6),
           _DetailChip(
             label: '',
@@ -151,11 +141,7 @@ class _DetailChipState extends State<_DetailChip> {
               ],
               Text(
                 widget.value,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: baseColor,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 11, color: baseColor, fontWeight: FontWeight.w600),
               ),
             ],
           ),

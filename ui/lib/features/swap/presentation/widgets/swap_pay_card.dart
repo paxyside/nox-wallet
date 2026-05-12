@@ -86,10 +86,7 @@ class _SwapPayCardState extends State<SwapPayCard> {
       builder: (_) => Stack(
         children: [
           Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _closeSelector,
-            ),
+            child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: _closeSelector),
           ),
           CompositedTransformFollower(
             link: _selectorLink,
@@ -144,12 +141,7 @@ class _SwapPayCardState extends State<SwapPayCard> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: borderColor),
         boxShadow: (hasError || _focused || _selectorOpen)
-            ? [
-                BoxShadow(
-                  color: borderColor.withValues(alpha: 0.14),
-                  blurRadius: 8,
-                ),
-              ]
+            ? [BoxShadow(color: borderColor.withValues(alpha: 0.14), blurRadius: 8)]
             : null,
       ),
       child: ClipRRect(
@@ -182,9 +174,7 @@ class _SwapPayCardState extends State<SwapPayCard> {
                     controller: widget.controller,
                     focusNode: _focus,
                     enabled: !widget.locked,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     style: AppTextStyles.mono.copyWith(
                       color: context.colors.textPrimary,
                       fontSize: 22,
@@ -226,19 +216,12 @@ class _SwapPayCardState extends State<SwapPayCard> {
                       onTap: _toggleSelector,
                       behavior: HitTestBehavior.opaque,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (s != null) ...[
-                              TokenIcon(
-                                symbol: s.symbol,
-                                address: s.tokenAddress,
-                                size: 22,
-                              ),
+                              TokenIcon(symbol: s.symbol, logoUrl: s.logoUrl, size: 22),
                               const SizedBox(width: 8),
                               Text(
                                 s.symbol,
@@ -292,11 +275,7 @@ class _SwapPayCardState extends State<SwapPayCard> {
                 children: [
                   // Balance / error indicator
                   if (hasError) ...[
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      size: 13,
-                      color: context.colors.error,
-                    ),
+                    Icon(Icons.warning_amber_rounded, size: 13, color: context.colors.error),
                     const SizedBox(width: 5),
                     Text(
                       'Insufficient balance',
@@ -314,9 +293,7 @@ class _SwapPayCardState extends State<SwapPayCard> {
                     const SizedBox(width: 5),
                     MaskableText(
                       _fmtBalance(s),
-                      style: AppTextStyles.monoSmall.copyWith(
-                        color: context.colors.textDisabled,
-                      ),
+                      style: AppTextStyles.monoSmall.copyWith(color: context.colors.textDisabled),
                     ),
                   ],
                   const Spacer(),
@@ -329,11 +306,7 @@ class _SwapPayCardState extends State<SwapPayCard> {
                     ),
                   ],
                   const SizedBox(width: 5),
-                  PctBtn(
-                    label: 'MAX',
-                    isMax: true,
-                    onTap: widget.onMaxPressed,
-                  ),
+                  PctBtn(label: 'MAX', isMax: true, onTap: widget.onMaxPressed),
                 ],
               ),
             ),

@@ -29,9 +29,7 @@ class PendingTxStrip extends ConsumerWidget {
       padding: const EdgeInsets.only(top: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (final tx in pending) _PendingTile(tx: tx),
-        ],
+        children: [for (final tx in pending) _PendingTile(tx: tx)],
       ),
     );
   }
@@ -64,10 +62,7 @@ class _PendingTileState extends ConsumerState<_PendingTile> {
     } on Object catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage(e)),
-          backgroundColor: context.colors.error,
-        ),
+        SnackBar(content: Text(errorMessage(e)), backgroundColor: context.colors.error),
       );
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -96,10 +91,7 @@ class _PendingTileState extends ConsumerState<_PendingTile> {
             left: 0,
             top: 0,
             bottom: 0,
-            child: Container(
-              width: 3,
-              color: accent.withValues(alpha: 0.7),
-            ),
+            child: Container(width: 3, color: accent.withValues(alpha: 0.7)),
           ),
           // ── Content ────────────────────────────────────────────────────
           Padding(
@@ -119,10 +111,7 @@ class _PendingTileState extends ConsumerState<_PendingTile> {
                   child: SizedBox(
                     width: 14,
                     height: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1.8,
-                      color: accent,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 1.8, color: accent),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -154,9 +143,7 @@ class _PendingTileState extends ConsumerState<_PendingTile> {
                         _isZero(tx.value)
                             ? '→ ${_short(tx.to)}'
                             : '${tx.value} ETH → ${_short(tx.to)}',
-                        style: AppTextStyles.monoSmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
+                        style: AppTextStyles.monoSmall.copyWith(color: colors.textSecondary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -178,10 +165,7 @@ class _PendingTileState extends ConsumerState<_PendingTile> {
                     child: SizedBox(
                       width: 14,
                       height: 14,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 1.6,
-                        color: colors.primary,
-                      ),
+                      child: CircularProgressIndicator(strokeWidth: 1.6, color: colors.primary),
                     ),
                   )
                 else
@@ -191,10 +175,7 @@ class _PendingTileState extends ConsumerState<_PendingTile> {
                       _ActionBtn(
                         label: 'Speed up',
                         color: colors.primary,
-                        onTap: () => _run(
-                          () => repo.speedUp(tx.txHash),
-                          'Speed-up sent',
-                        ),
+                        onTap: () => _run(() => repo.speedUp(tx.txHash), 'Speed-up sent'),
                       ),
                       const SizedBox(width: 4),
                       _ActionBtn(
@@ -269,11 +250,7 @@ class _PendingBadge extends StatelessWidget {
 }
 
 class _ActionBtn extends StatelessWidget {
-  const _ActionBtn({
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+  const _ActionBtn({required this.label, required this.color, required this.onTap});
 
   final String label;
   final Color color;
@@ -287,17 +264,12 @@ class _ActionBtn extends StatelessWidget {
         foregroundColor: color,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         minimumSize: const Size(0, 30),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         backgroundColor: color.withValues(alpha: 0.08),
       ),
       child: Text(
         label,
-        style: AppTextStyles.labelMedium.copyWith(
-          color: color,
-          fontWeight: FontWeight.w600,
-        ),
+        style: AppTextStyles.labelMedium.copyWith(color: color, fontWeight: FontWeight.w600),
       ),
     );
   }

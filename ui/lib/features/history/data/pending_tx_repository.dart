@@ -37,9 +37,7 @@ class PendingTxGrpcRepository implements PendingTxRepository {
 
   @override
   Future<List<PendingTxItem>> list() async {
-    final response = await GrpcClient.instance.stub.listPendingTxs(
-      ListPendingTxsRequest(),
-    );
+    final response = await GrpcClient.instance.stub.listPendingTxs(ListPendingTxsRequest());
     return response.pending
         .map(
           (p) => PendingTxItem(

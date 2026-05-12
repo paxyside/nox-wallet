@@ -9,6 +9,7 @@ class WatchedToken {
     required this.name,
     required this.decimals,
     required this.balance,
+    this.logoUrl = '',
     this.isPinned = false,
     this.isHidden = false,
     this.balanceUsd = '',
@@ -25,6 +26,11 @@ class WatchedToken {
   final String name;
   final int decimals;
   final String balance;
+
+  /// Logo URL stamped by the backend from the embedded Uniswap
+  /// Default Token List. Empty for unverified contracts — UI then
+  /// renders a letter avatar.
+  final String logoUrl;
 
   // Pin / dashboard visibility
   final bool isPinned;
@@ -48,6 +54,7 @@ class WatchedToken {
     name: name,
     decimals: decimals,
     balance: balance,
+    logoUrl: logoUrl,
     isPinned: isPinned ?? this.isPinned,
     isHidden: isHidden ?? this.isHidden,
     balanceUsd: balanceUsd,

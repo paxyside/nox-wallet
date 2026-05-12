@@ -69,11 +69,7 @@ class AppPagination extends StatelessWidget {
           ...pages.map(
             (p) => p == null
                 ? const _Ellipsis()
-                : _PageNum(
-                    page: p + 1,
-                    selected: p == current,
-                    onTap: () => onPage(p),
-                  ),
+                : _PageNum(page: p + 1, selected: p == current, onTap: () => onPage(p)),
           ),
 
           if (hasMore)
@@ -106,11 +102,7 @@ class AppPagination extends StatelessWidget {
 // ── Page number button ────────────────────────────────────────────────────────
 
 class _PageNum extends StatefulWidget {
-  const _PageNum({
-    required this.page,
-    required this.selected,
-    required this.onTap,
-  });
+  const _PageNum({required this.page, required this.selected, required this.onTap});
 
   final int page;
   final bool selected;
@@ -169,11 +161,7 @@ class _PageNumState extends State<_PageNum> {
 // ── Prev / Next button ────────────────────────────────────────────────────────
 
 class _NavBtn extends StatefulWidget {
-  const _NavBtn({
-    required this.icon,
-    required this.enabled,
-    required this.onTap,
-  });
+  const _NavBtn({required this.icon, required this.enabled, required this.onTap});
 
   final IconData icon;
   final bool enabled;
@@ -231,9 +219,7 @@ class _Ellipsis extends StatelessWidget {
       child: Center(
         child: Text(
           '…',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.colors.textDisabled,
-          ),
+          style: AppTextStyles.bodySmall.copyWith(color: context.colors.textDisabled),
         ),
       ),
     );

@@ -83,9 +83,7 @@ class _TileState extends State<_Tile> {
           decoration: BoxDecoration(
             color: _hovered ? col.surface : col.background,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isUnread ? col.primary.withValues(alpha: 0.45) : col.border,
-            ),
+            border: Border.all(color: isUnread ? col.primary.withValues(alpha: 0.45) : col.border),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,11 +183,7 @@ class _EmptyState extends StatelessWidget {
         'No system alerts',
         'Gas spikes and low balance warnings will appear here.',
       ),
-      _Tab.unread => (
-        Icons.done_all_rounded,
-        "You're all caught up",
-        'Nothing unread.',
-      ),
+      _Tab.unread => (Icons.done_all_rounded, "You're all caught up", 'Nothing unread.'),
     };
     return Center(
       child: Column(
@@ -199,10 +193,7 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             title,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: col.textPrimary,
-              fontSize: 14,
-            ),
+            style: AppTextStyles.labelMedium.copyWith(color: col.textPrimary, fontSize: 14),
           ),
           const SizedBox(height: 4),
           Padding(
@@ -210,9 +201,7 @@ class _EmptyState extends StatelessWidget {
             child: Text(
               sub,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: col.textSecondary,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: col.textSecondary),
             ),
           ),
         ],
