@@ -49,6 +49,12 @@ class TokenList extends ConsumerWidget {
               address: w.address,
               balance: w.balance,
               usdValue: w.balanceUsd,
+              // Carry the verified logo URL across from WatchedToken so
+              // the dashboard widget shows real icons instead of the
+              // letter-avatar fallback. Easy to forget when bridging
+              // the two structs — everywhere else passes WatchedToken
+              // directly so the icon stayed visible there.
+              logoUrl: w.logoUrl,
             ),
           )
           .toList();

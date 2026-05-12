@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:nox/core/theme/app_colors.dart';
 import 'package:nox/core/theme/app_text_styles.dart';
+import 'package:nox/core/utils/error_message.dart';
 import 'package:nox/features/tokens/presentation/providers/tokens_provider.dart';
 
 class AddTokenDialog extends ConsumerStatefulWidget {
@@ -37,12 +38,14 @@ class _AddTokenDialogState extends ConsumerState<AddTokenDialog> {
     try {
       await ref.read(tokensNotifierProvider.notifier).add(_controller.text.trim());
       if (mounted) Navigator.of(context).pop();
-    } on Object catch (_) {
+    } on Object catch (e) {
       if (mounted) {
+        // Surface the backend's actual message ("token already exists",
+        // "not an ERC-20 contract", "rpc timeout", …) instead of the
+        // one-size-fits-all "not found" string we used to show — that
+        // line lied half the time and made debugging painful.
         setState(() {
-          _errorMessage =
-              'Token not found or could not be added. '
-              'Check the contract address and try again.';
+          _errorMessage = errorMessage(e);
           _loading = false;
         });
       }

@@ -35,7 +35,13 @@ class SettingsScreen extends ConsumerWidget {
           const minHPad = 40.0;
           final hPad = ((constraints.maxWidth - maxContent) / 2).clamp(minHPad, double.infinity);
 
-          return Padding(
+          // The full settings column overflows the available height once
+          // the About / Danger sections are added — wrap in a
+          // SingleChildScrollView so everything stays reachable in
+          // narrow windows (mini widget, small monitors) without
+          // perfecting the visual rhythm yet. Layout polish lives in a
+          // follow-up todo.
+          return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 18),
             child: Align(
               alignment: Alignment.topCenter,
