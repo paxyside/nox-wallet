@@ -1,0 +1,6 @@
+# Vendor directories are byte-for-byte copies of upstream modules.
+# Don't normalise line endings on commit — `go mod vendor`
+# reproduces whatever EOL the upstream module ships with, and any
+# Git-side conversion would create a permanent diff between our
+# checked-in vendor/ and a fresh `go mod vendor` on a runner.
+vendor/** -text
