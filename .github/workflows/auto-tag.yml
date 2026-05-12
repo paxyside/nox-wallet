@@ -114,5 +114,10 @@ jobs:
     uses: ./.github/workflows/release.yml
     with:
       version: ${{ needs.detect.outputs.version }}
+    # Reusable workflows called via `workflow_call` start with no
+    # secrets — they don't inherit from the caller by default. Sparkle
+    # DMG signing needs SPARKLE_ED_PRIVATE_KEY (and any future codesign
+    # secrets will want the same treatment), so pass them through.
+    secrets: inherit
     permissions:
       contents: write
