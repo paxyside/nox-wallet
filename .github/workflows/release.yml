@@ -108,6 +108,31 @@ jobs:
           git tag -a "$tag" -m "Release $tag"
           git push origin "$tag"
 
+      # Render the production config from the committed template using
+      # GitHub Actions secrets. The rendered file lives at repo root
+      # (gitignored); `task build:dmg` picks it up and copies it into
+      # the bundle's Contents/Resources. `envsubst` only expands $VAR /
+      # ${VAR} forms — no shell metacharacter surprises.
+      - name: Render production config.yaml
+        env:
+          ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
+          COINGECKO_KEY: ${{ secrets.COINGECKO_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ALCHEMY_KEY:-}" ]; then
+            echo "::error::ALCHEMY_KEY secret is missing — add it under Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          if [ -z "${COINGECKO_KEY:-}" ]; then
+            echo "::error::COINGECKO_KEY secret is missing — add it under Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          # `envsubst` is shipped on macOS-14 runners via gettext (already
+          # available — no install step needed).
+          envsubst '${ALCHEMY_KEY} ${COINGECKO_KEY}' \
+            < .github/templates/config.production.yaml.tmpl \
+            > config.yaml
+
       - name: Build signed DMG
         run: task build:dmg
 
@@ -170,7 +195,18 @@ jobs:
           dmg_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/Nox.dmg"
           length="$(stat -f%z dist/Nox.dmg)"
           pubdate="$(date -u +'%a, %d %b %Y %H:%M:%S +0000')"
-          minsys="$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' ui/macos/Runner/Info.plist 2>/dev/null || echo '11.0')"
+          # Read from the BUILT bundle's Info.plist (where Xcode already
+          # expanded $(MACOSX_DEPLOYMENT_TARGET)), not the source template
+          # — PlistBuddy doesn't resolve build-setting macros. Without
+          # this, the appcast carried the literal string
+          # "$(MACOSX_DEPLOYMENT_TARGET)" which Sparkle's strict parser
+          # tolerates but log-spams about.
+          built_plist="$(ls -d ui/build/macos/Build/Products/Release/*.app/Contents/Info.plist 2>/dev/null | head -1)"
+          if [ -n "$built_plist" ]; then
+            minsys="$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$built_plist")"
+          else
+            minsys="11.0"
+          fi
 
           # The signature attribute snippet from sign_update already
           # includes `sparkle:edSignature="…" length="…"` so we don't

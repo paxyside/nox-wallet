@@ -104,10 +104,30 @@ tasks:
       - task: build
       - mkdir -p dist
       - rm -f dist/Nox.dmg
+      # Bundle `config.yaml` into Contents/Resources so the backend
+      # finds it next to the Flutter executable at runtime
+      # (BackendProcess._findConfig looks there first). The file is
+      # produced one of two ways:
+      #   - CI: `release.yml` runs `envsubst` over
+      #     config/config.production.yaml.tmpl with GitHub Secrets,
+      #     writing config.yaml to the repo root before this task runs.
+      #   - Local dev: you keep your own config.yaml at repo root
+      #     (gitignored). `task dev` uses the same file.
+      # If config.yaml is missing we'd still produce a DMG, but it'd
+      # be a black-screened brick at first launch — fail loudly here
+      # instead.
+      - |
+        if [ ! -f config.yaml ]; then
+          echo "::error::config.yaml is missing — render from config/config.production.yaml.tmpl (CI) or copy config.example.yaml (local)" >&2
+          exit 1
+        fi
+        cp config.yaml "{{.RELEASE_BUNDLE}}/Contents/Resources/config.yaml"
       # Re-sign the bundle ad-hoc with --deep so every nested framework
-      # / dylib carries a signature. Flutter does this during --release,
-      # but re-signing here defends against any post-build copy that
-      # would otherwise break the seal.
+      # / dylib carries a signature, AND covers the config.yaml we
+      # just copied in (otherwise the Gatekeeper "seal" mismatches the
+      # added file). Flutter does this during --release, but re-signing
+      # here defends against any post-build copy that would otherwise
+      # break the seal.
       - codesign --force --deep --sign - "{{.RELEASE_BUNDLE}}"
       - |
         create-dmg \
