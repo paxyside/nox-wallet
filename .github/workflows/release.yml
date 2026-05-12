@@ -56,8 +56,14 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Install task + create-dmg
-        run: brew install go-task/tap/go-task create-dmg
+      - name: Install task + create-dmg + golangci-lint
+        run: |
+          brew install go-task/tap/go-task create-dmg
+          # Pin golangci-lint to the version `task prepare` is known
+          # to pass with — "latest" bit us once when upstream v2.12.2
+          # shipped with a drifted sha256 in their checksums file.
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+            | sh -s -- -b /usr/local/bin v2.11.4
 
       - name: Flutter pub get
         working-directory: ui
