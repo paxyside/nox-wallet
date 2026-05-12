@@ -48,14 +48,15 @@ jobs:
           cache: true
 
       # Tools the Taskfile expects on PATH but ubuntu-latest ships
-      # without. Pinning versions here would couple us to apt
-      # cadence; the installation step is fast enough that we let it
-      # pick whatever's current.
+      # without. golangci-lint is pinned to the version we run locally
+      # — "latest" bit us once when an upstream release (v2.12.2)
+      # shipped with a drifted sha256 in the checksums file, breaking
+      # every CI run until they re-cut the binaries. Bump deliberately.
       - name: Install task + golangci-lint
         run: |
           sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-            | sh -s -- -b /usr/local/bin
+            | sh -s -- -b /usr/local/bin v2.11.4
 
       # `flutter pub get` is run implicitly by `flutter analyze` /
       # `flutter test`, but doing it explicitly first means a broken
