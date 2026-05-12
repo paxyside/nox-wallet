@@ -44,6 +44,34 @@ func New(base *usecase.BaseUsecase, log logger.Log, eth EthClient, svc TokenServ
 }
 
 func (u *Usecase) Add(ctx context.Context, p AddTokenParams) (*entity.WatchedToken, error) {
+	// Idempotent: if the contract is already on the watchlist, treat
+	// "Add" as "make visible". This unblocks users who hid a token via
+	// the row eye-icon and then tried to re-add it from the dialog —
+	// before this branch the DB returned UNIQUE violation and the UI
+	// surfaced a misleading "Token not found" error. Unhiding here also
+	// preserves any user-set is_pinned flag.
+	existing, err := u.svc.List(ctx)
+	if err != nil {
+		return nil, liberrors.Wrapf(err, liberrors.CodeInternal, "list watched tokens")
+	}
+
+	addrHex := strings.ToLower(p.ContractAddress.Hex())
+	for _, w := range existing {
+		if strings.ToLower(w.Token.Address.Hex()) != addrHex {
+			continue
+		}
+
+		if w.IsHidden {
+			if err := u.svc.SetHidden(ctx, w.ID, false); err != nil {
+				return nil, liberrors.Wrapf(err, liberrors.CodeInternal, "unhide watched token")
+			}
+
+			w.IsHidden = false
+		}
+
+		return w, nil
+	}
+
 	tok := ethkit.Token{
 		Address:  p.ContractAddress,
 		Symbol:   p.Symbol,

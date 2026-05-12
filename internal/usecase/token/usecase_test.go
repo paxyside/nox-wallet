@@ -68,6 +68,12 @@ func (m *mockTokenSvc) SetHidden(ctx context.Context, id string, h bool) error {
 
 func (m *mockTokenSvc) Delete(ctx context.Context, id string) error { return m.deleteFn(ctx, id) }
 func (m *mockTokenSvc) List(ctx context.Context) ([]*entity.WatchedToken, error) {
+	// Mirror SetHidden's nil-tolerant pattern: tests that don't care
+	// about the pre-create lookup (Add's idempotency probe) shouldn't
+	// have to wire up a no-op listFn just to avoid a nil deref.
+	if m.listFn == nil {
+		return nil, nil
+	}
 	return m.listFn(ctx)
 }
 
@@ -105,6 +111,50 @@ func TestAdd_FetchesMetadataWhenMissing(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "USDC", got.Token.Symbol)
 	assert.Equal(t, uint8(6), got.Token.Decimals)
+}
+
+func TestAdd_UnhidesExistingHiddenToken(t *testing.T) {
+	// Regression for the "hide then re-add" trap: user hides a token
+	// from the row eye-icon, the dialog Add path used to fail with
+	// "Token not found" because Create hit the UNIQUE constraint. Now
+	// Add looks up by address first and flips is_hidden when present.
+	existing := &entity.WatchedToken{
+		ID:       "01HXYZ",
+		Token:    ethkit.Token{Address: ethkit.ZeroAddress, Symbol: "USDT", Decimals: 6},
+		IsHidden: true,
+	}
+
+	var (
+		setHiddenCalledWith struct {
+			id     string
+			hidden bool
+		}
+		createCalled bool
+	)
+
+	svc := &mockTokenSvc{
+		listFn: func(_ context.Context) ([]*entity.WatchedToken, error) {
+			return []*entity.WatchedToken{existing}, nil
+		},
+		setHiddenFn: func(_ context.Context, id string, hidden bool) error {
+			setHiddenCalledWith.id = id
+			setHiddenCalledWith.hidden = hidden
+			return nil
+		},
+		createFn: func(_ context.Context, _ *entity.WatchedToken) error {
+			createCalled = true
+			return nil
+		},
+	}
+
+	u := newUC(&mockEth{}, svc)
+	got, err := u.Add(context.Background(), AddTokenParams{ContractAddress: ethkit.ZeroAddress})
+	require.NoError(t, err)
+	assert.Equal(t, "01HXYZ", got.ID, "should return the existing row, not insert a duplicate")
+	assert.False(t, got.IsHidden, "returned entity should reflect the unhide")
+	assert.Equal(t, "01HXYZ", setHiddenCalledWith.id)
+	assert.False(t, setHiddenCalledWith.hidden)
+	assert.False(t, createCalled, "no Create call when row already exists")
 }
 
 func TestAdd_MetadataError(t *testing.T) {
