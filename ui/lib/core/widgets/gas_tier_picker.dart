@@ -16,7 +16,8 @@ enum GasTier {
   slow,
   normal,
   fast,
-  custom;
+  custom
+  ;
 
   String get label => switch (this) {
     GasTier.slow => 'Slow',
