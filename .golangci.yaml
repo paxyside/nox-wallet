@@ -39,7 +39,7 @@ linters:
     # ── Correctness (always on) ──────────────────────────────────────────────
     - asasalint           # []any in variadic any
     - asciicheck          # non-ASCII identifiers
-    - bidichk             # dangerous unicode
+    - bidichk             # dangerous Unicode
     - bodyclose           # http response body close
     - copyloopvar         # Go 1.22 loop vars
     - durationcheck       # duration * duration
@@ -125,7 +125,7 @@ linters:
     govet:
       enable-all: true
       disable:
-        - fieldalignment   # too strict for hand-written structs
+        - fieldalignment   # too strict for handwritten structs
         - shadow           # too noisy with err shadowing pattern
       settings: {}
 
@@ -279,7 +279,7 @@ linters:
         linters: [contextcheck, gosec]
 
       # Graceful shutdown uses a fresh ctx with timeout — not derived from the
-      # parent that's already being cancelled.
+      # parent that's already being canceled.
       - path: 'internal/app/app\.go'
         linters: [contextcheck]
       # Logger context helpers wrap context.Background intentionally.

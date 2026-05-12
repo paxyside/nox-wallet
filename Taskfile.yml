@@ -20,10 +20,16 @@ tasks:
     desc: Build backend → run Flutter on macOS in debug mode (primary dev loop)
     cmds:
       - task: build:backend
+      # Flutter's VM service uses `Data/tmp/` inside the sandbox container
+      # to create the DevFS scratch dir for hot reload. The container is
+      # created lazily by macOS the first time the app writes anything;
+      # if `tmp/` doesn't exist yet, `flutter run` crashes with
+      # PathNotFoundException. Pre-create it so hot reload always attaches.
+      - mkdir -p "$HOME/Library/Containers/com.nox.wallet/Data/tmp"
       - cd {{.UI}} && flutter run -d macos
 
   # ───────────────────────────────────────────────────────────────────────────
-  # Clean — single nuclear wipe (artefacts, caches, sandbox, app, keychain)
+  # Clean — single nuclear wipe (artifacts, caches, sandbox, app, keychain)
   # ───────────────────────────────────────────────────────────────────────────
 
   clean:
@@ -49,6 +55,10 @@ tasks:
       # Data/ subtree only; the OS rebuilds the rest on next launch.
       - rm -rf "$HOME/Library/Containers/com.nox.wallet/Data"/* 2>/dev/null || true
       - rm -rf "$HOME/Library/Containers/com.nox.wallet/Data"/.[!.]* 2>/dev/null || true
+      # Re-create the tmp/ dir Flutter's VM service needs for hot reload;
+      # otherwise the next `task dev` crashes with PathNotFoundException
+      # before `flutter run` can attach.
+      - mkdir -p "$HOME/Library/Containers/com.nox.wallet/Data/tmp"
       - find "$HOME/Library/Group Containers" -maxdepth 1 -name "*com.nox.wallet*" -exec rm -rf {} + 2>/dev/null || true
       - rm -rf "$HOME/Library/Caches/com.nox.wallet"
       - rm -rf "$HOME/Library/Preferences/com.nox.wallet.plist"
@@ -156,6 +166,41 @@ tasks:
         fi
 
   # ───────────────────────────────────────────────────────────────────────────
+  # Version — single source of truth in /VERSION, kept in sync across
+  # pubspec.yaml and config.example.yaml. The auto-tag GitHub Action
+  # validates this sync on every push to master.
+  # ───────────────────────────────────────────────────────────────────────────
+
+  version:
+    desc: Print the current version
+    silent: true
+    cmds:
+      - tr -d '[:space:]' < VERSION
+      - echo
+
+  version:set:
+    desc: |
+      Set the version across VERSION, pubspec.yaml, and config.example.yaml.
+      Usage: task version:set -- 0.2.0
+    silent: true
+    requires:
+      vars: [CLI_ARGS]
+    cmds:
+      - |
+        set -euo pipefail
+        new="{{.CLI_ARGS}}"
+        if ! echo "$new" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+          echo "✗ '$new' is not valid semver (MAJOR.MINOR.PATCH)"; exit 1
+        fi
+        echo "$new" > VERSION
+        sed -i.bak -E "s/^version:[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+\+([0-9]+)$/version: $new+\1/" {{.UI}}/pubspec.yaml && rm {{.UI}}/pubspec.yaml.bak
+        sed -i.bak -E "s/^  version: \"[0-9]+\.[0-9]+\.[0-9]+\"$/  version: \"$new\"/" config.example.yaml && rm config.example.yaml.bak
+        echo "✓ version set to $new"
+        echo "  VERSION             — $(tr -d '[:space:]' < VERSION)"
+        echo "  pubspec.yaml        — $(grep '^version:' {{.UI}}/pubspec.yaml)"
+        echo "  config.example.yaml — $(grep '^  version:' config.example.yaml)"
+
+  # ───────────────────────────────────────────────────────────────────────────
   # Proto — buf in Docker (one-time image build, then format + lint + generate)
   # ───────────────────────────────────────────────────────────────────────────
 
@@ -176,3 +221,29 @@ tasks:
       - |
         docker run --rm -v "$(pwd):/workspace" -w /workspace \
           nox-wallet-buf:latest generate
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Token list — refresh the embedded Uniswap Default List snapshot
+  # ───────────────────────────────────────────────────────────────────────────
+
+  update:tokenlist:
+    desc: Fetch the latest Uniswap Default Token List, validate, commit-ready
+    cmds:
+      # Stage 1 — download to a temp file so a network failure doesn't
+      # corrupt the committed copy.
+      - curl -fsSL https://tokens.uniswap.org -o config/networks/tokenlist_uniswap.json.new
+      # Stage 2 — sanity-check the JSON shape (must have name + non-empty tokens array).
+      - |
+        jq -e '.name and (.tokens | length > 100)' \
+          config/networks/tokenlist_uniswap.json.new > /dev/null \
+          || { echo "✗ downloaded file failed validation"; rm -f config/networks/tokenlist_uniswap.json.new; exit 1; }
+      # Stage 3 — atomic swap.
+      - mv config/networks/tokenlist_uniswap.json.new config/networks/tokenlist_uniswap.json
+      - |
+        echo "✓ token list updated"
+        echo "  name:    $(jq -r .name config/networks/tokenlist_uniswap.json)"
+        echo "  version: $(jq -r '.version | "\(.major).\(.minor).\(.patch)"' config/networks/tokenlist_uniswap.json)"
+        echo "  tokens:  $(jq '.tokens | length' config/networks/tokenlist_uniswap.json)"
+        echo "  mainnet: $(jq '[.tokens[] | select(.chainId == 1)] | length' config/networks/tokenlist_uniswap.json)"
+        echo
+        echo "→ run 'task prepare' to verify, then commit the diff"
