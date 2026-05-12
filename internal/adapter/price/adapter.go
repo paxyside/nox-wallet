@@ -21,6 +21,7 @@ const (
 	// fetch fails we fall back to stale data via cache.GetStale, so the UI
 	// never shows empty rows. Setting a CoinGecko Demo or Pro API key (see
 	// Plan*) raises the limit substantially and stops the sparkline flicker.
+
 	DefaultTTL   = 5 * time.Minute
 	SparklineTTL = 30 * time.Minute
 
@@ -32,31 +33,13 @@ const (
 	proBaseURL = "https://pro-api.coingecko.com/api/v3"
 
 	// API key plan identifiers (case-insensitive).
+
 	PlanPublic = ""
 	PlanDemo   = "demo"
 	PlanPro    = "pro"
 
 	cacheKey = "prices"
 )
-
-// symbolToID maps uppercase token symbols to CoinGecko IDs.
-var symbolToID = map[string]string{
-	"ETH":   "ethereum",
-	"WETH":  "weth",
-	"USDC":  "usd-coin",
-	"USDT":  "tether",
-	"DAI":   "dai",
-	"WBTC":  "wrapped-bitcoin",
-	"LINK":  "chainlink",
-	"UNI":   "uniswap",
-	"AAVE":  "aave",
-	"MKR":   "maker",
-	"COMP":  "compound-governance-token",
-	"MATIC": "matic-network",
-	"SHIB":  "shiba-inu",
-	"ARB":   "arbitrum",
-	"OP":    "optimism",
-}
 
 // Prices maps uppercase symbol → USD price.
 type Prices map[string]float64
@@ -82,6 +65,10 @@ type Feed struct {
 	baseURL    string
 	apiKey     string
 	apiKeyName string // request header name for the key, "" if anonymous
+	// symbolToID maps UPPER-symbol → CoinGecko id. Sourced from the
+	// network catalog at app boot, so adding a new tracked symbol is a
+	// YAML edit in config/networks/, not a code change.
+	symbolToID map[string]string
 }
 
 // Config bundles the configurable parameters for a Feed.
@@ -89,6 +76,11 @@ type Config struct {
 	TTL    time.Duration // default DefaultTTL
 	APIKey string        // CoinGecko key, "" for anonymous tier
 	Plan   string        // PlanPublic / PlanDemo / PlanPro (default = public)
+	// SymbolToID is the canonical {UPPER-symbol → CoinGecko id} map.
+	// The app builds it from the active network via
+	// network.CoinGeckoIDsBySymbol(); test feeds can pass a minimal
+	// table directly.
+	SymbolToID map[string]string
 }
 
 // New creates a Feed with the given configuration.
@@ -112,6 +104,13 @@ func New(cfg Config) *Feed {
 		}
 	}
 
+	// Defensive copy — callers shouldn't see their map mutated, and we
+	// shouldn't break if they zero-out theirs while we hold a reference.
+	symMap := make(map[string]string, len(cfg.SymbolToID))
+	for k, v := range cfg.SymbolToID {
+		symMap[strings.ToUpper(k)] = v
+	}
+
 	return &Feed{
 		client:         &http.Client{Timeout: 10 * time.Second},
 		cache:          cache.New[string, Prices](ttl),
@@ -120,6 +119,7 @@ func New(cfg Config) *Feed {
 		baseURL:        baseURL,
 		apiKey:         cfg.APIKey,
 		apiKeyName:     headerName,
+		symbolToID:     symMap,
 	}
 }
 
@@ -165,11 +165,76 @@ func (f *Feed) GetPrice(ctx context.Context, symbol string) float64 {
 	return prices[strings.ToUpper(symbol)]
 }
 
+// PriceableToken is the input shape for GetPricesForTokens. Set
+// Address to the contract address for ERC-20 tokens; leave it empty
+// for the chain's native asset (ETH on mainnet).
+type PriceableToken struct {
+	Symbol  string
+	Address string
+}
+
+// GetPricesForTokens returns {UPPER-symbol → USD price} for the
+// given tokens. The native asset (Address == "") is resolved through
+// the symbol→CoinGecko-id map seeded at construction; ERC-20s with
+// a contract address are fetched via CoinGecko's per-token endpoint.
+//
+// This is the canonical price API for gRPC handlers — it works for
+// arbitrary ERC-20s without requiring the symbol to be hard-listed
+// anywhere. The two transports are cached independently
+// (symbol-based via `cache`, address-based via `tokenCache`) so a
+// stale token-price doesn't expire the native one.
+func (f *Feed) GetPricesForTokens(ctx context.Context, tokens []PriceableToken) Prices {
+	if len(tokens) == 0 {
+		return Prices{}
+	}
+
+	var (
+		nativeSymbols  []string
+		erc20Addresses []string
+		// addrToSym lets us re-key the address-keyed TokenPrices
+		// response back to symbols for the caller.
+		addrToSym = make(map[string]string, len(tokens))
+	)
+
+	for _, t := range tokens {
+		if t.Address == "" {
+			nativeSymbols = append(nativeSymbols, t.Symbol)
+			continue
+		}
+
+		lower := strings.ToLower(t.Address)
+		erc20Addresses = append(erc20Addresses, lower)
+		addrToSym[lower] = strings.ToUpper(t.Symbol)
+	}
+
+	out := make(Prices, len(tokens))
+
+	if len(nativeSymbols) > 0 {
+		for sym, price := range f.GetPrices(ctx, nativeSymbols) {
+			out[sym] = price
+		}
+	}
+
+	if len(erc20Addresses) > 0 {
+		for addr, md := range f.GetTokenPrices(ctx, erc20Addresses) {
+			if md == nil || md.PriceUSD == 0 {
+				continue
+			}
+
+			if sym, ok := addrToSym[addr]; ok {
+				out[sym] = md.PriceUSD
+			}
+		}
+	}
+
+	return out
+}
+
 // ── internal ──────────────────────────────────────────────────────────────────
 
 func (f *Feed) fetch(ctx context.Context) (Prices, error) {
-	ids := make([]string, 0, len(symbolToID))
-	for _, id := range symbolToID {
+	ids := make([]string, 0, len(f.symbolToID))
+	for _, id := range f.symbolToID {
 		ids = append(ids, id)
 	}
 
@@ -200,8 +265,8 @@ func (f *Feed) fetch(ctx context.Context) (Prices, error) {
 		return nil, fmt.Errorf("pricefeed: decode: %w", err)
 	}
 
-	result := make(Prices, len(symbolToID))
-	for sym, id := range symbolToID {
+	result := make(Prices, len(f.symbolToID))
+	for sym, id := range f.symbolToID {
 		if usd, ok := raw[id]["usd"]; ok && usd > 0 {
 			result[sym] = usd
 		}

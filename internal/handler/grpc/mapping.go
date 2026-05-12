@@ -48,7 +48,7 @@ func secretTypeToProto(s walletentity.SecretType) pbwallet.SecretType {
 	}
 }
 
-func balancesToProto(
+func (h *Handler) balancesToProto(
 	r walletuc.GetBalancesResult,
 	prices pricefeed.Prices,
 ) (string, string, []*pbbalance.TokenBalance) {
@@ -62,13 +62,16 @@ func balancesToProto(
 			usdValue = formatUSD(bal * price)
 		}
 
+		addr := tb.Token.Address.Hex()
+
 		tokens = append(tokens, &pbbalance.TokenBalance{
 			Symbol:   tb.Token.Symbol,
 			Name:     tb.Token.Name,
-			Address:  tb.Token.Address.Hex(),
+			Address:  addr,
 			Balance:  tb.Balance.ToTokenUnits(tb.Token.Decimals).String(),
 			Decimals: uint32(tb.Token.Decimals),
 			UsdValue: usdValue,
+			LogoUrl:  h.tokenLogoURL(addr),
 		})
 	}
 
@@ -175,28 +178,34 @@ func contactToProto(c *contactentity.Contact) *pbcontact.Contact {
 	}
 }
 
-func watchedTokenToProto(t *tokenentity.WatchedToken) *pbtoken.WatchedToken {
+func (h *Handler) watchedTokenToProto(t *tokenentity.WatchedToken) *pbtoken.WatchedToken {
+	addr := t.Token.Address.Hex()
+
 	return &pbtoken.WatchedToken{
 		Id:       t.ID,
-		Address:  t.Token.Address.Hex(),
+		Address:  addr,
 		Symbol:   t.Token.Symbol,
 		Name:     t.Token.Name,
 		Decimals: uint32(t.Token.Decimals),
 		AddedAt:  timestamppb.New(t.AddedAt),
 		IsPinned: t.IsPinned,
 		IsHidden: t.IsHidden,
+		LogoUrl:  h.tokenLogoURL(addr),
 	}
 }
 
-func tokenWithBalanceToProto(t tokenuc.TokenWithBalance) *pbtoken.WatchedTokenWithBalance {
+func (h *Handler) tokenWithBalanceToProto(t tokenuc.TokenWithBalance) *pbtoken.WatchedTokenWithBalance {
+	addr := t.Token.Address.Hex()
+
 	tok := &pbtoken.WatchedToken{
 		Id:       t.ID,
-		Address:  t.Token.Address.Hex(),
+		Address:  addr,
 		Symbol:   t.Token.Symbol,
 		Name:     t.Token.Name,
 		Decimals: uint32(t.Token.Decimals),
 		IsPinned: t.IsPinned,
 		IsHidden: t.IsHidden,
+		LogoUrl:  h.tokenLogoURL(addr),
 	}
 
 	balUSD := ""

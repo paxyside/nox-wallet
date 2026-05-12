@@ -35,7 +35,7 @@ func (u *Usecase) buildTransactionEvent(
 		}
 	}
 
-	role := classifyRole(movements)
+	role := classifyRole(movements, walletHex)
 	_, isOurs := ourPending[strings.ToLower(hash)]
 
 	// Alchemy occasionally omits `blockTimestamp` on freshly-mined
@@ -130,8 +130,10 @@ func (u *Usecase) resolveAsset(
 func (u *Usecase) lookupTokenMeta(ctx context.Context, addr ethkit.Address) *ethkit.Token {
 	key := strings.ToLower(addr.Hex())
 
-	if meta, ok := wellKnownTokens[key]; ok {
-		return &meta
+	if u.tokenLookup != nil {
+		if meta, ok := u.tokenLookup(key); ok {
+			return &meta
+		}
 	}
 
 	u.metaMu.RLock()

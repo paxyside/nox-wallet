@@ -5,67 +5,18 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	"strings"
 
 	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/paxyside/nox-wallet/pkg/ethkit/abis"
 )
 
-// Uniswap v3 contract addresses (Ethereum mainnet).
-var (
-	uniswapQuoterV2 = MustAddress("0x61fFE014bA17989E743c5F6cB21bF9697530B21e")
-	uniswapRouterV2 = MustAddress("0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45")
-	uniswapWETH9    = MustAddress("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
-)
-
-const quoterV2ABI = `[
-  {
-    "inputs": [
-      {"components": [
-        {"name": "tokenIn",  "type": "address"},
-        {"name": "tokenOut", "type": "address"},
-        {"name": "amountIn", "type": "uint256"},
-        {"name": "fee",      "type": "uint24"},
-        {"name": "sqrtPriceLimitX96", "type": "uint160"}
-      ], "name": "params", "type": "tuple"}
-    ],
-    "name": "quoteExactInputSingle",
-    "outputs": [
-      {"name": "amountOut",             "type": "uint256"},
-      {"name": "sqrtPriceX96After",     "type": "uint160"},
-      {"name": "initializedTicksCrossed","type": "uint32"},
-      {"name": "gasEstimate",           "type": "uint256"}
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-]`
-
-// SwapRouter02 exactInputSingle — includes deadline for MEV protection.
-const swapRouterABI = `[
-  {
-    "inputs": [
-      {"components": [
-        {"name": "tokenIn",           "type": "address"},
-        {"name": "tokenOut",          "type": "address"},
-        {"name": "fee",               "type": "uint24"},
-        {"name": "recipient",         "type": "address"},
-        {"name": "amountIn",          "type": "uint256"},
-        {"name": "amountOutMinimum",  "type": "uint256"},
-        {"name": "sqrtPriceLimitX96", "type": "uint160"}
-      ], "name": "params", "type": "tuple"}
-    ],
-    "name": "exactInputSingle",
-    "outputs": [{"name": "amountOut", "type": "uint256"}],
-    "stateMutability": "payable",
-    "type": "function"
-  }
-]`
-
-// Note: SwapRouter02 removed the deadline field from the struct; deadline is enforced
-// via the multicall wrapper or by checking block.timestamp in the router itself.
-// If you need explicit deadline, use SwapRouter01 (0xE592427A0AEce92De3Edee1F18E0157C05861564).
+// Swap-codepath note: SwapRouter02 dropped the explicit `deadline`
+// field from the exactInputSingle struct; deadline is enforced via
+// the multicall wrapper or by the router checking block.timestamp
+// itself. If you ever need the explicit-deadline form, use
+// SwapRouter01 at 0xE592427A0AEce92De3Edee1F18E0157C05861564.
 
 // QuoteSwap returns the expected output amount for a swap without executing it.
 // Uses the Uniswap v3 QuoterV2 contract via eth_call.
@@ -75,19 +26,20 @@ func (c *Client) QuoteSwap(
 	amountIn Amount,
 	fee PoolFee,
 ) (SwapQuote, error) {
+	if c.network.UniswapQuoterV2 == ZeroAddress {
+		return SwapQuote{}, ErrNoNetwork
+	}
+
 	if fee == 0 {
 		fee = PoolFee005
 	}
 
-	inAddr, outAddr, err := resolveSwapAddresses(tokenIn, tokenOut)
+	inAddr, outAddr, err := c.resolveSwapAddresses(tokenIn, tokenOut)
 	if err != nil {
 		return SwapQuote{}, err
 	}
 
-	quoterABI, err := abi.JSON(strings.NewReader(quoterV2ABI))
-	if err != nil {
-		return SwapQuote{}, err
-	}
+	quoterABI := abis.UniswapQuoterV2()
 
 	type quoteParams struct {
 		TokenIn           common.Address
@@ -108,17 +60,18 @@ func (c *Client) QuoteSwap(
 		return SwapQuote{}, fmt.Errorf("ethkit: pack quote: %w", err)
 	}
 
-	quoterAddr := uniswapQuoterV2.Common()
+	quoterAddr := c.network.UniswapQuoterV2.Common()
 
 	var result []byte
 
 	err = c.retrier.Do(ctx, func(ctx context.Context) error {
-		result, err = c.http.CallContract(ctx, ethereum.CallMsg{
+		var callErr error
+		result, callErr = c.http.CallContract(ctx, ethereum.CallMsg{
 			To:   &quoterAddr,
 			Data: data,
 		}, nil)
 
-		return err
+		return callErr
 	})
 	if err != nil {
 		return SwapQuote{}, fmt.Errorf("ethkit: quote swap call: %w", err)
@@ -155,36 +108,35 @@ func (c *Client) QuoteSwap(
 // req.MinAmountOut is the slippage floor — the transaction reverts if output < MinAmountOut.
 //
 // For ERC-20 inputs, ensures the router has sufficient allowance and submits an
-// approve transaction first if needed. ETH → token swaps skip approval (the
+// approval transaction first if needed. ETH → token swaps skip approval (the
 // input is sent as msg.value).
 func (c *Client) Swap(ctx context.Context, wallet *Wallet, req SwapRequest) (TxReceipt, error) {
+	if c.network.UniswapSwapRouter02 == ZeroAddress {
+		return TxReceipt{}, ErrNoNetwork
+	}
+
 	fee := req.Fee
 	if fee == 0 {
 		fee = PoolFee005
 	}
 
-	// Note: SwapRouter02 dropped the explicit deadline field; deadline enforcement
-	// now happens at the multicall wrapper or the router's block.timestamp check.
-	// We keep the field on SwapRequest for future SwapRouter01 / multicall flows.
-
-	inAddr, outAddr, err := resolveSwapAddresses(req.TokenIn, req.TokenOut)
+	inAddr, outAddr, err := c.resolveSwapAddresses(req.TokenIn, req.TokenOut)
 	if err != nil {
 		return TxReceipt{}, err
 	}
 
+	router := c.network.UniswapSwapRouter02
+
 	// Ensure the router can pull tokens on the user's behalf. Native ETH skips
 	// this (msg.value carries the input). For ERC-20s with insufficient
-	// allowance, submit an approve and wait for it to land before swapping.
+	// allowance, submit an approval and wait for it to land before swapping.
 	if !req.TokenIn.IsNative() {
-		if err := c.ensureAllowance(ctx, wallet, req.TokenIn, uniswapRouterV2, req.AmountIn); err != nil {
+		if err := c.ensureAllowance(ctx, wallet, req.TokenIn, router, req.AmountIn); err != nil {
 			return TxReceipt{}, err
 		}
 	}
 
-	routerABI, err := abi.JSON(strings.NewReader(swapRouterABI))
-	if err != nil {
-		return TxReceipt{}, err
-	}
+	routerABI := abis.UniswapSwapRouter02()
 
 	type exactInputParams struct {
 		TokenIn           common.Address
@@ -216,7 +168,7 @@ func (c *Client) Swap(ctx context.Context, wallet *Wallet, req SwapRequest) (TxR
 	}
 
 	return c.SendTx(ctx, wallet, TxRequest{
-		To:     uniswapRouterV2,
+		To:     router,
 		Value:  txValue,
 		Data:   data,
 		GasTip: req.GasTip,
@@ -244,7 +196,7 @@ var maxUint256 = func() *big.Int {
 
 // ensureAllowance makes sure `spender` can pull at least `amount` of `token`
 // from the user's wallet. If the current allowance is already sufficient, it
-// returns immediately. Otherwise it submits a single max-uint256 approval and
+// returns immediately. Otherwise, it submits a single max-uint256 approval and
 // blocks until that approve is mined.
 //
 // Unlimited allowance mirrors the standard DEX UX: one approve per (token,
@@ -286,16 +238,19 @@ func (c *Client) ensureAllowance(
 	return nil
 }
 
-// resolveSwapAddresses maps Token to contract address, substituting WETH for native ETH.
-func resolveSwapAddresses(tokenIn, tokenOut Token) (inAddr, outAddr common.Address, err error) {
+// resolveSwapAddresses maps Token to contract address, substituting the
+// chain's wrapped-native (e.g. WETH on mainnet) for the native asset.
+func (c *Client) resolveSwapAddresses(tokenIn, tokenOut Token) (inAddr, outAddr common.Address, err error) {
+	wrappedNative := c.network.UniswapWrappedETH.Common()
+
 	if tokenIn.IsNative() {
-		inAddr = uniswapWETH9.Common()
+		inAddr = wrappedNative
 	} else {
 		inAddr = tokenIn.Address.Common()
 	}
 
 	if tokenOut.IsNative() {
-		outAddr = uniswapWETH9.Common()
+		outAddr = wrappedNative
 	} else {
 		outAddr = tokenOut.Address.Common()
 	}

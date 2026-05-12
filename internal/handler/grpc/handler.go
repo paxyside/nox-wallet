@@ -11,12 +11,12 @@ import (
 
 	"github.com/shopspring/decimal"
 
+	"github.com/paxyside/nox-wallet/config/networks"
 	pricefeed "github.com/paxyside/nox-wallet/internal/adapter/price"
 	contactentity "github.com/paxyside/nox-wallet/internal/domain/contact/entity"
 	notificationentity "github.com/paxyside/nox-wallet/internal/domain/notification/entity"
 	tokenentity "github.com/paxyside/nox-wallet/internal/domain/token/entity"
 	walletentity "github.com/paxyside/nox-wallet/internal/domain/wallet/entity"
-	approvaluc "github.com/paxyside/nox-wallet/internal/usecase/approval"
 	contactuc "github.com/paxyside/nox-wallet/internal/usecase/contact"
 	historyuc "github.com/paxyside/nox-wallet/internal/usecase/history"
 	swapuc "github.com/paxyside/nox-wallet/internal/usecase/swap"
@@ -118,7 +118,7 @@ type watcherUsecase interface {
 }
 
 type approvalUsecase interface {
-	List(ctx context.Context) ([]approvaluc.Entry, error)
+	List(ctx context.Context) ([]ethkit.TokenApproval, error)
 	Revoke(ctx context.Context, tokenAddress, spender ethkit.Address) (ethkit.TxReceipt, error)
 }
 
@@ -146,6 +146,17 @@ type Handler struct {
 	watcher      watcherUsecase
 	notification notificationUsecase
 	prices       *pricefeed.Feed
+	// chainID + tokenList feed the logo-url stamping path so the
+	// handler doesn't have to take a full *networks.Network — the
+	// only two pieces it needs are the chain id (for per-chain
+	// lookups) and the verified token registry.
+	chainID   int64
+	tokenList *networks.TokenList
+	// nativeLogoURL is the chain's native asset logo URL pulled
+	// from the active network config. Stamped on
+	// GetBalances.eth_logo_url so the UI doesn't need a hardcoded
+	// URL per native asset.
+	nativeLogoURL string
 }
 
 func New(
@@ -159,19 +170,41 @@ func New(
 	watcher watcherUsecase,
 	notification notificationUsecase,
 	prices *pricefeed.Feed,
+	chainID int64,
+	tokenList *networks.TokenList,
+	nativeLogoURL string,
 ) *Handler {
 	return &Handler{
-		l:            l,
-		wallet:       wallet,
-		swap:         swap,
-		history:      history,
-		contact:      contact,
-		token:        token,
-		approval:     approval,
-		watcher:      watcher,
-		notification: notification,
-		prices:       prices,
+		l:             l,
+		wallet:        wallet,
+		swap:          swap,
+		history:       history,
+		contact:       contact,
+		token:         token,
+		approval:      approval,
+		watcher:       watcher,
+		notification:  notification,
+		prices:        prices,
+		chainID:       chainID,
+		tokenList:     tokenList,
+		nativeLogoURL: nativeLogoURL,
 	}
+}
+
+// tokenLogoURL resolves a contract address against the embedded
+// verified token list. Empty string when the token isn't verified —
+// UI shows a letter avatar in that case.
+func (h *Handler) tokenLogoURL(address string) string {
+	if h.tokenList == nil || address == "" {
+		return ""
+	}
+
+	tok, ok := h.tokenList.TokenByAddress(h.chainID, address)
+	if !ok {
+		return ""
+	}
+
+	return tok.LogoURI
 }
 
 // HandleError maps domain and app errors to gRPC status codes.

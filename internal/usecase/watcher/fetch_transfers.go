@@ -68,7 +68,7 @@ func groupByHash(transfers []ethkit.AssetTransfer) map[string][]ethkit.AssetTran
 // indexPendingByHash turns the slice of pending txs into a hash → tx
 // map for O(1) IsOurs lookup plus access to the `Kind` tag (used by
 // the watcher to know whether to expect 2 legs for swaps). Hashes are
-// normalised to lowercase to dodge case mismatches between Alchemy and
+// normalized to lowercase to dodge case mismatches between Alchemy and
 // the local tracker.
 func indexPendingByHash(pending []ethkit.PendingTx) map[string]ethkit.PendingTx {
 	out := make(map[string]ethkit.PendingTx, len(pending))

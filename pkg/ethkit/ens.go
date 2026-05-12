@@ -29,7 +29,7 @@ func IsENSName(s string) bool {
 // registries with different deployments. We don't try to be cross-chain
 // here — if the user is on a non-mainnet chain, this will simply return
 // ErrENSNotFound.
-func (c *Client) ResolveENS(ctx context.Context, name string) (Address, error) {
+func (c *Client) ResolveENS(_ context.Context, name string) (Address, error) {
 	if !IsENSName(name) {
 		return Address{}, fmt.Errorf("ethkit: %q is not an ENS name", name)
 	}
@@ -58,7 +58,7 @@ func (c *Client) ResolveENS(ctx context.Context, name string) (Address, error) {
 
 // ReverseENS looks up the primary ENS name registered for `addr`. Mainnet-
 // only; off-chain reverse records aren't supported.
-func (c *Client) ReverseENS(ctx context.Context, addr Address) (string, error) {
+func (c *Client) ReverseENS(_ context.Context, addr Address) (string, error) {
 	if c.chainID == nil || c.chainID.Int64() != 1 {
 		return "", ErrENSNotFound
 	}

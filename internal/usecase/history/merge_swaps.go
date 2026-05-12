@@ -72,7 +72,7 @@ func mergeSwapLegs(txs []*entity.Transaction, walletAddress string) []*entity.Tr
 
 // tryMergeSwap returns a synthetic swap entry when the group looks like a
 // single swap: exactly two legs, one leg sends from the wallet and one
-// receives into it, with different asset symbols. Otherwise returns nil so
+// receives into it, with different asset symbols. Otherwise, returns nil so
 // the caller emits the raw legs.
 func tryMergeSwap(entries []*entity.Transaction, walletLower string) *entity.Transaction {
 	if len(entries) != 2 {
@@ -105,8 +105,8 @@ func tryMergeSwap(entries []*entity.Transaction, walletLower string) *entity.Tra
 		return nil
 	}
 
-	// Build a synthetic row. Use the receive leg as the base so the row
-	// inherits a recognisable identity (block, hash, gas), then layer
+	// Build a synthetic row. Use the reception leg as the base so the row
+	// inherits a recognizable identity (block, hash, gas), then layer
 	// swap-specific fields on top.
 	swap := *recv
 	swap.IsSwap = true

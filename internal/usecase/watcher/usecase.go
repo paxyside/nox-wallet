@@ -35,8 +35,8 @@ type EthClient interface {
 	BlockNumber(ctx context.Context) (uint64, error)
 
 	// TokenMetadata fetches name/symbol/decimals from the contract. Used to
-	// enrich transfer rows for tokens not in the hardcoded wellKnownTokens
-	// map (so the UI doesn't fall back to "0xabc…" as the symbol).
+	// enrich transfer rows for tokens the TokenLookup couldn't resolve
+	// (so the UI doesn't fall back to "0xabc…" as the symbol).
 	TokenMetadata(ctx context.Context, addr ethkit.Address) (ethkit.Token, error)
 
 	// GetAssetTransfers is the canonical chain-data source for the Tx
@@ -54,7 +54,7 @@ type EthClient interface {
 	// this to tag freshly-observed on-chain hashes as `IsOurs` and to
 	// read the original submission's `Kind` tag — both signals must
 	// stay available even after `waitForReceipt` drops the entry from
-	// the live pending map, since the watcher's poll cadence (every
+	// the lives pending map, since the watcher's poll cadence (every
 	// 15s) can race a 12-15s mine time.
 	RecentPendingForAddress(addr ethkit.Address) []ethkit.PendingTx
 }
@@ -64,12 +64,19 @@ type AddressProvider interface {
 	LoadedAddress() ethkit.Address
 }
 
+// TokenLookup resolves token metadata by lowercase contract address.
+// The watcher tries this before falling back to an on-chain
+// TokenMetadata RPC, so well-known tokens (from the network catalog)
+// never incur an extra round-trip per transfer.
+type TokenLookup func(addressLower string) (ethkit.Token, bool)
+
 // Usecase starts all watchers and broadcasts events to all subscribers.
 type Usecase struct {
 	log          logger.Log
 	eth          EthClient
 	wallet       AddressProvider
 	sink         NotificationSink // optional; nil = no persistence
+	tokenLookup  TokenLookup      // optional; nil = always fall back to eth.TokenMetadata
 	mu           sync.RWMutex
 	subscribers  []chan WalletEvent
 	pollInterval time.Duration
@@ -81,13 +88,29 @@ type Usecase struct {
 	tokenMetaCache map[string]ethkit.Token
 }
 
+// Option configures the watcher.
+type Option func(*Usecase)
+
+// WithTokenLookup wires a fast in-memory resolver for well-known
+// tokens. Production wires this with `network.TokenByAddress`; tests
+// can leave it unset and let the stub EthClient.TokenMetadata answer.
+func WithTokenLookup(lookup TokenLookup) Option {
+	return func(u *Usecase) { u.tokenLookup = lookup }
+}
+
 // New constructs the watcher. `sink` is optional — pass nil if event
 // persistence isn't wired (e.g. in narrow unit tests). When non-nil,
 // every emitted event is also written through the sink in addition to
 // being broadcast to Subscribe channels; sink failures are logged but
 // never block the live broadcast.
-func New(log logger.Log, eth EthClient, wallet AddressProvider, sink NotificationSink) *Usecase {
-	return &Usecase{
+func New(
+	log logger.Log,
+	eth EthClient,
+	wallet AddressProvider,
+	sink NotificationSink,
+	opts ...Option,
+) *Usecase {
+	u := &Usecase{
 		log:            log,
 		eth:            eth,
 		wallet:         wallet,
@@ -95,6 +118,12 @@ func New(log logger.Log, eth EthClient, wallet AddressProvider, sink Notificatio
 		pollInterval:   defaultPollInterval,
 		tokenMetaCache: make(map[string]ethkit.Token),
 	}
+
+	for _, opt := range opts {
+		opt(u)
+	}
+
+	return u
 }
 
 // Subscribe returns a channel that receives all wallet events and an unsubscribe
@@ -125,7 +154,7 @@ func (u *Usecase) Subscribe() (<-chan WalletEvent, func()) {
 }
 
 // Start blocks until a wallet is loaded and then runs the monitor loop
-// until ctx is cancelled. Polls the AddressProvider every two seconds
+// until ctx is canceled. Polls the AddressProvider every two seconds
 // while no wallet is present — covers the fresh-install / DB-wipe case
 // where the app boots before the user has imported a wallet. Without
 // this, an early return here would leave the process running with no
@@ -134,7 +163,7 @@ func (u *Usecase) Subscribe() (<-chan WalletEvent, func()) {
 func (u *Usecase) Start(ctx context.Context) error {
 	addr := u.waitForWallet(ctx)
 	if addr.IsZero() {
-		// ctx cancelled before a wallet showed up.
+		// ctx canceled before a wallet showed up.
 		return nil
 	}
 
@@ -142,8 +171,7 @@ func (u *Usecase) Start(ctx context.Context) error {
 
 	var wg sync.WaitGroup
 
-	// 1. ETH balance watcher — drives low-balance latch only. The chain-
-	//    level "balance changed" event is no longer surfaced as a separate
+	// 1. ETH balance watcher — drives low-balance latch only. The chain-level "balance changed" event is no longer surfaced as a separate
 	//    notification (gas burns from token / approve txs were generating
 	//    confusing duplicates). The Tx watcher below covers the meaningful
 	//    "ETH sent / received" cases via Alchemy.
@@ -178,7 +206,7 @@ func (u *Usecase) Start(ctx context.Context) error {
 }
 
 // waitForWallet polls the address provider until a non-zero address is
-// observed or ctx is cancelled. Returns the zero address only on
+// observed or ctx is canceled. Returns the zero address only on
 // cancellation. Logs once on entry so cold-start logs don't get spammed.
 func (u *Usecase) waitForWallet(ctx context.Context) ethkit.Address {
 	if addr := u.wallet.LoadedAddress(); !addr.IsZero() {

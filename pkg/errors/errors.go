@@ -139,7 +139,7 @@ func (e *Error) Unwrap() error { return e.cause }
 // this so `errors.Is(err, entity.ErrNotFound)` works regardless of
 // whether the error was wrapped along the way.
 func (e *Error) Is(target error) bool {
-	if t, ok := target.(*Error); ok {
+	if t, ok := errors.AsType[*Error](target); ok {
 		return e.code == t.code
 	}
 
@@ -150,7 +150,10 @@ func (e *Error) Is(target error) bool {
 // `errors` package alongside this one.
 func Is(err, target error) bool { return errors.Is(err, target) }
 
-// As re-exports errors.As (same rationale as Is).
+// As re-exports errors.As (same rationale as Is). Callers pass a
+// pointer-to-pointer as `target` exactly the way the stdlib expects —
+// we forward it verbatim. Taking the address here would wrap it once
+// more and silently fail to populate the caller's variable.
 func As(err error, target any) bool { return errors.As(err, target) }
 
 // GetCode returns the Code of err, walking the wrap chain. Falls

@@ -3,23 +3,13 @@ package ethkit
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-)
 
-const erc20ABI = `[
-  {"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"},
-  {"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"type":"function"},
-  {"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"type":"function"},
-  {"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"type":"function"},
-  {"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"type":"function"},
-  {"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"type":"function"},
-  {"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"type":"function"},
-  {"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"}
-]`
+	"github.com/paxyside/nox-wallet/pkg/ethkit/abis"
+)
 
 type erc20Caller struct {
 	abi     abi.ABI
@@ -28,25 +18,13 @@ type erc20Caller struct {
 	address common.Address
 }
 
-func newERC20Caller(c *Client, token Token) (*erc20Caller, error) {
-	a, err := newERC20ABI()
-	if err != nil {
-		return nil, err
-	}
-
+func newERC20Caller(c *Client, token Token) *erc20Caller {
 	return &erc20Caller{
-		abi:     a,
+		abi:     abis.ERC20(),
 		client:  c,
 		token:   token,
 		address: token.Address.Common(),
-	}, nil
-}
-
-// newERC20ABI parses the standard ERC-20 ABI once. Cheap enough to call
-// per-invocation; if profiling later shows it as a hotspot, swap for a
-// package-level cached value.
-func newERC20ABI() (abi.ABI, error) {
-	return abi.JSON(strings.NewReader(erc20ABI))
+	}
 }
 
 func (e *erc20Caller) call(ctx context.Context, method string, args ...any) ([]byte, error) {
@@ -71,10 +49,7 @@ func (e *erc20Caller) call(ctx context.Context, method string, args ...any) ([]b
 
 // TokenMetadata fetches on-chain name, symbol, and decimals for a contract address.
 func (c *Client) TokenMetadata(ctx context.Context, contractAddr Address) (Token, error) {
-	a, err := abi.JSON(strings.NewReader(erc20ABI))
-	if err != nil {
-		return Token{}, err
-	}
+	a := abis.ERC20()
 
 	callRaw := func(method string) ([]byte, error) {
 		data, _ := a.Pack(method)
@@ -83,8 +58,10 @@ func (c *Client) TokenMetadata(ctx context.Context, contractAddr Address) (Token
 		var result []byte
 
 		err := c.retrier.Do(ctx, func(ctx context.Context) error {
-			result, err = c.http.CallContract(ctx, ethereum.CallMsg{To: &addr, Data: data}, nil)
-			return err
+			var callErr error
+			result, callErr = c.http.CallContract(ctx, ethereum.CallMsg{To: &addr, Data: data}, nil)
+
+			return callErr
 		})
 
 		return result, err
@@ -134,14 +111,11 @@ func (c *Client) TokenMetadata(ctx context.Context, contractAddr Address) (Token
 // callers (e.g. simulator) can construct a TxRequest without re-deriving
 // the ABI binding.
 func PackERC20Transfer(to Address, amount Amount) ([]byte, error) {
-	parsed, err := newERC20ABI()
-	if err != nil {
-		return nil, fmt.Errorf("ethkit: erc20 abi: %w", err)
-	}
-	data, err := parsed.Pack("transfer", to.Common(), amount.Wei())
+	data, err := abis.ERC20().Pack("transfer", to.Common(), amount.Wei())
 	if err != nil {
 		return nil, fmt.Errorf("ethkit: pack erc20 transfer: %w", err)
 	}
+
 	return data, nil
 }
 
@@ -157,7 +131,7 @@ func (c *Client) TransferToken(
 	return c.TransferTokenWithGas(ctx, wallet, token, to, amount, nil, nil)
 }
 
-// TransferTokenWithGas is the generalised form: nil tip / cap fall back to
+// TransferTokenWithGas is the generalized form: nil tip / cap fall back to
 // network suggestion, set values force EIP-1559 overrides.
 func (c *Client) TransferTokenWithGas(
 	ctx context.Context,
@@ -168,10 +142,7 @@ func (c *Client) TransferTokenWithGas(
 	gasTip *Amount,
 	gasCap *Amount,
 ) (TxReceipt, error) {
-	e, err := newERC20Caller(c, token)
-	if err != nil {
-		return TxReceipt{}, err
-	}
+	e := newERC20Caller(c, token)
 
 	data, err := e.abi.Pack("transfer", to.Common(), amount.Wei())
 	if err != nil {
@@ -195,10 +166,7 @@ func (c *Client) ApproveToken(
 	spender Address,
 	amount Amount,
 ) (TxReceipt, error) {
-	e, err := newERC20Caller(c, token)
-	if err != nil {
-		return TxReceipt{}, err
-	}
+	e := newERC20Caller(c, token)
 
 	data, err := e.abi.Pack("approve", spender.Common(), amount.Wei())
 	if err != nil {
@@ -210,10 +178,7 @@ func (c *Client) ApproveToken(
 
 // Allowance returns how many token units spender is allowed to spend on behalf of owner.
 func (c *Client) Allowance(ctx context.Context, token Token, owner, spender Address) (Amount, error) {
-	e, err := newERC20Caller(c, token)
-	if err != nil {
-		return ZeroAmount, err
-	}
+	e := newERC20Caller(c, token)
 
 	result, err := e.call(ctx, "allowance", owner.Common(), spender.Common())
 	if err != nil {

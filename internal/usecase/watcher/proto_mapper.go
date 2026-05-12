@@ -27,9 +27,9 @@ func WalletEventToProto(e WalletEvent) *pbevent.WalletEvent {
 
 		ga := e.GasAlert
 
-		alertType := pbevent.GasAlertEvent_SPIKE
+		alertType := pbevent.GasAlertEvent_ALERT_TYPE_SPIKE
 		if !ga.IsSpike {
-			alertType = pbevent.GasAlertEvent_DROP
+			alertType = pbevent.GasAlertEvent_ALERT_TYPE_DROP
 		}
 
 		return &pbevent.WalletEvent{
@@ -99,23 +99,23 @@ func transactionEventToProto(d *TransactionData) *pbevent.WalletEvent {
 func roleToProto(r TxRole) pbevent.TransactionEvent_Role {
 	switch r {
 	case RoleSendETH:
-		return pbevent.TransactionEvent_SEND_ETH
+		return pbevent.TransactionEvent_ROLE_SEND_ETH
 	case RoleReceiveETH:
-		return pbevent.TransactionEvent_RECEIVE_ETH
+		return pbevent.TransactionEvent_ROLE_RECEIVE_ETH
 	case RoleSendToken:
-		return pbevent.TransactionEvent_SEND_TOKEN
+		return pbevent.TransactionEvent_ROLE_SEND_TOKEN
 	case RoleReceiveToken:
-		return pbevent.TransactionEvent_RECEIVE_TOKEN
+		return pbevent.TransactionEvent_ROLE_RECEIVE_TOKEN
 	case RoleSwap:
-		return pbevent.TransactionEvent_SWAP
+		return pbevent.TransactionEvent_ROLE_SWAP
 	case RoleSelfTransfer:
-		return pbevent.TransactionEvent_SELF_TRANSFER
+		return pbevent.TransactionEvent_ROLE_SELF_TRANSFER
 	case RoleApprove:
-		return pbevent.TransactionEvent_APPROVE
+		return pbevent.TransactionEvent_ROLE_APPROVE
 	case RoleUnknown:
-		return pbevent.TransactionEvent_UNKNOWN
+		return pbevent.TransactionEvent_ROLE_UNSPECIFIED
 	default:
-		return pbevent.TransactionEvent_UNKNOWN
+		return pbevent.TransactionEvent_ROLE_UNSPECIFIED
 	}
 }
 

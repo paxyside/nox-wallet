@@ -4,14 +4,12 @@ import (
 	"context"
 	"fmt"
 	"math/big"
-	"strings"
 
 	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-)
 
-const erc20BalanceOfABI = `[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"}]`
+	"github.com/paxyside/nox-wallet/pkg/ethkit/abis"
+)
 
 // ETHBalance returns the native ETH balance of addr at the latest block.
 func (c *Client) ETHBalance(ctx context.Context, addr Address) (Amount, error) {
@@ -83,12 +81,7 @@ func (c *Client) MultiTokenBalance(ctx context.Context, addr Address, tokens []T
 // ── helpers ───────────────────────────────────────────────────────────────────
 
 func erc20BalanceOfData(owner common.Address) ([]byte, error) {
-	a, err := abi.JSON(strings.NewReader(erc20BalanceOfABI))
-	if err != nil {
-		return nil, err
-	}
-
-	return a.Pack("balanceOf", owner)
+	return abis.ERC20().Pack("balanceOf", owner)
 }
 
 func decodeUint256(data []byte) (*big.Int, error) {

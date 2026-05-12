@@ -145,13 +145,6 @@ func (a *Adapter) TokenMetadata(ctx context.Context, addr ethkit.Address) (ethki
 	return a.client.TokenMetadata(ctx, addr)
 }
 
-// TokenLogoURL fetches a CDN-hosted logo for the token from Alchemy. Empty
-// string + nil error means "no logo on file" — UI should fall back to a
-// letter avatar.
-func (a *Adapter) TokenLogoURL(ctx context.Context, addr ethkit.Address) (string, error) {
-	return a.client.TokenLogoURL(ctx, addr)
-}
-
 // DiscoverTokens returns ERC-20 tokens with a non-zero balance for addr, enriched with
 // on-chain metadata (name, symbol, decimals). Tokens with an empty symbol or name are
 // filtered out to avoid polluting the watchlist with spam/junk contracts.

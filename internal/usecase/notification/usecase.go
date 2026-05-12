@@ -41,7 +41,7 @@ func New(base *usecase.BaseUsecase, log logger.Log, repo Repository) *Usecase {
 // Save persists a single wallet event. `kind` is the numeric value of
 // watcher.EventKind — kept untyped here to avoid an import cycle (the
 // watcher takes *this* package as a sink). `payload` is the
-// proto-serialised wallet.event.WalletEvent ready for re-emission to
+// proto-serialized wallet.event.WalletEvent ready for re-emission to
 // gRPC clients. Returns the row ID so the caller (watcher fan-out) can
 // stamp the live event envelope before broadcasting it to subscribers.
 //
@@ -83,8 +83,8 @@ func (u *Usecase) Save(
 		u.log.Warn("notification: prune failed", "error", err)
 	}
 
-	// Honour the user's auto-delete preference best-effort. Only runs
-	// when the setting is positive and we already paid for one settings
+	// Honor the user's auto-delete preference best-effort. Only runs
+	// when the setting is positive, and we already paid for one settings
 	// fetch above — but we re-read here to keep the previous block
 	// independent of this one's failure mode.
 	if s, err := u.repo.GetSettings(ctx); err == nil && s != nil && s.AutoDeleteDays > 0 {
@@ -126,8 +126,7 @@ func (u *Usecase) MarkAllRead(ctx context.Context) error {
 	return nil
 }
 
-// ClearAll wipes the entire notification history. Used by the user-
-// initiated "Clear all" action in the notification center.
+// ClearAll wipes the entire notification history. Used by the user-initiated "Clear all" action in the notification center.
 func (u *Usecase) ClearAll(ctx context.Context) error {
 	if err := u.repo.DeleteAll(ctx); err != nil {
 		return liberrors.Wrapf(err, liberrors.CodeInternal, "clear notifications")
@@ -159,7 +158,7 @@ func (u *Usecase) UpdateSettings(ctx context.Context, s *entity.Settings) error 
 	return nil
 }
 
-// SweepOnStartup honours the user's `auto_delete_days` retention window
+// SweepOnStartup honors the user's `auto_delete_days` retention window
 // once at process boot. The per-Save sweep in [Save] only fires when a
 // new event arrives — for users on quiet wallets that could leave
 // stale rows around indefinitely, so we run a one-shot sweep at

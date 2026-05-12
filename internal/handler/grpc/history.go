@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	pricefeed "github.com/paxyside/nox-wallet/internal/adapter/price"
 	historyuc "github.com/paxyside/nox-wallet/internal/usecase/history"
 	liberrors "github.com/paxyside/nox-wallet/pkg/errors"
 	"github.com/paxyside/nox-wallet/pkg/ethkit"
@@ -51,7 +52,12 @@ func (h *Handler) GetHistory(ctx context.Context, req *pb.GetHistoryRequest) (*p
 		return nil, h.HandleError(ctx, err)
 	}
 
-	// Collect distinct asset symbols to look up USD prices.
+	// Collect distinct asset symbols and resolve each to a contract
+	// address through the embedded Uniswap Default List. ERC-20 rows
+	// then price via CoinGecko's contract endpoint; native ETH stays
+	// in the symbol-map path. Symbols that aren't in the tokenlist
+	// fall through with empty Address and silently miss — those are
+	// long-tail / spam tokens we don't have USD for anyway.
 	symbolSet := map[string]struct{}{"ETH": {}}
 
 	for _, tx := range res.Transactions {
@@ -60,12 +66,18 @@ func (h *Handler) GetHistory(ctx context.Context, req *pb.GetHistoryRequest) (*p
 		}
 	}
 
-	symbols := make([]string, 0, len(symbolSet))
+	priceTokens := make([]pricefeed.PriceableToken, 0, len(symbolSet))
 	for s := range symbolSet {
-		symbols = append(symbols, s)
+		t := pricefeed.PriceableToken{Symbol: s}
+		if s != "ETH" {
+			if addr, ok := h.tokenList.AddressBySymbol(h.chainID, s); ok {
+				t.Address = addr
+			}
+		}
+		priceTokens = append(priceTokens, t)
 	}
 
-	prices := h.prices.GetPrices(ctx, symbols)
+	prices := h.prices.GetPricesForTokens(ctx, priceTokens)
 
 	return &pb.GetHistoryResponse{
 		Items: historyToProto(res, prices),

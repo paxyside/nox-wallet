@@ -28,6 +28,9 @@ func (a *App) initGRPCServer(svc *services) {
 		svc.watcher,
 		svc.notification,
 		svc.priceFeed,
+		a.network.ChainID,
+		a.tokenList,
+		a.network.Native.LogoURI,
 	)
 	pb.RegisterWalletServiceServer(server.Server(), handler)
 

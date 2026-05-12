@@ -52,11 +52,11 @@ func (m *mockEthClient) GasFees(ctx context.Context) (ethkit.GasInfo, error) {
 
 func (m *mockEthClient) ChainID() *big.Int { return big.NewInt(1) }
 
-func (m *mockEthClient) ResolveENS(ctx context.Context, name string) (ethkit.Address, error) {
+func (m *mockEthClient) ResolveENS(_ context.Context, _ string) (ethkit.Address, error) {
 	return ethkit.Address{}, ethkit.ErrENSNotFound
 }
 
-func (m *mockEthClient) ReverseENS(ctx context.Context, addr ethkit.Address) (string, error) {
+func (m *mockEthClient) ReverseENS(_ context.Context, _ ethkit.Address) (string, error) {
 	return "", ethkit.ErrENSNotFound
 }
 

@@ -7,9 +7,10 @@ import (
 
 // classifyRole drives the OS-toast copy and the in-app icon —
 // misclassification is user-visible and confusing. Lock the
-// behaviour with a table-driven test that covers every branch.
+// behavior with a table-driven test that covers every branch.
 func TestClassifyRole(t *testing.T) {
 	const (
+		walletHex    = "0x1111111111111111111111111111111111111111"
 		usdcContract = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
 		usdtContract = "0xdac17f958d2ee523a2206206994597c13d831ec7"
 	)
@@ -53,7 +54,7 @@ func TestClassifyRole(t *testing.T) {
 			want: RoleReceiveToken,
 		},
 		{
-			name: "out USDC + in USDT, different counterparty → Swap",
+			name: "out USDC + in USDT, router counterparty → Swap",
 			movements: []AssetMovement{
 				{Symbol: "USDC", ContractAddress: usdcContract, IsOutgoing: true, Counterparty: "0xrouter"},
 				{Symbol: "USDT", ContractAddress: usdtContract, IsOutgoing: false, Counterparty: "0xrouter"},
@@ -78,18 +79,44 @@ func TestClassifyRole(t *testing.T) {
 			want: RoleSwap,
 		},
 		{
-			name: "all outgoing legs target empty counterparty + has incoming → SelfTransfer",
+			name: "wallet sends to itself (every out leg's counterparty = wallet) → SelfTransfer",
 			movements: []AssetMovement{
-				{Symbol: "ETH", ContractAddress: "", IsOutgoing: true, Counterparty: ""},
-				{Symbol: "ETH", ContractAddress: "", IsOutgoing: false, Counterparty: ""},
+				{Symbol: "ETH", ContractAddress: "", IsOutgoing: true, Counterparty: walletHex},
+				{Symbol: "ETH", ContractAddress: "", IsOutgoing: false, Counterparty: walletHex},
 			},
 			want: RoleSelfTransfer,
+		},
+		{
+			name: "self-transfer with mixed-case wallet address still matches",
+			movements: []AssetMovement{
+				{
+					Symbol:          "ETH",
+					ContractAddress: "",
+					IsOutgoing:      true,
+					Counterparty:    "0x1111111111111111111111111111111111111111",
+				},
+				{
+					Symbol:          "ETH",
+					ContractAddress: "",
+					IsOutgoing:      false,
+					Counterparty:    "0x1111111111111111111111111111111111111111",
+				},
+			},
+			want: RoleSelfTransfer,
+		},
+		{
+			name: "out → router, in → wallet (different counterparty) → Swap, NOT SelfTransfer",
+			movements: []AssetMovement{
+				{Symbol: "ETH", ContractAddress: "", IsOutgoing: true, Counterparty: "0xrouter"},
+				{Symbol: "USDC", ContractAddress: usdcContract, IsOutgoing: false, Counterparty: walletHex},
+			},
+			want: RoleSwap,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := classifyRole(tc.movements)
+			got := classifyRole(tc.movements, walletHex)
 			if got != tc.want {
 				t.Fatalf("classifyRole = %d, want %d", got, tc.want)
 			}

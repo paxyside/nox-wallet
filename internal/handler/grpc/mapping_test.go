@@ -54,7 +54,7 @@ func TestBalancesToProto(t *testing.T) {
 	}
 	prices := pricefeed.Prices{"USDC": 1.0, "ETH": 2000}
 
-	ethDec, ethStr, tokens := balancesToProto(r, prices)
+	ethDec, ethStr, tokens := (&Handler{}).balancesToProto(r, prices)
 	assert.Equal(t, "2.5", ethDec)
 	assert.Contains(t, ethStr, "ETH")
 	require.Len(t, tokens, 1)
@@ -160,7 +160,7 @@ func TestWatchedTokenToProto(t *testing.T) {
 		ID: "id", Token: ethkit.Token{Address: addr, Symbol: "USDC", Name: "USD Coin", Decimals: 6},
 		IsPinned: true, AddedAt: time.Now(),
 	}
-	got := watchedTokenToProto(wt)
+	got := (&Handler{}).watchedTokenToProto(wt)
 	require.NotNil(t, got)
 	assert.Equal(t, "id", got.GetId())
 	assert.Equal(t, "USDC", got.GetSymbol())
@@ -184,7 +184,7 @@ func TestTokenWithBalanceToProto(t *testing.T) {
 			Sparkline30d:   []float64{1, 2, 3, 4},
 			BalanceUSD:     1.001,
 		}
-		got := tokenWithBalanceToProto(twb)
+		got := (&Handler{}).tokenWithBalanceToProto(twb)
 		require.NotNil(t, got)
 		require.NotNil(t, got.GetMarket())
 		assert.True(t, got.GetMarket().GetChangePositive())
@@ -196,7 +196,7 @@ func TestTokenWithBalanceToProto(t *testing.T) {
 
 	t.Run("no market", func(t *testing.T) {
 		twb := tokenuc.TokenWithBalance{Token: tok}
-		got := tokenWithBalanceToProto(twb)
+		got := (&Handler{}).tokenWithBalanceToProto(twb)
 		require.NotNil(t, got)
 		assert.Nil(t, got.GetMarket())
 		assert.Empty(t, got.GetBalanceUsd())
@@ -204,7 +204,7 @@ func TestTokenWithBalanceToProto(t *testing.T) {
 
 	t.Run("negative change", func(t *testing.T) {
 		twb := tokenuc.TokenWithBalance{Token: tok, PriceUSD: 1, Change24hPct: -3.21, ChangePositive: false}
-		got := tokenWithBalanceToProto(twb)
+		got := (&Handler{}).tokenWithBalanceToProto(twb)
 		require.NotNil(t, got.GetMarket())
 		assert.Equal(t, "-3.21", got.GetMarket().GetChange_24HPct())
 		assert.False(t, got.GetMarket().GetChangePositive())

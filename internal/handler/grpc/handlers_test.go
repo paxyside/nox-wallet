@@ -67,6 +67,7 @@ func newTestHandler(opts ...func(*Handler)) *Handler {
 	h := New(
 		liblogger.New(),
 		nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		1, nil, "",
 	)
 	for _, o := range opts {
 		o(h)

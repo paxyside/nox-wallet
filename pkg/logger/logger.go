@@ -1,7 +1,7 @@
 // Package logger wraps log/slog with the small set of conveniences
 // the app needs: a structured `Log` interface, a Logger that satisfies
 // it, configurable JSON or pretty-print output, and `ErrorChain`
-// helper for unwrapping. Every other slog-flavoured helper that lived
+// helper for unwrapping. Every other slog-flavored helper that lived
 // here was unused and got pruned.
 package logger
 

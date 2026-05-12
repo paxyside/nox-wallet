@@ -1,14 +1,14 @@
 // Package entity defines the persisted notification domain object. A
 // Notification is one row in the SQLite cache that mirrors a single
 // watcher.WalletEvent broadcast — kept separate from the in-flight
-// event type so the storage schema can evolve independently from the
+// event type so the storage schema can evolve independently of the
 // in-memory pub/sub DTOs.
 package entity
 
 import "time"
 
 // Notification is the persisted form of a watcher event. Payload is
-// the proto-serialised wallet.event.WalletEvent so the gRPC layer can
+// the proto-serialized wallet.event.WalletEvent so the gRPC layer can
 // re-emit the row to clients without reconstructing rich Go DTOs.
 type Notification struct {
 	ID        string

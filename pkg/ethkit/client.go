@@ -36,11 +36,12 @@ type Config struct {
 // reconnect loop).
 type Client struct {
 	cfg     Config
+	network Network
 	http    *ethclient.Client
 	chainID *big.Int
 	log     Logger
 	retrier Retrier
-	nonces  *nonceManager // per-client nonce tracking; initialised in New
+	nonces  *nonceManager // per-client nonce tracking; initialized in New
 	pending PendingStore
 }
 

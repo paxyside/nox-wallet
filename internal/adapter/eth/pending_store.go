@@ -21,7 +21,7 @@ import (
 //
 // Architecture: the store keeps an in-memory snapshot for fast reads
 // (the watcher reads `Recent` on every poll tick — must be cheap) and
-// writes through to SQLite on every mutation. On startup it hydrates
+// writes through to SQLite on every mutation. On startup, it hydrates
 // the snapshot from the DB. A janitor goroutine deletes rows past the
 // recent-TTL window so the table stays bounded.
 type PendingStore struct {
@@ -60,7 +60,7 @@ func NewPendingStore(ctx context.Context, db *sqlitekit.Client, log liblogger.Lo
 var _ ethkit.PendingStore = (*PendingStore)(nil)
 
 // Run starts a periodic GC pass that deletes rows past the recent-TTL
-// window. Returns when ctx is cancelled. Call once from the app's
+// window. Returns when ctx is canceled. Call once from the app's
 // runner group.
 func (s *PendingStore) Run(ctx context.Context) error {
 	ticker := time.NewTicker(time.Minute)
@@ -77,9 +77,8 @@ func (s *PendingStore) Run(ctx context.Context) error {
 }
 
 // Add stamps a new pending tx in the in-memory snapshot and writes
-// through to SQLite. Errors during the write are logged — the
-// in-memory state still reflects the live registry, so the user-
-// visible flow doesn't break, but the persistence guarantee weakens
+// through to SQLite. Errors during to write are logged — the
+// in-memory state still reflects the live registry, so the user-visible flow doesn't break, but the persistence guarantee weakens
 // for that one tx.
 func (s *PendingStore) Add(tx ethkit.PendingTx) {
 	s.mu.Lock()

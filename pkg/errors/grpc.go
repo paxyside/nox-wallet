@@ -48,7 +48,7 @@ func grpcCode(code Code) codes.Code {
 }
 
 // grpcCodeToCode is the inverse — used by GetCode when an error came
-// back from a remote gRPC call and we want to keep treating it as our
+// back from a remote gRPC call, and we want to keep treating it as our
 // internal Code.
 func grpcCodeToCode(c codes.Code) Code {
 	switch c {

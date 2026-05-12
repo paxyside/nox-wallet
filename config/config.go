@@ -80,9 +80,21 @@ type Logger struct {
 // -----------------------------------------------------------------------------
 
 type Ethereum struct {
+	// Network selects an entry from the networks catalog (default
+	// "ethereum"). All chain-level constants — chain id, router,
+	// quoter, well-known tokens, CoinGecko ids — are read from there;
+	// only the per-deployment plumbing (RPC URL, API key) lives here.
+	Network       string `yaml:"network"     env:"NETWORK"     env-default:"ethereum"`
 	HTTPUrl       string `yaml:"http_url"    env:"HTTP_URL"`
-	ChainID       int64  `yaml:"chain_id"    env:"CHAIN_ID"`
 	AlchemyAPIKey string `yaml:"alchemy_key" env:"ALCHEMY_KEY"`
+	// NetworksFile, when non-empty, overrides the embedded default
+	// catalog. Useful for shipping with extra L2s or testnets without
+	// rebuilding the binary.
+	NetworksFile string `yaml:"networks_file" env:"NETWORKS_FILE"`
+	// TokenListFile, when non-empty, overrides the embedded Uniswap
+	// Default Token List with a custom curated list. Format follows
+	// the Uniswap Token List schema (uniswap.org/tokenlist.schema.json).
+	TokenListFile string `yaml:"tokenlist_file" env:"TOKENLIST_FILE"`
 }
 
 // -----------------------------------------------------------------------------

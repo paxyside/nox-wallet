@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/paxyside/nox-wallet/config/networks"
 	ethadapter "github.com/paxyside/nox-wallet/internal/adapter/eth"
 	"github.com/paxyside/nox-wallet/internal/dal/sqlite"
 	"github.com/paxyside/nox-wallet/pkg/common/retryx"
@@ -17,6 +18,10 @@ import (
 )
 
 func (a *App) initInfra(ctx context.Context) error {
+	if err := a.initNetwork(); err != nil {
+		return fmt.Errorf("init network: %w", err)
+	}
+
 	if err := a.initSQLite(ctx); err != nil {
 		return fmt.Errorf("init sqlite: %w", err)
 	}
@@ -24,6 +29,49 @@ func (a *App) initInfra(ctx context.Context) error {
 	if err := a.initEth(ctx); err != nil {
 		return fmt.Errorf("init eth client: %w", err)
 	}
+
+	return nil
+}
+
+// initNetwork loads the chain catalog (embedded by default, file path
+// override via `ethereum.networks_file`) and the verified TokenList
+// (embedded Uniswap Default List by default, override via
+// `ethereum.tokenlist_file`). Stored on the app for downstream
+// wiring — the watcher, pricefeed, and swap codepath all consume them.
+func (a *App) initNetwork() error {
+	id := a.cfg.Ethereum.Network
+	if id == "" {
+		id = "ethereum"
+	}
+
+	catalog, err := networks.Load(a.cfg.Ethereum.NetworksFile)
+	if err != nil {
+		return fmt.Errorf("load networks: %w", err)
+	}
+
+	net, err := catalog.Network(id)
+	if err != nil {
+		return fmt.Errorf("select network %q: %w", id, err)
+	}
+
+	tokenList, err := networks.LoadTokenList(a.cfg.Ethereum.TokenListFile)
+	if err != nil {
+		return fmt.Errorf("load tokenlist: %w", err)
+	}
+
+	a.network = net
+	a.tokenList = tokenList
+
+	a.l.Info("network catalog loaded",
+		"id", net.ID,
+		"chain_id", net.ChainID,
+	)
+
+	a.l.Info("token list loaded",
+		"name", tokenList.Name,
+		"version", tokenList.Version,
+		"verified_for_chain", tokenList.SizeByChain()[net.ChainID],
+	)
 
 	return nil
 }
@@ -60,8 +108,18 @@ func (a *App) initSQLite(ctx context.Context) error {
 func (a *App) initEth(ctx context.Context) error {
 	cfg := ethkit.Config{
 		HTTPURL:       a.cfg.Ethereum.HTTPUrl,
-		ChainID:       a.cfg.Ethereum.ChainID,
+		ChainID:       a.network.ChainID,
 		AlchemyAPIKey: a.cfg.Ethereum.AlchemyAPIKey,
+	}
+
+	// Translate the network catalog into the minimal address bundle
+	// ethkit consumes. Empty strings (would-be MustAddress crashes)
+	// are caught here rather than at the swap call site.
+	netForEthkit := ethkit.Network{
+		ChainID:             a.network.ChainID,
+		UniswapQuoterV2:     ethkit.MustAddress(a.network.Protocols.UniswapV3.QuoterV2),
+		UniswapSwapRouter02: ethkit.MustAddress(a.network.Protocols.UniswapV3.SwapRouter02),
+		UniswapWrappedETH:   ethkit.MustAddress(a.network.Protocols.UniswapV3.WrappedNative),
 	}
 
 	retrier := retryx.NewRetrier(
@@ -85,6 +143,7 @@ func (a *App) initEth(ctx context.Context) error {
 		ethkit.WithLogger(a.l),
 		ethkit.WithRetrier(retrier),
 		ethkit.WithPendingStore(pendingStore),
+		ethkit.WithNetwork(netForEthkit),
 	)
 	if err != nil {
 		return fmt.Errorf("ethkit new: %w", err)

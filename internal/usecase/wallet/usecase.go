@@ -320,7 +320,7 @@ func (u *Usecase) ReverseENS(ctx context.Context, addr ethkit.Address) (string, 
 
 // ── Tx simulation ─────────────────────────────────────────────────────────────
 
-// SimulateSendETH dry-runs the send via eth_call so the UI can preview
+// SimulateSendETH dry-runs to send via eth_call so the UI can preview
 // success / revert + gas cost before the user confirms. Wallet must be
 // loaded; addresses are validated by the caller.
 func (u *Usecase) SimulateSendETH(

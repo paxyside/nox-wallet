@@ -6,6 +6,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	appconfig "github.com/paxyside/nox-wallet/config"
+	"github.com/paxyside/nox-wallet/config/networks"
 	ethadapter "github.com/paxyside/nox-wallet/internal/adapter/eth"
 	"github.com/paxyside/nox-wallet/pkg/ethkit"
 	"github.com/paxyside/nox-wallet/pkg/keychain"
@@ -15,9 +16,11 @@ import (
 
 // App owns all components and manages their lifecycle.
 type App struct {
-	cfg     *appconfig.Config
-	l       *liblogger.Logger
-	dataDir string
+	cfg       *appconfig.Config
+	l         *liblogger.Logger
+	dataDir   string
+	network   *networks.Network   // chain-level constants — see config/networks/
+	tokenList *networks.TokenList // verified-token registry (Uniswap Default List)
 
 	// Infrastructure
 	sqlite       *sqlitekit.Client

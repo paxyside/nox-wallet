@@ -29,6 +29,10 @@ func NewWalletFromMnemonic(mnemonic, derivationPath string) (*Wallet, error) {
 	if err != nil {
 		return nil, err
 	}
+	// `w` holds the derived seed inside an opened hdwallet handle — close it
+	// on every exit path so the underlying byte buffer is zeroed rather than
+	// left dangling for the GC.
+	defer func() { _ = w.Close() }()
 
 	path, err := hdwallet.ParseDerivationPath(derivationPath)
 	if err != nil {

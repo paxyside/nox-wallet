@@ -1,0 +1,42 @@
+# Network catalog — chain-level constants the rest of the app reads
+# at startup. The binary ships with this file embedded; operators with
+# custom RPCs or extra L2s can supply an override via the
+# `ethereum.networks_file` setting.
+#
+# Token registry deliberately lives elsewhere. Verified ERC-20s come
+# from `tokenlist_uniswap.json` (Uniswap Default Token List); cached
+# per-user watchlist lives in the SQLite `watched_tokens` table. This
+# file only carries:
+#   - chain identity (chain_id, name, explorer)
+#   - native asset metadata (no contract address)
+#   - protocol contract addresses (Uniswap routers, wrapped-native)
+#
+# Schema:
+#   networks.<id>.chain_id            EIP-155 chain identifier
+#   networks.<id>.name                human-readable label
+#   networks.<id>.explorer            base URL for tx links
+#   networks.<id>.native              native asset metadata
+#   networks.<id>.protocols.<name>    protocol contract addresses
+
+networks:
+  ethereum:
+    chain_id: 1
+    name: "Ethereum Mainnet"
+    explorer: "https://etherscan.io"
+
+    native:
+      symbol: "ETH"
+      name: "Ether"
+      decimals: 18
+      coingecko_id: "ethereum"
+      logo_uri: "https://assets.coingecko.com/coins/images/279/large/ethereum.png"
+
+    protocols:
+      uniswap_v3:
+        # SwapRouter02 — the v3 router we call exactInputSingle on.
+        swap_router_02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45"
+        # QuoterV2 — eth_call target for off-chain price quoting.
+        quoter_v2:      "0x61fFE014bA17989E743c5F6cB21bF9697530B21e"
+        # Canonical wrapped-native used as the bridge token when one
+        # side of a swap is native (ETH → WETH → token).
+        wrapped_native: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"

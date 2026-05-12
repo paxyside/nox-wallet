@@ -22,7 +22,7 @@ func (h *Handler) AddToken(ctx context.Context, req *pb.AddTokenRequest) (*pb.Ad
 		return nil, h.HandleError(ctx, err)
 	}
 
-	return &pb.AddTokenResponse{Token: watchedTokenToProto(t)}, nil
+	return &pb.AddTokenResponse{Token: h.watchedTokenToProto(t)}, nil
 }
 
 func (h *Handler) RemoveToken(ctx context.Context, req *pb.RemoveTokenRequest) (*pb.RemoveTokenResponse, error) {
@@ -41,7 +41,7 @@ func (h *Handler) ListTokens(ctx context.Context, _ *pb.ListTokensRequest) (*pb.
 
 	tokens := make([]*pbtoken.WatchedToken, 0, len(list))
 	for _, t := range list {
-		tokens = append(tokens, watchedTokenToProto(t))
+		tokens = append(tokens, h.watchedTokenToProto(t))
 	}
 
 	return &pb.ListTokensResponse{Tokens: tokens}, nil
@@ -66,7 +66,7 @@ func (h *Handler) ListTokensWithBalances(
 
 	tokens := make([]*pbtoken.WatchedTokenWithBalance, 0, len(list))
 	for _, t := range list {
-		tokens = append(tokens, tokenWithBalanceToProto(t))
+		tokens = append(tokens, h.tokenWithBalanceToProto(t))
 	}
 
 	return &pb.ListTokensWithBalancesResponse{Tokens: tokens}, nil

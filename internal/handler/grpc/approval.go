@@ -25,9 +25,9 @@ func (h *Handler) ListApprovals(
 	}
 
 	out := make([]*pb.TokenApproval, 0, len(list))
-	for _, e := range list {
-		p := approvalToProto(e.TokenApproval)
-		p.TokenLogoUrl = e.LogoURL
+	for _, a := range list {
+		p := approvalToProto(a)
+		p.TokenLogoUrl = h.tokenLogoURL(a.Token.Address.Hex())
 		out = append(out, p)
 	}
 
@@ -62,7 +62,7 @@ func (h *Handler) RevokeApproval(
 
 // spenderLabels maps known DEX router addresses (lowercased hex) to the
 // human-readable name shown in the UI. Anything not in this map gets
-// labelled by short address.
+// labeled by short address.
 var spenderLabels = map[string]string{
 	"0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45": "Uniswap V3",
 	"0x7a250d5630b4cf539739df2c5dacb4c659f2488d": "Uniswap V2",

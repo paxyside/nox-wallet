@@ -157,7 +157,8 @@ func TestSeed_FiltersUnknownAndExisting(t *testing.T) {
 	}}
 
 	// Pretend USDC is already watched.
-	created := []*entity.WatchedToken{}
+	var created []*entity.WatchedToken
+
 	svc := &mockTokenSvc{
 		listFn: func(_ context.Context) ([]*entity.WatchedToken, error) {
 			return []*entity.WatchedToken{{ID: "x", Token: usdc}}, nil

@@ -85,7 +85,7 @@ func (u *Usecase) Add(ctx context.Context, p AddTokenParams) (*entity.WatchedTok
 // EnsureWatched is the idempotent companion to [Add]. If a token with
 // the same contract address is already on the watchlist, it returns
 // the existing entry without touching the row (preserves user-set
-// flags like is_pinned / is_hidden). Otherwise it adds the token via
+// flags like is_pinned / is_hidden). Otherwise, it adds the token via
 // the same flow as Add — including on-chain metadata enrichment when
 // the caller passes only the address.
 //
@@ -121,7 +121,7 @@ func (u *Usecase) Pin(ctx context.Context, id string, pinned bool) error {
 }
 
 // Hide flips the hidden flag on a watched token. Hidden tokens stay in the DB
-// (so the auto-seed dedup map still recognises them and doesn't re-add them
+// (so the auto-seed dedup map still recognizes them and doesn't re-add them
 // on every history sync) but are filtered out from user-visible lists.
 func (u *Usecase) Hide(ctx context.Context, id string, hidden bool) error {
 	return u.svc.SetHidden(ctx, id, hidden)

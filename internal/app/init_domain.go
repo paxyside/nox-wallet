@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/paxyside/nox-wallet/config/networks"
 	pricefeed "github.com/paxyside/nox-wallet/internal/adapter/price"
 	contactsvc "github.com/paxyside/nox-wallet/internal/domain/contact/service"
 	contactsqlite "github.com/paxyside/nox-wallet/internal/domain/contact/storage/sqlite"
@@ -25,6 +26,7 @@ import (
 	watcheruc "github.com/paxyside/nox-wallet/internal/usecase/watcher"
 	"github.com/paxyside/nox-wallet/pkg/common/idx"
 	"github.com/paxyside/nox-wallet/pkg/common/timex"
+	"github.com/paxyside/nox-wallet/pkg/ethkit"
 )
 
 type services struct {
@@ -61,10 +63,20 @@ func (a *App) initServices(ctx context.Context) (*services, error) {
 
 	// ── usecases ──────────────────────────────────────────────────────────────
 
+	// Symbol→CoinGecko-id map carries only the chain's native asset
+	// (e.g. ETH → "ethereum"). ERC-20s are priced through the
+	// contract-address endpoint inside GetPricesForTokens, which
+	// works for any token without a hardcoded list.
+	nativeSymbolID := map[string]string{}
+	if a.network.Native.CoinGeckoID != "" {
+		nativeSymbolID[a.network.Native.Symbol] = a.network.Native.CoinGeckoID
+	}
+
 	feed := pricefeed.New(pricefeed.Config{
-		TTL:    pricefeed.DefaultTTL,
-		APIKey: a.cfg.Pricefeed.CoinGeckoKey,
-		Plan:   a.cfg.Pricefeed.CoinGeckoPlan,
+		TTL:        pricefeed.DefaultTTL,
+		APIKey:     a.cfg.Pricefeed.CoinGeckoKey,
+		Plan:       a.cfg.Pricefeed.CoinGeckoPlan,
+		SymbolToID: nativeSymbolID,
 	})
 
 	walletUC := walletuc.New(base, a.l, a.adapter, walletDomainSvc, a.keychain)
@@ -75,12 +87,18 @@ func (a *App) initServices(ctx context.Context) (*services, error) {
 	approvalUC := approvaluc.New(a.l, a.adapter, walletUC, tokenUC)
 	notificationUC := notificationuc.New(base, a.l, notificationStore)
 	// One-shot retention sweep so quiet wallets don't accumulate stale
-	// rows even when no new events trigger the per-Save prune. Best-
-	// effort — failures are logged inside SweepOnStartup.
+	// rows even when no new events trigger the per-Save prune. Best-effort — failures are logged inside SweepOnStartup.
 	notificationUC.SweepOnStartup(ctx)
 	// Adapt the notification usecase to the watcher's NotificationSink
 	// interface (its Save takes uint8 to dodge an import cycle).
-	watcherUC := watcheruc.New(a.l, a.adapter, walletUC, notificationSink{uc: notificationUC})
+	// `WithTokenLookup` wires the verified token registry (Uniswap
+	// Default List) so the watcher resolves well-known tokens
+	// locally instead of hitting `eth_call` for every transfer of
+	// USDC, USDT, …
+	watcherUC := watcheruc.New(
+		a.l, a.adapter, walletUC, notificationSink{uc: notificationUC},
+		watcheruc.WithTokenLookup(tokenListLookup(a.tokenList, a.network.ChainID)),
+	)
 
 	// Restore wallet from keychain if previously imported.
 	if err := walletUC.LoadFromKeychain(ctx); err != nil {
@@ -123,4 +141,24 @@ func (s notificationSink) Save(
 	}
 
 	return id, nil
+}
+
+// tokenListLookup adapts the verified TokenList registry to the
+// watcher's TokenLookup signature. ChainID is captured at wiring
+// time so the lookup can't accidentally resolve a Polygon USDC entry
+// against a mainnet contract address.
+func tokenListLookup(tl *networks.TokenList, chainID int64) watcheruc.TokenLookup {
+	return func(addressLower string) (ethkit.Token, bool) {
+		tok, ok := tl.TokenByAddress(chainID, addressLower)
+		if !ok {
+			return ethkit.Token{}, false
+		}
+
+		return ethkit.Token{
+			Address:  ethkit.MustAddress(tok.Address),
+			Symbol:   tok.Symbol,
+			Name:     tok.Name,
+			Decimals: tok.Decimals,
+		}, true
+	}
 }

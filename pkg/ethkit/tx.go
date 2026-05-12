@@ -117,7 +117,7 @@ func (c *Client) SendTx(ctx context.Context, wallet *Wallet, req TxRequest) (TxR
 	return c.waitForReceipt(ctx, txHash)
 }
 
-// WaitForReceipt polls until the transaction is mined or ctx is cancelled.
+// WaitForReceipt polls until the transaction is mined or ctx is canceled.
 func (c *Client) WaitForReceipt(ctx context.Context, txHashHex string) (TxReceipt, error) {
 	return c.waitForReceipt(ctx, common.HexToHash(txHashHex))
 }

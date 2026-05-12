@@ -5,7 +5,6 @@ package approval
 
 import (
 	"context"
-	"sync"
 
 	walletuc "github.com/paxyside/nox-wallet/internal/usecase/wallet"
 	liberrors "github.com/paxyside/nox-wallet/pkg/errors"
@@ -27,14 +26,6 @@ type EthClient interface {
 		token ethkit.Token,
 		spender ethkit.Address,
 	) (ethkit.TxReceipt, error)
-	TokenLogoURL(ctx context.Context, addr ethkit.Address) (string, error)
-}
-
-// Entry is an approval row enriched with metadata that doesn't live in
-// the on-chain allowance call (logo URL via Alchemy). Returned by List.
-type Entry struct {
-	ethkit.TokenApproval
-	LogoURL string
 }
 
 // WalletProvider exposes the currently-loaded wallet.
@@ -63,9 +54,10 @@ func New(log logger.Log, eth EthClient, wallet WalletProvider, tokens TokenListe
 }
 
 // List sweeps every (watchedToken, knownSpender) pair against the on-chain
-// allowance and returns the non-zero results, enriched with Alchemy logo
-// URLs (one parallel fetch per unique token contract — cheap).
-func (u *Usecase) List(ctx context.Context) ([]Entry, error) {
+// allowance and returns the non-zero results. Logo URLs and any other
+// presentation metadata are stamped on at the gRPC handler boundary —
+// the usecase deliberately stays free of UI concerns.
+func (u *Usecase) List(ctx context.Context) ([]ethkit.TokenApproval, error) {
 	addr := u.wallet.LoadedAddress()
 	if addr.IsZero() {
 		return nil, liberrors.New(liberrors.CodeFailedPrecondition, "no wallet loaded")
@@ -85,61 +77,7 @@ func (u *Usecase) List(ctx context.Context) ([]Entry, error) {
 		return nil, liberrors.Wrapf(err, liberrors.CodeInternal, "list approvals")
 	}
 
-	return u.enrichWithLogos(ctx, res), nil
-}
-
-// enrichWithLogos resolves an Alchemy logo URL per unique token contract
-// and folds it into Entry rows. Logo fetches are best-effort: failures get
-// logged and the entry stays with LogoURL="".
-func (u *Usecase) enrichWithLogos(
-	ctx context.Context,
-	approvals []ethkit.TokenApproval,
-) []Entry {
-	logos := make(map[string]string, len(approvals))
-
-	var (
-		mu sync.Mutex
-		wg sync.WaitGroup
-	)
-
-	seen := make(map[string]bool, len(approvals))
-	for _, a := range approvals {
-		key := a.Token.Address.Hex()
-		if seen[key] {
-			continue
-		}
-		seen[key] = true
-
-		wg.Add(1)
-
-		go func(addr ethkit.Address) {
-			defer wg.Done()
-
-			logo, err := u.eth.TokenLogoURL(ctx, addr)
-			if err != nil {
-				u.log.Warn("approval: token logo fetch failed",
-					"contract", addr.Hex(), "error", err)
-
-				return
-			}
-
-			mu.Lock()
-			logos[addr.Hex()] = logo
-			mu.Unlock()
-		}(a.Token.Address)
-	}
-
-	wg.Wait()
-
-	out := make([]Entry, 0, len(approvals))
-	for _, a := range approvals {
-		out = append(out, Entry{
-			TokenApproval: a,
-			LogoURL:       logos[a.Token.Address.Hex()],
-		})
-	}
-
-	return out
+	return res, nil
 }
 
 // Revoke submits `approve(spender, 0)` for the given token.

@@ -44,18 +44,13 @@ type SimulationResult struct {
 }
 
 // AssetChangeKind classifies a row in alchemy_simulateAssetChanges.
+// Values come from Alchemy verbatim: "NATIVE", "ERC20", "ERC721",
+// "ERC1155", "SPECIAL". We don't predeclare named constants — the UI
+// matches on the string form when it cares about the variant.
 type AssetChangeKind string
 
-const (
-	AssetChangeNative  AssetChangeKind = "NATIVE"  // ETH
-	AssetChangeERC20   AssetChangeKind = "ERC20"   // fungible token
-	AssetChangeERC721  AssetChangeKind = "ERC721"  // NFT
-	AssetChangeERC1155 AssetChangeKind = "ERC1155" // semi-fungible
-	AssetChangeSpecial AssetChangeKind = "SPECIAL" // unknown / synthetic
-)
-
 // AssetChange is one entry from alchemy_simulateAssetChanges. Strings stay
-// in their human-friendly form ("0.001234"); we don't re-parse to Amount
+// in their human-friendly form ("0.001234"); we don't reparse to Amount
 // because some entries (NFT mints) lack a meaningful numeric amount.
 type AssetChange struct {
 	// Kind: NATIVE / ERC20 / ERC721 / ERC1155 / SPECIAL.

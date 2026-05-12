@@ -139,37 +139,6 @@ type TokenBalance struct {
 	Balance         Amount
 }
 
-// TokenLogoURL fetches the logo URL for an ERC-20 token via
-// alchemy_getTokenMetadata. Returns "" with no error when Alchemy doesn't
-// have a logo on file (very common for long-tail tokens) — the UI should
-// fall back to the symbol-letter avatar in that case.
-func (c *Client) TokenLogoURL(ctx context.Context, addr Address) (string, error) {
-	if c.cfg.HTTPURL == "" {
-		return "", nil
-	}
-
-	body := map[string]any{
-		"id":      1,
-		"jsonrpc": "2.0",
-		"method":  "alchemy_getTokenMetadata",
-		"params":  []any{addr.Hex()},
-	}
-
-	raw, err := c.alchemyRPC(ctx, body)
-	if err != nil {
-		return "", fmt.Errorf("ethkit: token metadata: %w", err)
-	}
-
-	var resp struct {
-		Logo string `json:"logo"`
-	}
-	if err = json.Unmarshal(raw, &resp); err != nil {
-		return "", fmt.Errorf("ethkit: token metadata decode: %w", err)
-	}
-
-	return resp.Logo, nil
-}
-
 // ── internal ──────────────────────────────────────────────────────────────────
 
 func (c *Client) alchemyRPC(ctx context.Context, body map[string]any) (json.RawMessage, error) {
@@ -285,7 +254,7 @@ func convertTransfer(t alchemyTransfer) (AssetTransfer, error) {
 	}
 
 	uniqueID := t.UniqueID
-	// Defensive fallback: if Alchemy didn't return uniqueId, synthesise one
+	// Defensive fallback: if Alchemy didn't return uniqueId, synthesize one
 	// so we can still distinguish multi-leg events (e.g. swap = 2 transfers).
 	if uniqueID == "" {
 		uniqueID = fmt.Sprintf("%s:%s:%s", t.Hash, t.Category, t.Asset)

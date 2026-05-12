@@ -60,7 +60,7 @@ func NewLoader(opts ...Option) *Loader {
 // Load reads YAML and environment variables into cfg. Priority:
 //  1. environment variables
 //  2. the first existing .env file
-//  3. the first existing yaml file
+//  3. the first existing YAML file
 //  4. struct defaults declared via cleanenv tags
 func (l *Loader) Load(cfg any) error {
 	for _, envPath := range l.envPaths {

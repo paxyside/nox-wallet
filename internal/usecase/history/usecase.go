@@ -182,7 +182,7 @@ func (u *Usecase) GetHistory(ctx context.Context, p GetHistoryParams) (GetHistor
 
 // Sync exposes the Alchemy-driven history sync as a standalone entrypoint so
 // callers (e.g. wallet-import handlers) can preheat the cache without going
-// through GetHistory. Honours the same cooldown as GetHistory does.
+// through GetHistory. Honors the same cooldown as GetHistory does.
 func (u *Usecase) Sync(ctx context.Context, addr ethkit.Address, watchedContracts []ethkit.Address) error {
 	u.mu.Lock()
 
@@ -201,8 +201,7 @@ func (u *Usecase) Sync(ctx context.Context, addr ethkit.Address, watchedContract
 // appear in history immediately even if a routine sync just ran.
 // Updates `lastSync` so the next regular Sync respects the new floor.
 //
-// Single-flight: if another sync is already running, this call short-
-// circuits and returns nil — the in-flight sync will pick up the new
+// Single-flight: if another sync is already running, this call short-circuits and returns nil — the in-flight sync will pick up the new
 // transaction on its existing pages. Two parallel SyncForce calls
 // would otherwise UPSERT the same rows twice and double the Alchemy
 // bill for no benefit.
@@ -310,8 +309,8 @@ func (u *Usecase) fetchAllPages(ctx context.Context, base ethkit.GetAssetTransfe
 				defer wg.Done()
 
 				// Detached context — gas-fee enrichment must survive
-				// the sync context being cancelled mid-page. Acquire
-				// the semaphore on the detached ctx so a cancelled
+				// the sync context being canceled mid-page. Acquire
+				// the semaphore on the detached ctx so a canceled
 				// parent doesn't poison this branch.
 				bgCtx := context.Background()
 				if err := u.alchemySem.Acquire(bgCtx, 1); err != nil {

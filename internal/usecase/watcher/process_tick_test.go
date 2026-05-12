@@ -118,7 +118,8 @@ func itoa(i int) string {
 
 	const digits = "0123456789"
 
-	out := []byte{}
+	var out []byte
+
 	for i > 0 {
 		out = append([]byte{digits[i%10]}, out...)
 		i /= 10

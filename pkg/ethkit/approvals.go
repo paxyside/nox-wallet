@@ -20,7 +20,7 @@ var KnownDEXSpenders = []Address{
 	MustAddress("0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45"),
 	// Uniswap V2 Router 02 — legacy, still common.
 	MustAddress("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"),
-	// Uniswap Universal Router — multi-protocol entry point.
+	// Uniswap Universal Router — multiprotocol entry point.
 	MustAddress("0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD"),
 	// 1inch v5 aggregator router.
 	MustAddress("0x1111111254EEB25477B68fb85Ed929f73A960582"),

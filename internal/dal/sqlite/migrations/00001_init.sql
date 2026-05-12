@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS watched_tokens (
     decimals         INTEGER NOT NULL,
     is_pinned        INTEGER NOT NULL DEFAULT 0,
     -- Hidden tokens stay in the watchlist (so the auto-seed dedup map still
-    -- recognises them and doesn't re-add them on every history sync) but are
+    -- recognizes them and doesn't re-add them on every history sync) but are
     -- excluded from the user-visible Tokens / Dashboard / Send lists. Lets
     -- the user banish address-poisoning spam without permanently deleting it.
     is_hidden        INTEGER NOT NULL DEFAULT 0,
@@ -92,7 +92,7 @@ CREATE INDEX IF NOT EXISTS idx_notifications_unread ON notifications(is_read, cr
 -- Single-row table holding the user's notification preferences. The
 -- CHECK constraint enforces the singleton pattern: the storage layer
 -- always writes id=1, so a corrupted multi-row state can't occur.
--- Defaults reflect the most conservative behaviour: sounds and macOS
+-- Defaults reflect the most conservative behavior: sounds and macOS
 -- toasts on, no auto-mark-read, no auto-delete, system alerts not
 -- muted. The seed row is inserted unconditionally so first-launch
 -- code can read settings without a NULL-check branch.

@@ -63,12 +63,12 @@ func NewRetrier(opts ...Option) *Retrier {
 	return &Retrier{opts: opts}
 }
 
-// Do executes op with the Retrier's configured policy.
+// Do execute op with the Retrier's configured policy.
 func (r *Retrier) Do(ctx context.Context, op func(context.Context) error) error {
 	return Do(ctx, op, r.opts...)
 }
 
-// Do runs op with exponential backoff retry. Cancellation via ctx
+// Do run op with exponential backoff retry. Cancellation via ctx
 // short-circuits the wait — callers don't need a separate timeout.
 func Do(ctx context.Context, op Operation, opts ...Option) error {
 	cfg := &Config{

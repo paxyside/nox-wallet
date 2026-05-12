@@ -11,16 +11,6 @@ import (
 
 // ── Token transfer watcher ────────────────────────────────────────────────────
 
-// wellKnownTokens maps lowercase contract address → Token metadata.
-// Used to enrich TransferEvents that only carry the contract address.
-var wellKnownTokens = map[string]ethkit.Token{
-	"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": {Symbol: "WETH", Name: "Wrapped Ether", Decimals: 18},
-	"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": {Symbol: "USDC", Name: "USD Coin", Decimals: 6},
-	"0xdac17f958d2ee523a2206206994597c13d831ec7": {Symbol: "USDT", Name: "Tether USD", Decimals: 6},
-	"0x6b175474e89094c44da98b954eedeac495271d0f": {Symbol: "DAI", Name: "Dai Stablecoin", Decimals: 18},
-	"0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": {Symbol: "WBTC", Name: "Wrapped Bitcoin", Decimals: 8},
-}
-
 // watchTransactions polls Alchemy `getAssetTransfers` once per
 // `pollInterval`, groups every new movement (ETH external / internal /
 // ERC-20) by tx hash, classifies the role from the (sent, received) leg
@@ -94,8 +84,7 @@ func (u *Usecase) watchTransactions(ctx context.Context, addr ethkit.Address) {
 				continue
 			}
 
-			// Re-query a small overlap with the previous tick so late-
-			// indexed transfers from Alchemy can still be picked up. On
+			// Re-query a small overlap with the previous tick so late-indexed transfers from Alchemy can still be picked up. On
 			// the very first iteration after init `lastBlock` may be
 			// less than the lookback window — clamp.
 			fromBlockNum := uint64(1)

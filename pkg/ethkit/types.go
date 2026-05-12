@@ -6,37 +6,16 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// ── Well-known tokens (mainnet) ───────────────────────────────────────────────
-
-var (
-	// NativeETH represents the native ETH asset (no contract address).
-	NativeETH = Token{Symbol: "ETH", Name: "Ether", Decimals: 18}
-
-	WETH = Token{
-		Address:  MustAddress("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
-		Symbol:   "WETH",
-		Name:     "Wrapped Ether",
-		Decimals: 18,
-	}
-	USDC = Token{
-		Address:  MustAddress("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
-		Symbol:   "USDC",
-		Name:     "USD Coin",
-		Decimals: 6,
-	}
-	USDT = Token{
-		Address:  MustAddress("0xdAC17F958D2ee523a2206206994597C13D831ec7"),
-		Symbol:   "USDT",
-		Name:     "Tether USD",
-		Decimals: 6,
-	}
-	DAI = Token{
-		Address:  MustAddress("0x6B175474E89094C44Da98b954EedeAC495271d0F"),
-		Symbol:   "DAI",
-		Name:     "Dai Stablecoin",
-		Decimals: 18,
-	}
-)
+// NativeETH is the chain-agnostic native-asset sentinel. The actual
+// symbol/decimals come from the network config — this var only carries
+// the empty-address shape so callers can compare via Token.IsNative()
+// without importing the higher-level networks package.
+//
+// All other well-known tokens (USDC, WETH, USDT, …) live in the
+// network catalog at config/networks/. Look them up via
+// network.TokenBySymbol() / TokenByAddress() rather than hardcoding
+// addresses in ethkit.
+var NativeETH = Token{Symbol: "ETH", Name: "Ether", Decimals: 18}
 
 // ── Token ─────────────────────────────────────────────────────────────────────
 
@@ -138,12 +117,14 @@ type BalanceUpdate struct {
 // AssetTransferCategory mirrors Alchemy's category field.
 type AssetTransferCategory string
 
+// We deliberately only declare the categories the app actually pulls
+// (external + internal + erc20). NFT transfers (erc721 / erc1155) are
+// out of scope at v0 — when they come back in, add the consts and
+// pass them in the `Category` slice of GetAssetTransfersParams.
 const (
 	CategoryExternal AssetTransferCategory = "external"
 	CategoryInternal AssetTransferCategory = "internal"
 	CategoryERC20    AssetTransferCategory = "erc20"
-	CategoryERC721   AssetTransferCategory = "erc721"
-	CategoryERC1155  AssetTransferCategory = "erc1155"
 )
 
 // AssetTransfer is a single transfer entry from alchemy_getAssetTransfers.

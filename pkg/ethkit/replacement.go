@@ -40,7 +40,7 @@ func (c *Client) SpeedUpTx(
 
 // CancelTx submits a self-transfer at the original transaction's nonce with
 // 0 ETH value and bumped gas. When this lands first the original tx is
-// orphaned and effectively cancelled.
+// orphaned and effectively canceled.
 //
 // Note: cancellation is best-effort — if the original gets included in the
 // next block before the cancel, the original wins.

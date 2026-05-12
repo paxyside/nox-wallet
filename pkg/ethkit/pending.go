@@ -77,8 +77,7 @@ type recentEntry struct {
 }
 
 // RecentTTL is how long a removed pending entry stays visible to
-// [PendingStore.Recent]. Both the in-memory tracker and the SQLite-
-// backed wrapper honour this value.
+// [PendingStore.Recent]. Both the in-memory tracker and the SQLite-backed wrapper honor this value.
 const RecentTTL = 5 * time.Minute
 
 func newPendingTracker() *pendingTracker {
@@ -184,7 +183,7 @@ func (c *Client) PendingForAddress(from Address) []PendingTx {
 }
 
 // RecentPendingForAddress is like [PendingForAddress] but also returns
-// transactions that were removed from the live pending map within the
+// transactions that were removed from the lives pending map within the
 // last few minutes. The watcher uses this to associate freshly-mined
 // on-chain hashes with the original submission's [PendingTx.Kind] tag,
 // which can lag the actual chain inclusion by one or two ticks.

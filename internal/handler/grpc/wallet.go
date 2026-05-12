@@ -6,6 +6,7 @@ import (
 
 	"github.com/shopspring/decimal"
 
+	pricefeed "github.com/paxyside/nox-wallet/internal/adapter/price"
 	walletentity "github.com/paxyside/nox-wallet/internal/domain/wallet/entity"
 	walletuc "github.com/paxyside/nox-wallet/internal/usecase/wallet"
 	liberrors "github.com/paxyside/nox-wallet/pkg/errors"
@@ -210,17 +211,23 @@ func (h *Handler) GetBalances(ctx context.Context, req *pb.GetBalancesRequest) (
 		return nil, h.HandleError(ctx, err)
 	}
 
-	// Collect symbols for price lookup.
-	symbols := make([]string, 0, len(res.Tokens)+1)
+	// Native + ERC-20 priced together: native goes through the
+	// symbol→CoinGecko-id map (seeded from the active network's
+	// `native.coingecko_id`), ERC-20s use the contract-address
+	// endpoint so we don't need a hardcoded symbol list.
+	priceTokens := make([]pricefeed.PriceableToken, 0, len(res.Tokens)+1)
+	priceTokens = append(priceTokens, pricefeed.PriceableToken{Symbol: "ETH"})
 
-	symbols = append(symbols, "ETH")
 	for _, tb := range res.Tokens {
-		symbols = append(symbols, tb.Token.Symbol)
+		priceTokens = append(priceTokens, pricefeed.PriceableToken{
+			Symbol:  tb.Token.Symbol,
+			Address: tb.Token.Address.Hex(),
+		})
 	}
 
-	prices := h.prices.GetPrices(ctx, symbols)
+	prices := h.prices.GetPricesForTokens(ctx, priceTokens)
 
-	eth, wei, pbTokens := balancesToProto(res, prices)
+	eth, wei, pbTokens := h.balancesToProto(res, prices)
 
 	ethUsd := ""
 
@@ -234,6 +241,7 @@ func (h *Handler) GetBalances(ctx context.Context, req *pb.GetBalancesRequest) (
 		EthBalanceWei: wei,
 		Tokens:        pbTokens,
 		EthUsdValue:   ethUsd,
+		EthLogoUrl:    h.nativeLogoURL,
 	}, nil
 }
 

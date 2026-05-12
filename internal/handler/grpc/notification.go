@@ -41,8 +41,7 @@ func (h *Handler) ListNotifications(
 		ev := &pbevent.WalletEvent{}
 		if unmarshalErr := proto.Unmarshal(n.Payload, ev); unmarshalErr != nil {
 			// One bad row shouldn't poison the whole list — log and
-			// skip. The persisted payload format is purely server-
-			// owned, so a corrupt row is a programmer / migration
+			// skip. The persisted payload format is purely server-owned, so a corrupt row is a programmer / migration
 			// bug rather than user input.
 			h.l.WarnContext(ctx, "list notifications: unmarshal payload",
 				"id", n.ID,
