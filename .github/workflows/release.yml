@@ -145,10 +145,17 @@ jobs:
             echo "::error::SPARKLE_ED_PRIVATE_KEY secret is missing — generate the keypair (see RELEASING.md) and add it"
             exit 1
           fi
-          # `sign_update -s <privkey> <file>` prints a one-line XML
-          # attribute snippet: `sparkle:edSignature="…" length="…"`.
-          # We capture it verbatim and splice it into the appcast below.
-          SIG_LINE="$(sign_update -s "$SPARKLE_ED_PRIVATE_KEY" dist/Nox.dmg)"
+          # Sparkle 2.x deprecated `-s <key>` (the private key would show
+          # up in `ps` output on the runner). The supported path is
+          # `--ed-key-file <path>`. Stash the secret in a temp file under
+          # the runner's RAM-backed tmp dir, then nuke it on exit.
+          KEYFILE="$(mktemp)"
+          trap 'rm -f "$KEYFILE"' EXIT
+          printf '%s' "$SPARKLE_ED_PRIVATE_KEY" > "$KEYFILE"
+          # `sign_update` prints a one-line XML attribute snippet:
+          # `sparkle:edSignature="…" length="…"`. We capture it verbatim
+          # and splice it into the appcast in the next step.
+          SIG_LINE="$(sign_update --ed-key-file "$KEYFILE" dist/Nox.dmg)"
           echo "sig_attrs<<EOF" >> "$GITHUB_OUTPUT"
           echo "$SIG_LINE"      >> "$GITHUB_OUTPUT"
           echo "EOF"            >> "$GITHUB_OUTPUT"
