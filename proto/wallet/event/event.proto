@@ -43,14 +43,14 @@ message AssetMovement {
 // many internal transfers / Transfer logs / native deltas it produced.
 message TransactionEvent {
   enum Role {
-    UNKNOWN = 0;
-    SEND_ETH = 1; // wallet → counterparty, native asset
-    RECEIVE_ETH = 2; // counterparty → wallet, native asset
-    SEND_TOKEN = 3; // wallet → counterparty, ERC-20
-    RECEIVE_TOKEN = 4; // counterparty → wallet, ERC-20
-    SWAP = 5; // wallet sent X, received Y in same tx (Uniswap-style)
-    SELF_TRANSFER = 6; // from == to == wallet (legal, almost always test/sweep)
-    APPROVE = 7; // ERC-20 approve(spender, amount) — no Transfer log
+    ROLE_UNSPECIFIED = 0;
+    ROLE_SEND_ETH = 1; // wallet → counterparty, native asset
+    ROLE_RECEIVE_ETH = 2; // counterparty → wallet, native asset
+    ROLE_SEND_TOKEN = 3; // wallet → counterparty, ERC-20
+    ROLE_RECEIVE_TOKEN = 4; // counterparty → wallet, ERC-20
+    ROLE_SWAP = 5; // wallet sent X, received Y in same tx (Uniswap-style)
+    ROLE_SELF_TRANSFER = 6; // from == to == wallet (legal, almost always test/sweep)
+    ROLE_APPROVE = 7; // ERC-20 approve(spender, amount) — no Transfer log
   }
 
   string tx_hash = 1;
@@ -68,8 +68,9 @@ message TransactionEvent {
 // Gas price changed significantly (spike or drop).
 message GasAlertEvent {
   enum AlertType {
-    SPIKE = 0;
-    DROP = 1;
+    ALERT_TYPE_UNSPECIFIED = 0;
+    ALERT_TYPE_SPIKE = 1;
+    ALERT_TYPE_DROP = 2;
   }
   AlertType type = 1;
   string current_gwei = 2;

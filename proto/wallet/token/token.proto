@@ -15,6 +15,10 @@ message WatchedToken {
   google.protobuf.Timestamp added_at = 6;
   bool is_pinned = 7;
   bool is_hidden = 8;
+  // Logo URL — populated from the embedded Uniswap Default Token
+  // List when the contract is verified there. Empty for unverified
+  // tokens; UI falls back to a letter avatar.
+  string logo_url = 9;
 }
 
 // Market snapshot for one token (may be empty if CoinGecko unavailable)

@@ -274,6 +274,7 @@ const GetBalancesResponse$json = {
       '10': 'tokens'
     },
     {'1': 'eth_usd_value', '3': 4, '4': 1, '5': 9, '10': 'ethUsdValue'},
+    {'1': 'eth_logo_url', '3': 5, '4': 1, '5': 9, '10': 'ethLogoUrl'},
   ],
 };
 
@@ -282,7 +283,7 @@ final $typed_data.Uint8List getBalancesResponseDescriptor = $convert.base64Decod
     'ChNHZXRCYWxhbmNlc1Jlc3BvbnNlEh8KC2V0aF9iYWxhbmNlGAEgASgJUgpldGhCYWxhbmNlEi'
     'YKD2V0aF9iYWxhbmNlX3dlaRgCIAEoCVINZXRoQmFsYW5jZVdlaRI0CgZ0b2tlbnMYAyADKAsy'
     'HC53YWxsZXQuYmFsYW5jZS5Ub2tlbkJhbGFuY2VSBnRva2VucxIiCg1ldGhfdXNkX3ZhbHVlGA'
-    'QgASgJUgtldGhVc2RWYWx1ZQ==');
+    'QgASgJUgtldGhVc2RWYWx1ZRIgCgxldGhfbG9nb191cmwYBSABKAlSCmV0aExvZ29Vcmw=');
 
 @$core.Deprecated('Use getGasFeesRequestDescriptor instead')
 const GetGasFeesRequest$json = {

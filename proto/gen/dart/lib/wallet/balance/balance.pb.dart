@@ -25,6 +25,7 @@ class TokenBalance extends $pb.GeneratedMessage {
     $core.String? balance,
     $core.int? decimals,
     $core.String? usdValue,
+    $core.String? logoUrl,
   }) {
     final result = create();
     if (symbol != null) result.symbol = symbol;
@@ -33,6 +34,7 @@ class TokenBalance extends $pb.GeneratedMessage {
     if (balance != null) result.balance = balance;
     if (decimals != null) result.decimals = decimals;
     if (usdValue != null) result.usdValue = usdValue;
+    if (logoUrl != null) result.logoUrl = logoUrl;
     return result;
   }
 
@@ -55,6 +57,7 @@ class TokenBalance extends $pb.GeneratedMessage {
     ..aOS(4, _omitFieldNames ? '' : 'balance')
     ..aI(5, _omitFieldNames ? '' : 'decimals', fieldType: $pb.PbFieldType.OU3)
     ..aOS(6, _omitFieldNames ? '' : 'usdValue')
+    ..aOS(7, _omitFieldNames ? '' : 'logoUrl')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -129,6 +132,18 @@ class TokenBalance extends $pb.GeneratedMessage {
   $core.bool hasUsdValue() => $_has(5);
   @$pb.TagNumber(6)
   void clearUsdValue() => $_clearField(6);
+
+  /// Logo URL — populated from the embedded Uniswap Default Token
+  /// List when the contract is verified there. Empty for unverified
+  /// tokens; UI falls back to a letter avatar.
+  @$pb.TagNumber(7)
+  $core.String get logoUrl => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set logoUrl($core.String value) => $_setString(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasLogoUrl() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearLogoUrl() => $_clearField(7);
 }
 
 class GasFees extends $pb.GeneratedMessage {

@@ -22,13 +22,17 @@ const (
 )
 
 type TokenBalance struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Address       string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
-	Balance       string                 `protobuf:"bytes,4,opt,name=balance,proto3" json:"balance,omitempty"`
-	Decimals      uint32                 `protobuf:"varint,5,opt,name=decimals,proto3" json:"decimals,omitempty"`
-	UsdValue      string                 `protobuf:"bytes,6,opt,name=usd_value,json=usdValue,proto3" json:"usd_value,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Symbol   string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Name     string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Address  string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
+	Balance  string                 `protobuf:"bytes,4,opt,name=balance,proto3" json:"balance,omitempty"`
+	Decimals uint32                 `protobuf:"varint,5,opt,name=decimals,proto3" json:"decimals,omitempty"`
+	UsdValue string                 `protobuf:"bytes,6,opt,name=usd_value,json=usdValue,proto3" json:"usd_value,omitempty"`
+	// Logo URL — populated from the embedded Uniswap Default Token
+	// List when the contract is verified there. Empty for unverified
+	// tokens; UI falls back to a letter avatar.
+	LogoUrl       string `protobuf:"bytes,7,opt,name=logo_url,json=logoUrl,proto3" json:"logo_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -101,6 +105,13 @@ func (x *TokenBalance) GetDecimals() uint32 {
 func (x *TokenBalance) GetUsdValue() string {
 	if x != nil {
 		return x.UsdValue
+	}
+	return ""
+}
+
+func (x *TokenBalance) GetLogoUrl() string {
+	if x != nil {
+		return x.LogoUrl
 	}
 	return ""
 }
@@ -196,14 +207,15 @@ var File_wallet_balance_balance_proto protoreflect.FileDescriptor
 
 const file_wallet_balance_balance_proto_rawDesc = "" +
 	"\n" +
-	"\x1cwallet/balance/balance.proto\x12\x0ewallet.balance\"\xa7\x01\n" +
+	"\x1cwallet/balance/balance.proto\x12\x0ewallet.balance\"\xc2\x01\n" +
 	"\fTokenBalance\x12\x16\n" +
 	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
 	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x18\n" +
 	"\abalance\x18\x04 \x01(\tR\abalance\x12\x1a\n" +
 	"\bdecimals\x18\x05 \x01(\rR\bdecimals\x12\x1b\n" +
-	"\tusd_value\x18\x06 \x01(\tR\busdValue\"\xe5\x01\n" +
+	"\tusd_value\x18\x06 \x01(\tR\busdValue\x12\x19\n" +
+	"\blogo_url\x18\a \x01(\tR\alogoUrl\"\xe5\x01\n" +
 	"\aGasFees\x12\"\n" +
 	"\rbase_fee_gwei\x18\x01 \x01(\tR\vbaseFeeGwei\x121\n" +
 	"\x15max_priority_fee_gwei\x18\x02 \x01(\tR\x12maxPriorityFeeGwei\x12 \n" +

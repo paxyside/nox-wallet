@@ -118,14 +118,14 @@ const TransactionEvent$json = {
 const TransactionEvent_Role$json = {
   '1': 'Role',
   '2': [
-    {'1': 'UNKNOWN', '2': 0},
-    {'1': 'SEND_ETH', '2': 1},
-    {'1': 'RECEIVE_ETH', '2': 2},
-    {'1': 'SEND_TOKEN', '2': 3},
-    {'1': 'RECEIVE_TOKEN', '2': 4},
-    {'1': 'SWAP', '2': 5},
-    {'1': 'SELF_TRANSFER', '2': 6},
-    {'1': 'APPROVE', '2': 7},
+    {'1': 'ROLE_UNSPECIFIED', '2': 0},
+    {'1': 'ROLE_SEND_ETH', '2': 1},
+    {'1': 'ROLE_RECEIVE_ETH', '2': 2},
+    {'1': 'ROLE_SEND_TOKEN', '2': 3},
+    {'1': 'ROLE_RECEIVE_TOKEN', '2': 4},
+    {'1': 'ROLE_SWAP', '2': 5},
+    {'1': 'ROLE_SELF_TRANSFER', '2': 6},
+    {'1': 'ROLE_APPROVE', '2': 7},
   ],
 };
 
@@ -136,9 +136,10 @@ final $typed_data.Uint8List transactionEventDescriptor = $convert.base64Decode(
     'dHMYAyADKAsyGy53YWxsZXQuZXZlbnQuQXNzZXRNb3ZlbWVudFIJbW92ZW1lbnRzEhcKB2lzX2'
     '91cnMYBCABKAhSBmlzT3VycxIhCgxibG9ja19udW1iZXIYBSABKARSC2Jsb2NrTnVtYmVyEjgK'
     'CXRpbWVzdGFtcBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcC'
-    'J/CgRSb2xlEgsKB1VOS05PV04QABIMCghTRU5EX0VUSBABEg8KC1JFQ0VJVkVfRVRIEAISDgoK'
-    'U0VORF9UT0tFThADEhEKDVJFQ0VJVkVfVE9LRU4QBBIICgRTV0FQEAUSEQoNU0VMRl9UUkFOU0'
-    'ZFUhAGEgsKB0FQUFJPVkUQBw==');
+    'KrAQoEUm9sZRIUChBST0xFX1VOU1BFQ0lGSUVEEAASEQoNUk9MRV9TRU5EX0VUSBABEhQKEFJP'
+    'TEVfUkVDRUlWRV9FVEgQAhITCg9ST0xFX1NFTkRfVE9LRU4QAxIWChJST0xFX1JFQ0VJVkVfVE'
+    '9LRU4QBBINCglST0xFX1NXQVAQBRIWChJST0xFX1NFTEZfVFJBTlNGRVIQBhIQCgxST0xFX0FQ'
+    'UFJPVkUQBw==');
 
 @$core.Deprecated('Use gasAlertEventDescriptor instead')
 const GasAlertEvent$json = {
@@ -162,8 +163,9 @@ const GasAlertEvent$json = {
 const GasAlertEvent_AlertType$json = {
   '1': 'AlertType',
   '2': [
-    {'1': 'SPIKE', '2': 0},
-    {'1': 'DROP', '2': 1},
+    {'1': 'ALERT_TYPE_UNSPECIFIED', '2': 0},
+    {'1': 'ALERT_TYPE_SPIKE', '2': 1},
+    {'1': 'ALERT_TYPE_DROP', '2': 2},
   ],
 };
 
@@ -171,8 +173,9 @@ const GasAlertEvent_AlertType$json = {
 final $typed_data.Uint8List gasAlertEventDescriptor = $convert.base64Decode(
     'Cg1HYXNBbGVydEV2ZW50EjkKBHR5cGUYASABKA4yJS53YWxsZXQuZXZlbnQuR2FzQWxlcnRFdm'
     'VudC5BbGVydFR5cGVSBHR5cGUSIQoMY3VycmVudF9nd2VpGAIgASgJUgtjdXJyZW50R3dlaRIj'
-    'Cg1wcmV2aW91c19nd2VpGAMgASgJUgxwcmV2aW91c0d3ZWkiIAoJQWxlcnRUeXBlEgkKBVNQSU'
-    'tFEAASCAoERFJPUBAB');
+    'Cg1wcmV2aW91c19nd2VpGAMgASgJUgxwcmV2aW91c0d3ZWkiUgoJQWxlcnRUeXBlEhoKFkFMRV'
+    'JUX1RZUEVfVU5TUEVDSUZJRUQQABIUChBBTEVSVF9UWVBFX1NQSUtFEAESEwoPQUxFUlRfVFlQ'
+    'RV9EUk9QEAI=');
 
 @$core.Deprecated('Use lowBalanceEventDescriptor instead')
 const LowBalanceEvent$json = {

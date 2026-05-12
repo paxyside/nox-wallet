@@ -34,6 +34,7 @@ const WatchedToken$json = {
     },
     {'1': 'is_pinned', '3': 7, '4': 1, '5': 8, '10': 'isPinned'},
     {'1': 'is_hidden', '3': 8, '4': 1, '5': 8, '10': 'isHidden'},
+    {'1': 'logo_url', '3': 9, '4': 1, '5': 9, '10': 'logoUrl'},
   ],
 };
 
@@ -43,7 +44,7 @@ final $typed_data.Uint8List watchedTokenDescriptor = $convert.base64Decode(
     'MSFgoGc3ltYm9sGAMgASgJUgZzeW1ib2wSEgoEbmFtZRgEIAEoCVIEbmFtZRIaCghkZWNpbWFs'
     'cxgFIAEoDVIIZGVjaW1hbHMSNQoIYWRkZWRfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVG'
     'ltZXN0YW1wUgdhZGRlZEF0EhsKCWlzX3Bpbm5lZBgHIAEoCFIIaXNQaW5uZWQSGwoJaXNfaGlk'
-    'ZGVuGAggASgIUghpc0hpZGRlbg==');
+    'ZGVuGAggASgIUghpc0hpZGRlbhIZCghsb2dvX3VybBgJIAEoCVIHbG9nb1VybA==');
 
 @$core.Deprecated('Use tokenMarketDataDescriptor instead')
 const TokenMarketData$json = {

@@ -23,15 +23,19 @@ const (
 )
 
 type WatchedToken struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Address       string                 `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
-	Symbol        string                 `protobuf:"bytes,3,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
-	Decimals      uint32                 `protobuf:"varint,5,opt,name=decimals,proto3" json:"decimals,omitempty"`
-	AddedAt       *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=added_at,json=addedAt,proto3" json:"added_at,omitempty"`
-	IsPinned      bool                   `protobuf:"varint,7,opt,name=is_pinned,json=isPinned,proto3" json:"is_pinned,omitempty"`
-	IsHidden      bool                   `protobuf:"varint,8,opt,name=is_hidden,json=isHidden,proto3" json:"is_hidden,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Id       string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Address  string                 `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
+	Symbol   string                 `protobuf:"bytes,3,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Name     string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	Decimals uint32                 `protobuf:"varint,5,opt,name=decimals,proto3" json:"decimals,omitempty"`
+	AddedAt  *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=added_at,json=addedAt,proto3" json:"added_at,omitempty"`
+	IsPinned bool                   `protobuf:"varint,7,opt,name=is_pinned,json=isPinned,proto3" json:"is_pinned,omitempty"`
+	IsHidden bool                   `protobuf:"varint,8,opt,name=is_hidden,json=isHidden,proto3" json:"is_hidden,omitempty"`
+	// Logo URL — populated from the embedded Uniswap Default Token
+	// List when the contract is verified there. Empty for unverified
+	// tokens; UI falls back to a letter avatar.
+	LogoUrl       string `protobuf:"bytes,9,opt,name=logo_url,json=logoUrl,proto3" json:"logo_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -120,6 +124,13 @@ func (x *WatchedToken) GetIsHidden() bool {
 		return x.IsHidden
 	}
 	return false
+}
+
+func (x *WatchedToken) GetLogoUrl() string {
+	if x != nil {
+		return x.LogoUrl
+	}
+	return ""
 }
 
 // Market snapshot for one token (may be empty if CoinGecko unavailable)
@@ -271,7 +282,7 @@ var File_wallet_token_token_proto protoreflect.FileDescriptor
 
 const file_wallet_token_token_proto_rawDesc = "" +
 	"\n" +
-	"\x18wallet/token/token.proto\x12\fwallet.token\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf1\x01\n" +
+	"\x18wallet/token/token.proto\x12\fwallet.token\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8c\x02\n" +
 	"\fWatchedToken\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\aaddress\x18\x02 \x01(\tR\aaddress\x12\x16\n" +
@@ -280,7 +291,8 @@ const file_wallet_token_token_proto_rawDesc = "" +
 	"\bdecimals\x18\x05 \x01(\rR\bdecimals\x125\n" +
 	"\badded_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\aaddedAt\x12\x1b\n" +
 	"\tis_pinned\x18\a \x01(\bR\bisPinned\x12\x1b\n" +
-	"\tis_hidden\x18\b \x01(\bR\bisHidden\"\xc5\x01\n" +
+	"\tis_hidden\x18\b \x01(\bR\bisHidden\x12\x19\n" +
+	"\blogo_url\x18\t \x01(\tR\alogoUrl\"\xc5\x01\n" +
 	"\x0fTokenMarketData\x12\x1b\n" +
 	"\tprice_usd\x18\x01 \x01(\tR\bpriceUsd\x12$\n" +
 	"\x0echange_24h_pct\x18\x02 \x01(\tR\fchange24hPct\x12'\n" +

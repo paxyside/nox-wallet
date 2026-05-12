@@ -744,6 +744,10 @@ type GetBalancesResponse struct {
 	EthBalanceWei string                  `protobuf:"bytes,2,opt,name=eth_balance_wei,json=ethBalanceWei,proto3" json:"eth_balance_wei,omitempty"`
 	Tokens        []*balance.TokenBalance `protobuf:"bytes,3,rep,name=tokens,proto3" json:"tokens,omitempty"`
 	EthUsdValue   string                  `protobuf:"bytes,4,opt,name=eth_usd_value,json=ethUsdValue,proto3" json:"eth_usd_value,omitempty"`
+	// Logo URL for the native asset (e.g. ETH on mainnet). Sourced
+	// from the active network config's `native.logo_uri`. Empty when
+	// the chain didn't declare one — UI then renders a letter avatar.
+	EthLogoUrl    string `protobuf:"bytes,5,opt,name=eth_logo_url,json=ethLogoUrl,proto3" json:"eth_logo_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -802,6 +806,13 @@ func (x *GetBalancesResponse) GetTokens() []*balance.TokenBalance {
 func (x *GetBalancesResponse) GetEthUsdValue() string {
 	if x != nil {
 		return x.EthUsdValue
+	}
+	return ""
+}
+
+func (x *GetBalancesResponse) GetEthLogoUrl() string {
+	if x != nil {
+		return x.EthLogoUrl
 	}
 	return ""
 }
@@ -4402,13 +4413,15 @@ const file_wallet_service_proto_rawDesc = "" +
 	"\x06wallet\x18\x01 \x01(\v2\x15.wallet.wallet.WalletR\x06wallet\"5\n" +
 	"\x12GetBalancesRequest\x12\x1f\n" +
 	"\vwith_tokens\x18\x01 \x01(\bR\n" +
-	"withTokens\"\xb8\x01\n" +
+	"withTokens\"\xda\x01\n" +
 	"\x13GetBalancesResponse\x12\x1f\n" +
 	"\veth_balance\x18\x01 \x01(\tR\n" +
 	"ethBalance\x12&\n" +
 	"\x0feth_balance_wei\x18\x02 \x01(\tR\rethBalanceWei\x124\n" +
 	"\x06tokens\x18\x03 \x03(\v2\x1c.wallet.balance.TokenBalanceR\x06tokens\x12\"\n" +
-	"\reth_usd_value\x18\x04 \x01(\tR\vethUsdValue\"\x13\n" +
+	"\reth_usd_value\x18\x04 \x01(\tR\vethUsdValue\x12 \n" +
+	"\feth_logo_url\x18\x05 \x01(\tR\n" +
+	"ethLogoUrl\"\x13\n" +
 	"\x11GetGasFeesRequest\"\x88\x01\n" +
 	"\x12GetGasFeesResponse\x12+\n" +
 	"\x04fees\x18\x01 \x01(\v2\x17.wallet.balance.GasFeesR\x04fees\x12!\n" +

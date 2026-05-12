@@ -936,12 +936,14 @@ class GetBalancesResponse extends $pb.GeneratedMessage {
     $core.String? ethBalanceWei,
     $core.Iterable<$2.TokenBalance>? tokens,
     $core.String? ethUsdValue,
+    $core.String? ethLogoUrl,
   }) {
     final result = create();
     if (ethBalance != null) result.ethBalance = ethBalance;
     if (ethBalanceWei != null) result.ethBalanceWei = ethBalanceWei;
     if (tokens != null) result.tokens.addAll(tokens);
     if (ethUsdValue != null) result.ethUsdValue = ethUsdValue;
+    if (ethLogoUrl != null) result.ethLogoUrl = ethLogoUrl;
     return result;
   }
 
@@ -963,6 +965,7 @@ class GetBalancesResponse extends $pb.GeneratedMessage {
     ..pPM<$2.TokenBalance>(3, _omitFieldNames ? '' : 'tokens',
         subBuilder: $2.TokenBalance.create)
     ..aOS(4, _omitFieldNames ? '' : 'ethUsdValue')
+    ..aOS(5, _omitFieldNames ? '' : 'ethLogoUrl')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1013,6 +1016,18 @@ class GetBalancesResponse extends $pb.GeneratedMessage {
   $core.bool hasEthUsdValue() => $_has(3);
   @$pb.TagNumber(4)
   void clearEthUsdValue() => $_clearField(4);
+
+  /// Logo URL for the native asset (e.g. ETH on mainnet). Sourced
+  /// from the active network config's `native.logo_uri`. Empty when
+  /// the chain didn't declare one — UI then renders a letter avatar.
+  @$pb.TagNumber(5)
+  $core.String get ethLogoUrl => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set ethLogoUrl($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasEthLogoUrl() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearEthLogoUrl() => $_clearField(5);
 }
 
 class GetGasFeesRequest extends $pb.GeneratedMessage {

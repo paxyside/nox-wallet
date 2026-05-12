@@ -15,33 +15,33 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class TransactionEvent_Role extends $pb.ProtobufEnum {
-  static const TransactionEvent_Role UNKNOWN =
-      TransactionEvent_Role._(0, _omitEnumNames ? '' : 'UNKNOWN');
-  static const TransactionEvent_Role SEND_ETH =
-      TransactionEvent_Role._(1, _omitEnumNames ? '' : 'SEND_ETH');
-  static const TransactionEvent_Role RECEIVE_ETH =
-      TransactionEvent_Role._(2, _omitEnumNames ? '' : 'RECEIVE_ETH');
-  static const TransactionEvent_Role SEND_TOKEN =
-      TransactionEvent_Role._(3, _omitEnumNames ? '' : 'SEND_TOKEN');
-  static const TransactionEvent_Role RECEIVE_TOKEN =
-      TransactionEvent_Role._(4, _omitEnumNames ? '' : 'RECEIVE_TOKEN');
-  static const TransactionEvent_Role SWAP =
-      TransactionEvent_Role._(5, _omitEnumNames ? '' : 'SWAP');
-  static const TransactionEvent_Role SELF_TRANSFER =
-      TransactionEvent_Role._(6, _omitEnumNames ? '' : 'SELF_TRANSFER');
-  static const TransactionEvent_Role APPROVE =
-      TransactionEvent_Role._(7, _omitEnumNames ? '' : 'APPROVE');
+  static const TransactionEvent_Role ROLE_UNSPECIFIED =
+      TransactionEvent_Role._(0, _omitEnumNames ? '' : 'ROLE_UNSPECIFIED');
+  static const TransactionEvent_Role ROLE_SEND_ETH =
+      TransactionEvent_Role._(1, _omitEnumNames ? '' : 'ROLE_SEND_ETH');
+  static const TransactionEvent_Role ROLE_RECEIVE_ETH =
+      TransactionEvent_Role._(2, _omitEnumNames ? '' : 'ROLE_RECEIVE_ETH');
+  static const TransactionEvent_Role ROLE_SEND_TOKEN =
+      TransactionEvent_Role._(3, _omitEnumNames ? '' : 'ROLE_SEND_TOKEN');
+  static const TransactionEvent_Role ROLE_RECEIVE_TOKEN =
+      TransactionEvent_Role._(4, _omitEnumNames ? '' : 'ROLE_RECEIVE_TOKEN');
+  static const TransactionEvent_Role ROLE_SWAP =
+      TransactionEvent_Role._(5, _omitEnumNames ? '' : 'ROLE_SWAP');
+  static const TransactionEvent_Role ROLE_SELF_TRANSFER =
+      TransactionEvent_Role._(6, _omitEnumNames ? '' : 'ROLE_SELF_TRANSFER');
+  static const TransactionEvent_Role ROLE_APPROVE =
+      TransactionEvent_Role._(7, _omitEnumNames ? '' : 'ROLE_APPROVE');
 
   static const $core.List<TransactionEvent_Role> values =
       <TransactionEvent_Role>[
-    UNKNOWN,
-    SEND_ETH,
-    RECEIVE_ETH,
-    SEND_TOKEN,
-    RECEIVE_TOKEN,
-    SWAP,
-    SELF_TRANSFER,
-    APPROVE,
+    ROLE_UNSPECIFIED,
+    ROLE_SEND_ETH,
+    ROLE_RECEIVE_ETH,
+    ROLE_SEND_TOKEN,
+    ROLE_RECEIVE_TOKEN,
+    ROLE_SWAP,
+    ROLE_SELF_TRANSFER,
+    ROLE_APPROVE,
   ];
 
   static final $core.List<TransactionEvent_Role?> _byValue =
@@ -53,19 +53,23 @@ class TransactionEvent_Role extends $pb.ProtobufEnum {
 }
 
 class GasAlertEvent_AlertType extends $pb.ProtobufEnum {
-  static const GasAlertEvent_AlertType SPIKE =
-      GasAlertEvent_AlertType._(0, _omitEnumNames ? '' : 'SPIKE');
-  static const GasAlertEvent_AlertType DROP =
-      GasAlertEvent_AlertType._(1, _omitEnumNames ? '' : 'DROP');
+  static const GasAlertEvent_AlertType ALERT_TYPE_UNSPECIFIED =
+      GasAlertEvent_AlertType._(
+          0, _omitEnumNames ? '' : 'ALERT_TYPE_UNSPECIFIED');
+  static const GasAlertEvent_AlertType ALERT_TYPE_SPIKE =
+      GasAlertEvent_AlertType._(1, _omitEnumNames ? '' : 'ALERT_TYPE_SPIKE');
+  static const GasAlertEvent_AlertType ALERT_TYPE_DROP =
+      GasAlertEvent_AlertType._(2, _omitEnumNames ? '' : 'ALERT_TYPE_DROP');
 
   static const $core.List<GasAlertEvent_AlertType> values =
       <GasAlertEvent_AlertType>[
-    SPIKE,
-    DROP,
+    ALERT_TYPE_UNSPECIFIED,
+    ALERT_TYPE_SPIKE,
+    ALERT_TYPE_DROP,
   ];
 
   static final $core.List<GasAlertEvent_AlertType?> _byValue =
-      $pb.ProtobufEnum.$_initByValueList(values, 1);
+      $pb.ProtobufEnum.$_initByValueList(values, 2);
   static GasAlertEvent_AlertType? valueOf($core.int value) =>
       value < 0 || value >= _byValue.length ? null : _byValue[value];
 

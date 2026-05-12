@@ -79,6 +79,10 @@ message GetBalancesResponse {
   string eth_balance_wei = 2;
   repeated .wallet.balance.TokenBalance tokens = 3;
   string eth_usd_value = 4;
+  // Logo URL for the native asset (e.g. ETH on mainnet). Sourced
+  // from the active network config's `native.logo_uri`. Empty when
+  // the chain didn't declare one — UI then renders a letter avatar.
+  string eth_logo_url = 5;
 }
 
 message GetGasFeesRequest {}

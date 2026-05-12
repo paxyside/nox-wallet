@@ -25,37 +25,37 @@ const (
 type TransactionEvent_Role int32
 
 const (
-	TransactionEvent_UNKNOWN       TransactionEvent_Role = 0
-	TransactionEvent_SEND_ETH      TransactionEvent_Role = 1 // wallet → counterparty, native asset
-	TransactionEvent_RECEIVE_ETH   TransactionEvent_Role = 2 // counterparty → wallet, native asset
-	TransactionEvent_SEND_TOKEN    TransactionEvent_Role = 3 // wallet → counterparty, ERC-20
-	TransactionEvent_RECEIVE_TOKEN TransactionEvent_Role = 4 // counterparty → wallet, ERC-20
-	TransactionEvent_SWAP          TransactionEvent_Role = 5 // wallet sent X, received Y in same tx (Uniswap-style)
-	TransactionEvent_SELF_TRANSFER TransactionEvent_Role = 6 // from == to == wallet (legal, almost always test/sweep)
-	TransactionEvent_APPROVE       TransactionEvent_Role = 7 // ERC-20 approve(spender, amount) — no Transfer log
+	TransactionEvent_ROLE_UNSPECIFIED   TransactionEvent_Role = 0
+	TransactionEvent_ROLE_SEND_ETH      TransactionEvent_Role = 1 // wallet → counterparty, native asset
+	TransactionEvent_ROLE_RECEIVE_ETH   TransactionEvent_Role = 2 // counterparty → wallet, native asset
+	TransactionEvent_ROLE_SEND_TOKEN    TransactionEvent_Role = 3 // wallet → counterparty, ERC-20
+	TransactionEvent_ROLE_RECEIVE_TOKEN TransactionEvent_Role = 4 // counterparty → wallet, ERC-20
+	TransactionEvent_ROLE_SWAP          TransactionEvent_Role = 5 // wallet sent X, received Y in same tx (Uniswap-style)
+	TransactionEvent_ROLE_SELF_TRANSFER TransactionEvent_Role = 6 // from == to == wallet (legal, almost always test/sweep)
+	TransactionEvent_ROLE_APPROVE       TransactionEvent_Role = 7 // ERC-20 approve(spender, amount) — no Transfer log
 )
 
 // Enum value maps for TransactionEvent_Role.
 var (
 	TransactionEvent_Role_name = map[int32]string{
-		0: "UNKNOWN",
-		1: "SEND_ETH",
-		2: "RECEIVE_ETH",
-		3: "SEND_TOKEN",
-		4: "RECEIVE_TOKEN",
-		5: "SWAP",
-		6: "SELF_TRANSFER",
-		7: "APPROVE",
+		0: "ROLE_UNSPECIFIED",
+		1: "ROLE_SEND_ETH",
+		2: "ROLE_RECEIVE_ETH",
+		3: "ROLE_SEND_TOKEN",
+		4: "ROLE_RECEIVE_TOKEN",
+		5: "ROLE_SWAP",
+		6: "ROLE_SELF_TRANSFER",
+		7: "ROLE_APPROVE",
 	}
 	TransactionEvent_Role_value = map[string]int32{
-		"UNKNOWN":       0,
-		"SEND_ETH":      1,
-		"RECEIVE_ETH":   2,
-		"SEND_TOKEN":    3,
-		"RECEIVE_TOKEN": 4,
-		"SWAP":          5,
-		"SELF_TRANSFER": 6,
-		"APPROVE":       7,
+		"ROLE_UNSPECIFIED":   0,
+		"ROLE_SEND_ETH":      1,
+		"ROLE_RECEIVE_ETH":   2,
+		"ROLE_SEND_TOKEN":    3,
+		"ROLE_RECEIVE_TOKEN": 4,
+		"ROLE_SWAP":          5,
+		"ROLE_SELF_TRANSFER": 6,
+		"ROLE_APPROVE":       7,
 	}
 )
 
@@ -89,19 +89,22 @@ func (TransactionEvent_Role) EnumDescriptor() ([]byte, []int) {
 type GasAlertEvent_AlertType int32
 
 const (
-	GasAlertEvent_SPIKE GasAlertEvent_AlertType = 0
-	GasAlertEvent_DROP  GasAlertEvent_AlertType = 1
+	GasAlertEvent_ALERT_TYPE_UNSPECIFIED GasAlertEvent_AlertType = 0
+	GasAlertEvent_ALERT_TYPE_SPIKE       GasAlertEvent_AlertType = 1
+	GasAlertEvent_ALERT_TYPE_DROP        GasAlertEvent_AlertType = 2
 )
 
 // Enum value maps for GasAlertEvent_AlertType.
 var (
 	GasAlertEvent_AlertType_name = map[int32]string{
-		0: "SPIKE",
-		1: "DROP",
+		0: "ALERT_TYPE_UNSPECIFIED",
+		1: "ALERT_TYPE_SPIKE",
+		2: "ALERT_TYPE_DROP",
 	}
 	GasAlertEvent_AlertType_value = map[string]int32{
-		"SPIKE": 0,
-		"DROP":  1,
+		"ALERT_TYPE_UNSPECIFIED": 0,
+		"ALERT_TYPE_SPIKE":       1,
+		"ALERT_TYPE_DROP":        2,
 	}
 )
 
@@ -387,7 +390,7 @@ func (x *TransactionEvent) GetRole() TransactionEvent_Role {
 	if x != nil {
 		return x.Role
 	}
-	return TransactionEvent_UNKNOWN
+	return TransactionEvent_ROLE_UNSPECIFIED
 }
 
 func (x *TransactionEvent) GetMovements() []*AssetMovement {
@@ -462,7 +465,7 @@ func (x *GasAlertEvent) GetType() GasAlertEvent_AlertType {
 	if x != nil {
 		return x.Type
 	}
-	return GasAlertEvent_SPIKE
+	return GasAlertEvent_ALERT_TYPE_UNSPECIFIED
 }
 
 func (x *GasAlertEvent) GetCurrentGwei() string {
@@ -550,31 +553,31 @@ const file_wallet_event_event_proto_rawDesc = "" +
 	"\x06amount\x18\x04 \x01(\tR\x06amount\x12\x1f\n" +
 	"\vis_outgoing\x18\x05 \x01(\bR\n" +
 	"isOutgoing\x12\"\n" +
-	"\fcounterparty\x18\x06 \x01(\tR\fcounterparty\"\x96\x03\n" +
+	"\fcounterparty\x18\x06 \x01(\tR\fcounterparty\"\xc3\x03\n" +
 	"\x10TransactionEvent\x12\x17\n" +
 	"\atx_hash\x18\x01 \x01(\tR\x06txHash\x127\n" +
 	"\x04role\x18\x02 \x01(\x0e2#.wallet.event.TransactionEvent.RoleR\x04role\x129\n" +
 	"\tmovements\x18\x03 \x03(\v2\x1b.wallet.event.AssetMovementR\tmovements\x12\x17\n" +
 	"\ais_ours\x18\x04 \x01(\bR\x06isOurs\x12!\n" +
 	"\fblock_number\x18\x05 \x01(\x04R\vblockNumber\x128\n" +
-	"\ttimestamp\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\x7f\n" +
-	"\x04Role\x12\v\n" +
-	"\aUNKNOWN\x10\x00\x12\f\n" +
-	"\bSEND_ETH\x10\x01\x12\x0f\n" +
-	"\vRECEIVE_ETH\x10\x02\x12\x0e\n" +
-	"\n" +
-	"SEND_TOKEN\x10\x03\x12\x11\n" +
-	"\rRECEIVE_TOKEN\x10\x04\x12\b\n" +
-	"\x04SWAP\x10\x05\x12\x11\n" +
-	"\rSELF_TRANSFER\x10\x06\x12\v\n" +
-	"\aAPPROVE\x10\a\"\xb4\x01\n" +
+	"\ttimestamp\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\xab\x01\n" +
+	"\x04Role\x12\x14\n" +
+	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rROLE_SEND_ETH\x10\x01\x12\x14\n" +
+	"\x10ROLE_RECEIVE_ETH\x10\x02\x12\x13\n" +
+	"\x0fROLE_SEND_TOKEN\x10\x03\x12\x16\n" +
+	"\x12ROLE_RECEIVE_TOKEN\x10\x04\x12\r\n" +
+	"\tROLE_SWAP\x10\x05\x12\x16\n" +
+	"\x12ROLE_SELF_TRANSFER\x10\x06\x12\x10\n" +
+	"\fROLE_APPROVE\x10\a\"\xe6\x01\n" +
 	"\rGasAlertEvent\x129\n" +
 	"\x04type\x18\x01 \x01(\x0e2%.wallet.event.GasAlertEvent.AlertTypeR\x04type\x12!\n" +
 	"\fcurrent_gwei\x18\x02 \x01(\tR\vcurrentGwei\x12#\n" +
-	"\rprevious_gwei\x18\x03 \x01(\tR\fpreviousGwei\" \n" +
-	"\tAlertType\x12\t\n" +
-	"\x05SPIKE\x10\x00\x12\b\n" +
-	"\x04DROP\x10\x01\"Z\n" +
+	"\rprevious_gwei\x18\x03 \x01(\tR\fpreviousGwei\"R\n" +
+	"\tAlertType\x12\x1a\n" +
+	"\x16ALERT_TYPE_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10ALERT_TYPE_SPIKE\x10\x01\x12\x13\n" +
+	"\x0fALERT_TYPE_DROP\x10\x02\"Z\n" +
 	"\x0fLowBalanceEvent\x12\x1f\n" +
 	"\veth_balance\x18\x01 \x01(\tR\n" +
 	"ethBalance\x12&\n" +

@@ -11,6 +11,10 @@ message TokenBalance {
   string balance = 4;
   uint32 decimals = 5;
   string usd_value = 6;
+  // Logo URL — populated from the embedded Uniswap Default Token
+  // List when the contract is verified there. Empty for unverified
+  // tokens; UI falls back to a letter avatar.
+  string logo_url = 7;
 }
 
 message GasFees {

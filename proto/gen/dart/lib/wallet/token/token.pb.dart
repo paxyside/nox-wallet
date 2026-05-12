@@ -28,6 +28,7 @@ class WatchedToken extends $pb.GeneratedMessage {
     $0.Timestamp? addedAt,
     $core.bool? isPinned,
     $core.bool? isHidden,
+    $core.String? logoUrl,
   }) {
     final result = create();
     if (id != null) result.id = id;
@@ -38,6 +39,7 @@ class WatchedToken extends $pb.GeneratedMessage {
     if (addedAt != null) result.addedAt = addedAt;
     if (isPinned != null) result.isPinned = isPinned;
     if (isHidden != null) result.isHidden = isHidden;
+    if (logoUrl != null) result.logoUrl = logoUrl;
     return result;
   }
 
@@ -63,6 +65,7 @@ class WatchedToken extends $pb.GeneratedMessage {
         subBuilder: $0.Timestamp.create)
     ..aOB(7, _omitFieldNames ? '' : 'isPinned')
     ..aOB(8, _omitFieldNames ? '' : 'isHidden')
+    ..aOS(9, _omitFieldNames ? '' : 'logoUrl')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -157,6 +160,18 @@ class WatchedToken extends $pb.GeneratedMessage {
   $core.bool hasIsHidden() => $_has(7);
   @$pb.TagNumber(8)
   void clearIsHidden() => $_clearField(8);
+
+  /// Logo URL — populated from the embedded Uniswap Default Token
+  /// List when the contract is verified there. Empty for unverified
+  /// tokens; UI falls back to a letter avatar.
+  @$pb.TagNumber(9)
+  $core.String get logoUrl => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set logoUrl($core.String value) => $_setString(8, value);
+  @$pb.TagNumber(9)
+  $core.bool hasLogoUrl() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearLogoUrl() => $_clearField(9);
 }
 
 /// Market snapshot for one token (may be empty if CoinGecko unavailable)

@@ -25,6 +25,7 @@ const TokenBalance$json = {
     {'1': 'balance', '3': 4, '4': 1, '5': 9, '10': 'balance'},
     {'1': 'decimals', '3': 5, '4': 1, '5': 13, '10': 'decimals'},
     {'1': 'usd_value', '3': 6, '4': 1, '5': 9, '10': 'usdValue'},
+    {'1': 'logo_url', '3': 7, '4': 1, '5': 9, '10': 'logoUrl'},
   ],
 };
 
@@ -33,7 +34,7 @@ final $typed_data.Uint8List tokenBalanceDescriptor = $convert.base64Decode(
     'CgxUb2tlbkJhbGFuY2USFgoGc3ltYm9sGAEgASgJUgZzeW1ib2wSEgoEbmFtZRgCIAEoCVIEbm'
     'FtZRIYCgdhZGRyZXNzGAMgASgJUgdhZGRyZXNzEhgKB2JhbGFuY2UYBCABKAlSB2JhbGFuY2US'
     'GgoIZGVjaW1hbHMYBSABKA1SCGRlY2ltYWxzEhsKCXVzZF92YWx1ZRgGIAEoCVIIdXNkVmFsdW'
-    'U=');
+    'USGQoIbG9nb191cmwYByABKAlSB2xvZ29Vcmw=');
 
 @$core.Deprecated('Use gasFeesDescriptor instead')
 const GasFees$json = {
