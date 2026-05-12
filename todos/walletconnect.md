@@ -7,7 +7,7 @@ extension, not desktop wallet, will this even work?"
 
 ## How WalletConnect works
 
-WalletConnect is a *protocol*, not an extension. Two flavours:
+WalletConnect is a *protocol*, not an extension. Two flavors:
 
 1. **In-browser extension** (MetaMask, Phantom) — sites talk to a
    browser extension over `window.ethereum`. Different protocol entirely.
