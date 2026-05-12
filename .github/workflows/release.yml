@@ -1,0 +1,205 @@
+# Release pipeline. Two entry points:
+#
+#   1. Tag push — a `v*` tag landing on the repo triggers this workflow.
+#      The tag must already point at a commit; we don't move it.
+#      Used for manual hotfixes (patch bumps) — see `auto-tag.yml`
+#      for the rule that auto-tags only minor/major.
+#
+#   2. workflow_call — `auto-tag.yml` invokes this with a `version`
+#      input when it detects a minor/major bump in `/VERSION` on
+#      master. The workflow creates the tag inside this run so the
+#      tag pointer always matches a build that passed `task prepare`.
+#
+# Ad-hoc codesign vs Developer ID: a Developer ID account ($99/yr)
+# unlocks notarization, which is what stops Gatekeeper from blocking
+# the DMG on a fresh user's Mac. Until that's set up the produced
+# DMG is downloadable but the end-user has to right-click → Open
+# the first time. Documented in `todos/release.md`.
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_call:
+    inputs:
+      version:
+        description: "Semver without v prefix, e.g. '0.2.0'"
+        required: true
+        type: string
+
+permissions:
+  # Needed to create the Release, upload assets, and push the tag
+  # when invoked via workflow_call.
+  contents: write
+
+jobs:
+  build-dmg:
+    runs-on: macos-14
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so `git describe` / changelog generation
+          # have the previous tags in scope.
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.9
+          channel: stable
+          cache: true
+
+      - name: Install task + create-dmg
+        run: brew install go-task/tap/go-task create-dmg
+
+      - name: Flutter pub get
+        working-directory: ui
+        run: flutter pub get
+
+      # Sanity gate before tagging or building: if `prepare` is red
+      # we don't want a release DMG (and we don't want to create a
+      # tag that points at a broken commit).
+      - name: Run prepare
+        run: task prepare
+
+      # Resolve the tag once and stamp it on the env so subsequent
+      # steps don't have to reparse the trigger source. When invoked
+      # via workflow_call, the tag doesn't exist yet — the next step
+      # creates it. When triggered by a push to a `v*` tag, the tag
+      # is already at HEAD and we leave it alone.
+      - name: Resolve tag
+        id: tag
+        run: |
+          set -euo pipefail
+          if [ -n "${{ inputs.version }}" ]; then
+            tag="v${{ inputs.version }}"
+            echo "tag=$tag"          >> "$GITHUB_OUTPUT"
+            echo "create=true"        >> "$GITHUB_OUTPUT"
+          else
+            tag="${GITHUB_REF#refs/tags/}"
+            echo "tag=$tag"          >> "$GITHUB_OUTPUT"
+            echo "create=false"       >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create + push tag
+        if: steps.tag.outputs.create == 'true'
+        run: |
+          set -euo pipefail
+          tag="${{ steps.tag.outputs.tag }}"
+          if git rev-parse "$tag" >/dev/null 2>&1; then
+            echo "::error::tag $tag already exists — bump VERSION or delete the stale tag"
+            exit 1
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git tag -a "$tag" -m "Release $tag"
+          git push origin "$tag"
+
+      - name: Build signed DMG
+        run: task build:dmg
+
+      # ── Sparkle: sign the DMG + generate the appcast ──────────────────
+      #
+      # Sparkle's update integrity is EdDSA-based and lives outside Apple's
+      # codesign chain: the user's installed bundle carries the public key
+      # baked into Info.plist (`SUPublicEDKey`); the updater rejects any
+      # downloaded DMG whose `sparkle:edSignature` doesn't verify against
+      # it. The private half lives only here, in the GitHub Secret
+      # `SPARKLE_ED_PRIVATE_KEY` — never committed.
+      #
+      # We don't need Sparkle.app on the runner, just the standalone
+      # `sign_update` CLI. The Sparkle GitHub release tarball ships it
+      # under `bin/`. Pinning to a specific version keeps the runner
+      # deterministic.
+      - name: Download Sparkle tools
+        run: |
+          set -euo pipefail
+          SPARKLE_VERSION="2.6.4"
+          curl -fsSL -o sparkle.tar.xz \
+            "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
+          mkdir -p sparkle-tools
+          tar -xJf sparkle.tar.xz -C sparkle-tools
+          echo "${PWD}/sparkle-tools/bin" >> "$GITHUB_PATH"
+          "${PWD}/sparkle-tools/bin/sign_update" --help >/dev/null 2>&1 || true
+
+      - name: Sign DMG with Sparkle EdDSA key
+        id: sparkle_sign
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SPARKLE_ED_PRIVATE_KEY:-}" ]; then
+            echo "::error::SPARKLE_ED_PRIVATE_KEY secret is missing — generate the keypair (see RELEASING.md) and add it"
+            exit 1
+          fi
+          # `sign_update -s <privkey> <file>` prints a one-line XML
+          # attribute snippet: `sparkle:edSignature="…" length="…"`.
+          # We capture it verbatim and splice it into the appcast below.
+          SIG_LINE="$(sign_update -s "$SPARKLE_ED_PRIVATE_KEY" dist/Nox.dmg)"
+          echo "sig_attrs<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$SIG_LINE"      >> "$GITHUB_OUTPUT"
+          echo "EOF"            >> "$GITHUB_OUTPUT"
+
+      - name: Generate appcast.xml
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+          SIG_ATTRS: ${{ steps.sparkle_sign.outputs.sig_attrs }}
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          dmg_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/Nox.dmg"
+          length="$(stat -f%z dist/Nox.dmg)"
+          pubdate="$(date -u +'%a, %d %b %Y %H:%M:%S +0000')"
+          minsys="$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' ui/macos/Runner/Info.plist 2>/dev/null || echo '11.0')"
+
+          # The signature attribute snippet from sign_update already
+          # includes `sparkle:edSignature="…" length="…"` so we don't
+          # repeat `length=` here.
+          cat > dist/appcast.xml <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+            <channel>
+              <title>Nox Wallet</title>
+              <link>https://github.com/${GITHUB_REPOSITORY}</link>
+              <description>Nox Wallet release feed</description>
+              <language>en</language>
+              <item>
+                <title>Version ${version}</title>
+                <pubDate>${pubdate}</pubDate>
+                <sparkle:version>${version}</sparkle:version>
+                <sparkle:shortVersionString>${version}</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>${minsys}</sparkle:minimumSystemVersion>
+                <link>https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}</link>
+                <enclosure
+                  url="${dmg_url}"
+                  type="application/octet-stream"
+                  ${SIG_ATTRS} />
+              </item>
+            </channel>
+          </rss>
+          EOF
+          echo "── appcast.xml ──"
+          cat dist/appcast.xml
+
+      # Publish the DMG + appcast.xml on the auto-created Release.
+      # `softprops/action-gh-release` reads the tag from the input
+      # rather than the trigger, so it works for both entry points.
+      # The appcast lives at `/releases/latest/download/appcast.xml`
+      # which is what the installed bundle's `SUFeedURL` points to —
+      # GitHub redirects /latest/ to the newest non-draft release.
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          files: |
+            dist/Nox.dmg
+            dist/appcast.xml
+          generate_release_notes: true
+          draft: false

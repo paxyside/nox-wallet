@@ -1,0 +1,81 @@
+# Primary gate: every push to master + every PR must run `task prepare`
+# clean. The job mirrors the local pre-commit pipeline so contributors
+# don't see CI find what their machine couldn't.
+#
+# Why Linux runner: prepare itself is platform-agnostic — Go tests use
+# cgo-sqlite (ubuntu has libc/gcc preinstalled), Flutter analyze and
+# the existing test suite are pure Dart, and the formatter is
+# identical across platforms. The macOS-only path (codesign, DMG
+# packaging, `flutter build macOS`) lives in release.yml. Linux
+# minutes are 1× on private repos, macOS minutes are 10× — keeping
+# the per-push gate on Linux makes the free-tier budget last 10× as
+# many commits.
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+# Cancel an in-flight run for the same ref when a new commit lands.
+# Stops PR-spam from burning concurrent runner minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Go: version pinned via `go-version-file: go.mod` so a bump in
+      # the repo automatically bumps CI. Cache keyed on go.sum.
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      # Flutter: pin the exact version so a stable-channel release
+      # doesn't silently break the build. Bump deliberately by editing
+      # this line; subosito/flutter-action handles cache + PATH.
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.9
+          channel: stable
+          cache: true
+
+      # Tools the Taskfile expects on PATH but ubuntu-latest ships
+      # without. Pinning versions here would couple us to apt
+      # cadence; the installation step is fast enough that we let it
+      # pick whatever's current.
+      - name: Install task + golangci-lint
+        run: |
+          sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+            | sh -s -- -b /usr/local/bin
+
+      # `flutter pub get` is run implicitly by `flutter analyze` /
+      # `flutter test`, but doing it explicitly first means a broken
+      # lockfile fails with a clearer signal than a downstream
+      # analyzer error.
+      - name: Flutter pub get
+        working-directory: ui
+        run: flutter pub get
+
+      - name: Run prepare
+        run: task prepare
+
+      # Catch any case where `prepare` legitimately succeeded but
+      # also mutated tracked files — typically a stale vendor/,
+      # pubspec.lock, or generated proto code that drifted from the
+      # checked-in copy. Surfacing this on CI keeps the working tree
+      # honest without a separate "did you forget X?" linter.
+      - name: Verify working tree is clean
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::working tree mutated by 'task prepare' — run it locally and commit the changes"
+            exit 1
+          fi

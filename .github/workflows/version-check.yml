@@ -1,0 +1,112 @@
+# PR-time version sanity gate.
+#
+# Catches the four ways VERSION goes wrong, before the PR merges into
+# master and `auto-tag.yml` would otherwise discover the same problem
+# (with a louder, post-merge failure):
+#
+#   1. Malformed semver in `/VERSION`.
+#   2. `/VERSION`, `ui/pubspec.yaml`, and `config.example.yaml`
+#      disagree — `task version:set -- X.Y.Z` keeps them in sync.
+#   3. `/VERSION` decreased relative to master.
+#   4. Bump skipped a major: e.g. master is 0.1.0, PR bumps to 2.0.0.
+#      Allowed by semver, but worth flagging — it's almost always a
+#      typo. Treated as a warning, not a hard fail.
+#
+# Reports the detected bump type in the job summary so reviewers see
+# at a glance whether merging will trigger a release.
+name: version-check
+
+on:
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: version-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Need both PR head AND master base to diff VERSION.
+          fetch-depth: 0
+
+      - name: Validate + diff
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+
+          head_version=$(tr -d '[:space:]' < VERSION)
+          if ! echo "$head_version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error file=VERSION::'$head_version' is not a valid semver (MAJOR.MINOR.PATCH)"
+            exit 1
+          fi
+
+          # Same sync rule as auto-tag.yml: marketing strings have to agree.
+          v_pubspec=$(grep '^version:' ui/pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+          v_config=$(grep '^  version:' config.example.yaml | awk -F'"' '{print $2}')
+          if [ "$v_pubspec" != "$head_version" ]; then
+            echo "::error file=ui/pubspec.yaml::pubspec.yaml version ($v_pubspec) ≠ VERSION ($head_version) — run 'task version:set -- $head_version'"
+            exit 1
+          fi
+          if [ "$v_config" != "$head_version" ]; then
+            echo "::error file=config.example.yaml::config.example.yaml version ($v_config) ≠ VERSION ($head_version) — run 'task version:set -- $head_version'"
+            exit 1
+          fi
+
+          base_version=$(git show "origin/$BASE_REF:VERSION" | tr -d '[:space:]')
+
+          IFS='.' read -r hm hi hp <<< "$head_version"
+          IFS='.' read -r bm bi bp <<< "$base_version"
+
+          bump=none
+          if   [ "$hm" -gt "$bm" ]; then bump=major
+          elif [ "$hm" -lt "$bm" ]; then bump=invalid
+          elif [ "$hi" -gt "$bi" ]; then bump=minor
+          elif [ "$hi" -lt "$bi" ]; then bump=invalid
+          elif [ "$hp" -gt "$bp" ]; then bump=patch
+          elif [ "$hp" -lt "$bp" ]; then bump=invalid
+          fi
+
+          if [ "$bump" = "invalid" ]; then
+            echo "::error file=VERSION::VERSION went backwards: $head_version < $base_version on $BASE_REF"
+            exit 1
+          fi
+
+          # Quick suspicious-jump check — fires on multi-major leaps
+          # like 0.1.0 → 2.0.0, almost always a typo.
+          if [ "$bump" = "major" ] && [ $((hm - bm)) -gt 1 ]; then
+            echo "::warning file=VERSION::skipped a major (jumped from $base_version to $head_version) — typo?"
+          fi
+
+          {
+            echo "## Version check"
+            echo
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Base ($BASE_REF) | \`$base_version\` |"
+            echo "| PR head          | \`$head_version\` |"
+            echo "| Bump             | **$bump** |"
+            echo
+            case "$bump" in
+              major|minor)
+                echo "On merge: \`auto-tag.yml\` will tag \`v$head_version\` and trigger a release build."
+                ;;
+              patch)
+                echo "On merge: \`auto-tag.yml\` skips patch bumps. Tag the hotfix by hand to publish:"
+                echo
+                echo "\`\`\`"
+                echo "git tag -a v$head_version -m 'Release v$head_version'"
+                echo "git push origin v$head_version"
+                echo "\`\`\`"
+                ;;
+              none)
+                echo "VERSION unchanged — no release will fire on merge."
+                ;;
+            esac
+          } >> "$GITHUB_STEP_SUMMARY"

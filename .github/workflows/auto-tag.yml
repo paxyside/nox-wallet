@@ -1,0 +1,118 @@
+# Auto-tag minor and major version bumps detected on master.
+#
+# Rule:
+#   - VERSION file at the repo root is the single source of truth.
+#   - On every push to master we compare its contents against the
+#     latest `v*` tag.
+#     - MAJOR or MINOR increment → tag + run the release pipeline.
+#     - PATCH increment → no-op. Patch releases are deliberate
+#       hot-fixes; the developer tags by hand (`git tag -a v0.1.1
+#       -m "..." && git push origin v0.1.1`) which trips the
+#       `push: tags: v*` path in `release.yml`.
+#     - No change → no-op.
+#     - VERSION decreased → workflow fails loudly. Most likely a
+#       merge mistake.
+#   - Also enforces VERSION is in sync with `ui/pubspec.yaml` and
+#     `config.example.yaml`; mismatch fails the run.
+#
+# The release pipeline is reached via `workflow_call`, not by
+# pushing the tag from this job. Pushing tags via GITHUB_TOKEN does
+# NOT trigger other workflows (GitHub's anti-loop guard), so a
+# direct call is the only path that doesn't require a PAT.
+name: auto-tag
+
+on:
+  push:
+    branches: [master]
+
+# Two pushes landing in quick succession would otherwise build twice;
+# the second one wins.
+concurrency:
+  group: auto-tag-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      bump: ${{ steps.parse.outputs.bump }}
+      version: ${{ steps.parse.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # All tags must be visible — we need the most recent `v*` to
+          # compare against. `fetch-depth: 0` is the standard pattern.
+          fetch-depth: 0
+
+      - id: parse
+        name: Read VERSION + decide bump
+        run: |
+          set -euo pipefail
+
+          current=$(tr -d '[:space:]' < VERSION)
+          if ! echo "$current" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::VERSION '$current' is not a valid semver (MAJOR.MINOR.PATCH)"
+            exit 1
+          fi
+
+          # Cross-check the sibling version fields so a release can't
+          # ship with mismatched marketing strings in the DMG.
+          v_pubspec=$(grep '^version:' ui/pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+          v_config=$(grep '^  version:' config.example.yaml | awk -F'"' '{print $2}')
+          if [ "$v_pubspec" != "$current" ] || [ "$v_config" != "$current" ]; then
+            echo "::error::VERSION out of sync — VERSION=$current pubspec=$v_pubspec config=$v_config"
+            echo "::error::run 'task version:set -- $current' to fix"
+            exit 1
+          fi
+
+          last_tag=$(git tag --list 'v*' --sort=-v:refname | head -1)
+          last_version="${last_tag#v}"
+          last_version="${last_version:-0.0.0}"
+
+          IFS='.' read -r cm ci cp <<< "$current"
+          IFS='.' read -r lm li lp <<< "$last_version"
+
+          bump=none
+          if   [ "$cm" -gt "$lm" ]; then bump=major
+          elif [ "$cm" -lt "$lm" ]; then bump=invalid
+          elif [ "$ci" -gt "$li" ]; then bump=minor
+          elif [ "$ci" -lt "$li" ]; then bump=invalid
+          elif [ "$cp" -gt "$lp" ]; then bump=patch
+          elif [ "$cp" -lt "$lp" ]; then bump=invalid
+          fi
+
+          if [ "$bump" = "invalid" ]; then
+            echo "::error::VERSION went backwards: $current < $last_version"
+            exit 1
+          fi
+
+          echo "current=$current last=$last_version bump=$bump"
+          echo "version=$current" >> "$GITHUB_OUTPUT"
+          echo "bump=$bump"       >> "$GITHUB_OUTPUT"
+
+      - name: Summary
+        run: |
+          case "${{ steps.parse.outputs.bump }}" in
+            major|minor)
+              echo "→ MAJOR/MINOR bump — triggering release pipeline"
+              ;;
+            patch)
+              echo "→ PATCH bump — manual tag required (see todos/release.md)"
+              echo "    git tag -a v${{ steps.parse.outputs.version }} -m 'Release v${{ steps.parse.outputs.version }}'"
+              echo "    git push origin v${{ steps.parse.outputs.version }}"
+              ;;
+            none)
+              echo "→ VERSION unchanged — nothing to do"
+              ;;
+          esac
+
+  release:
+    needs: detect
+    if: needs.detect.outputs.bump == 'major' || needs.detect.outputs.bump == 'minor'
+    uses: ./.github/workflows/release.yml
+    with:
+      version: ${{ needs.detect.outputs.version }}
+    permissions:
+      contents: write
