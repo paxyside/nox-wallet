@@ -15,6 +15,7 @@ import 'package:nox/core/widgets/copy_button.dart';
 import 'package:nox/core/widgets/themed_dropdown.dart';
 import 'package:nox/features/settings/domain/settings_repository.dart';
 import 'package:nox/features/settings/presentation/providers/settings_provider.dart';
+import 'package:nox/features/settings/presentation/widgets/compact_settings_row.dart';
 import 'package:nox/features/settings/presentation/widgets/export_keystore_dialog.dart';
 import 'package:nox/features/settings/presentation/widgets/reveal_secret_dialog.dart';
 import 'package:nox/features/settings/presentation/widgets/settings_section.dart';
@@ -65,6 +66,8 @@ class SettingsScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
 
                     // ── Wallet ─────────────────────────────────────────────
+                    // 3-cell horizontal row (Address / Label / Secret Type)
+                    // instead of 3 stacked rows. Buys ~120px of height back.
                     walletAsync.when(
                       loading: () => const _WalletSectionSkeleton(),
                       error: (err, _) => _ErrorBanner(message: errorMessage(err)),
@@ -73,20 +76,21 @@ class SettingsScreen extends ConsumerWidget {
 
                     const SizedBox(height: 14),
 
-                    // ── Security ───────────────────────────────────────────
-                    SettingsSection(
+                    // ── Security (top row): Auto-lock + Hide balances ──────
+                    // Two short selectors that fit comfortably side-by-side.
+                    CompactSettingsRow(
                       title: 'Security',
-                      rows: [
-                        SettingsRow(
+                      cells: [
+                        CompactSettingsCell(
                           label: 'Auto-lock',
-                          subtitle: 'Lock the wallet after this much idle time',
+                          subtitle: 'Lock the wallet after idle time',
                           trailing: _AutoLockSelector(
                             value: ref.watch(autoLockSettingProvider),
                             onChanged: (v) =>
                                 ref.read(autoLockSettingProvider.notifier).setTimeout(v),
                           ),
                         ),
-                        SettingsRow(
+                        CompactSettingsCell(
                           label: 'Hide balances',
                           subtitle: 'Mask all amounts as ••••••',
                           trailing: _MiniSwitch(
@@ -94,7 +98,18 @@ class SettingsScreen extends ConsumerWidget {
                             onChanged: (_) => ref.read(hideBalancesProvider.notifier).toggle(),
                           ),
                         ),
-                        SettingsRow(
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // ── Security (bottom row): Reveal + Export ─────────────
+                    // Two button-only actions. No title — visually they
+                    // continue the Security section above.
+                    CompactSettingsRow(
+                      title: '',
+                      cells: [
+                        CompactSettingsCell(
                           label: 'Reveal Secret Phrase',
                           subtitle: 'View your seed phrase or private key',
                           trailing: _ActionButton(
@@ -103,8 +118,9 @@ class SettingsScreen extends ConsumerWidget {
                             onTap: () => _showRevealDialog(context),
                           ),
                         ),
-                        SettingsRow(
+                        CompactSettingsCell(
                           label: 'Export Keystore',
+                          subtitle: 'Encrypted JSON keystore file',
                           trailing: _ActionButton(
                             label: 'Export',
                             icon: Icons.download_outlined,
@@ -220,15 +236,15 @@ class _WalletSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SettingsSection(
+    return CompactSettingsRow(
       title: 'Wallet',
-      rows: [
-        SettingsRow(
+      cells: [
+        CompactSettingsCell(
           label: 'Address',
           trailing: _CopyableAddress(address: wallet.address),
         ),
-        SettingsRow(label: 'Label', value: wallet.label.isEmpty ? '—' : wallet.label),
-        SettingsRow(
+        CompactSettingsCell(label: 'Label', value: wallet.label.isEmpty ? '—' : wallet.label),
+        CompactSettingsCell(
           label: 'Secret Type',
           trailing: _SecretTypeBadge(secretKind: wallet.secretKind),
         ),
@@ -347,12 +363,12 @@ class _WalletSectionSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SettingsSection(
+    return const CompactSettingsRow(
       title: 'Wallet',
-      rows: [
-        SettingsRow(label: 'Address', value: '—'),
-        SettingsRow(label: 'Label', value: '—'),
-        SettingsRow(label: 'Secret Type', value: '—'),
+      cells: [
+        CompactSettingsCell(label: 'Address', value: '—'),
+        CompactSettingsCell(label: 'Label', value: '—'),
+        CompactSettingsCell(label: 'Secret Type', value: '—'),
       ],
     );
   }
