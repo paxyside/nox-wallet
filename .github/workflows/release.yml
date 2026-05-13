@@ -204,8 +204,21 @@ jobs:
           built_plist="$(ls -d ui/build/macos/Build/Products/Release/*.app/Contents/Info.plist 2>/dev/null | head -1)"
           if [ -n "$built_plist" ]; then
             minsys="$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$built_plist")"
+            # Sparkle compares appcast `sparkle:version` against the
+            # installed bundle's CFBundleVersion (build number), NOT
+            # against CFBundleShortVersionString. If we put the
+            # marketing string "0.2.0" into sparkle:version, Sparkle
+            # parses it numerically as 0.2.0 and compares to the
+            # installed CFBundleVersion (an integer like 100); the
+            # integer almost always wins, so the update dialog says
+            # "You're up to date" even when there IS a newer release.
+            # Read the build number from the freshly built bundle and
+            # use it as the canonical version key. The marketing string
+            # still goes into sparkle:shortVersionString for the UI.
+            build_number="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$built_plist")"
           else
             minsys="11.0"
+            build_number="${version}"
           fi
 
           # The signature attribute snippet from sign_update already
@@ -222,7 +235,7 @@ jobs:
               <item>
                 <title>Version ${version}</title>
                 <pubDate>${pubdate}</pubDate>
-                <sparkle:version>${version}</sparkle:version>
+                <sparkle:version>${build_number}</sparkle:version>
                 <sparkle:shortVersionString>${version}</sparkle:shortVersionString>
                 <sparkle:minimumSystemVersion>${minsys}</sparkle:minimumSystemVersion>
                 <link>https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}</link>

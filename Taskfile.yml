@@ -212,10 +212,20 @@ tasks:
         if ! echo "$new" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
           echo "✗ '$new' is not valid semver (MAJOR.MINOR.PATCH)"; exit 1
         fi
+        # Build number: monotonic integer derived from semver — required
+        # by Sparkle, which compares appcast `sparkle:version` against
+        # the bundle's `CFBundleVersion` (build number) — NOT against
+        # the marketing `CFBundleShortVersionString`. If the build
+        # number doesn't strictly increase between releases, the update
+        # dialog shows "You're up to date" even when a newer marketing
+        # version is published. Formula: MAJOR*10000 + MINOR*100 + PATCH
+        # (good as long as MINOR < 100 and PATCH < 100).
+        IFS='.' read -r maj min pat <<< "$new"
+        build_number=$((maj * 10000 + min * 100 + pat))
         echo "$new" > VERSION
-        sed -i.bak -E "s/^version:[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+\+([0-9]+)$/version: $new+\1/" {{.UI}}/pubspec.yaml && rm {{.UI}}/pubspec.yaml.bak
+        sed -i.bak -E "s/^version:[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$/version: $new+$build_number/" {{.UI}}/pubspec.yaml && rm {{.UI}}/pubspec.yaml.bak
         sed -i.bak -E "s/^  version: \"[0-9]+\.[0-9]+\.[0-9]+\"$/  version: \"$new\"/" config.example.yaml && rm config.example.yaml.bak
-        echo "✓ version set to $new"
+        echo "✓ version set to $new (build $build_number)"
         echo "  VERSION             — $(tr -d '[:space:]' < VERSION)"
         echo "  pubspec.yaml        — $(grep '^version:' {{.UI}}/pubspec.yaml)"
         echo "  config.example.yaml — $(grep '^  version:' config.example.yaml)"
