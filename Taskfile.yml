@@ -133,6 +133,7 @@ tasks:
         create-dmg \
           --volname "Nox" \
           --volicon "ui/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png" \
+          --background "ui/macos/installer/background@2x.png" \
           --window-pos 200 120 \
           --window-size 600 400 \
           --icon-size 100 \
