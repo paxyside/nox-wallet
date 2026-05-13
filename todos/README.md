@@ -6,13 +6,16 @@ strict — if priorities shift, edit the file in place.
 
 ## Index — recommended order
 
-| # | File                                       | Theme                                                      | Estimate  |
-|---|--------------------------------------------|------------------------------------------------------------|-----------|
-| 1 | [release.md](release.md)                   | Signed + notarized DMG, auto-update (CI already in place)  | 1–2 days  |
-| 2 | [chainkit-prep.md](chainkit-prep.md)       | Per-chain `Chain` abstraction (config layer already done)  | 4–6 days  |
-| 3 | [multi-wallet.md](multi-wallet.md)         | Multiple ETH wallets in one app                            | 4–5 days  |
-| 4 | [network-switcher.md](network-switcher.md) | Network selector UI + custom RPC                           | 2 days    |
-| 5 | [walletconnect.md](walletconnect.md)       | WalletConnect v2 integration                               | 1 week    |
+| # | File                                         | Theme                                                                    | Estimate  |
+|---|----------------------------------------------|--------------------------------------------------------------------------|-----------|
+| 1 | [release.md](release.md)                     | Signed + notarized DMG (auto-update + CI already shipped)                | 1 day     |
+| 2 | [hidden-tokens-ux.md](hidden-tokens-ux.md)   | "Show hidden / Unhide" toggle in Tokens screen                           | 0.5 day   |
+| 3 | [settings-layout.md](settings-layout.md)     | Settings screen visual rework (grouping, density, danger affordance)     | 1 day     |
+| 4 | [chainkit-prep.md](chainkit-prep.md)         | Per-chain `Chain` abstraction (config layer already done)                | 4–6 days  |
+| 5 | [multi-wallet.md](multi-wallet.md)           | Multiple ETH wallets in one app                                          | 4–5 days  |
+| 6 | [network-switcher.md](network-switcher.md)   | Network selector UI + custom RPC                                         | 2 days    |
+| 7 | [walletconnect.md](walletconnect.md)         | WalletConnect v2 integration                                             | 1 week    |
+| 8 | [dmg-background.md](dmg-background.md)       | Custom DMG installer background (polish, optional)                       | 0.5 day   |
 
 ## Why this order
 
