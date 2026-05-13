@@ -40,6 +40,26 @@ class TokensSearch extends _$TokensSearch {
   void clear() => state = '';
 }
 
+// ── Visibility filter ─────────────────────────────────────────────────────────
+//
+// The Tokens screen lets the user flip between three views. Default is
+// `visible` because that's the only state most users will ever need; the
+// other two exist as an escape hatch when something was hidden and the
+// user wants it back without remembering the contract address.
+
+enum TokenVisibility { visible, hidden, all }
+
+@riverpod
+class TokensVisibilityFilter extends _$TokensVisibilityFilter {
+  @override
+  TokenVisibility build() => TokenVisibility.visible;
+
+  void select(TokenVisibility v) {
+    if (v == state) return;
+    state = v;
+  }
+}
+
 // ── Filtered + sorted list ────────────────────────────────────────────────────
 
 @riverpod
@@ -47,21 +67,27 @@ List<WatchedToken> filteredTokens(Ref ref) {
   final tokens = ref.watch(tokensNotifierProvider).valueOrNull ?? [];
   final query = ref.watch(tokensSearchProvider).toLowerCase().trim();
   final sort = ref.watch(tokensSortProvider);
+  final visibility = ref.watch(tokensVisibilityFilterProvider);
 
-  // Filter
-  final result = query.isEmpty
-      ? tokens
-      : tokens
-            .where(
-              (t) =>
-                  t.symbol.toLowerCase().contains(query) ||
-                  t.name.toLowerCase().contains(query) ||
-                  t.address.toLowerCase().contains(query),
-            )
-            .toList();
+  // Step 1 — visibility filter.
+  var result = switch (visibility) {
+    TokenVisibility.visible => tokens.where((t) => !t.isHidden),
+    TokenVisibility.hidden => tokens.where((t) => t.isHidden),
+    TokenVisibility.all => tokens,
+  };
 
-  // Sort: pinned always first, then by chosen field
-  return List.of(result)..sort((a, b) {
+  // Step 2 — text search.
+  if (query.isNotEmpty) {
+    result = result.where(
+      (t) =>
+          t.symbol.toLowerCase().contains(query) ||
+          t.name.toLowerCase().contains(query) ||
+          t.address.toLowerCase().contains(query),
+    );
+  }
+
+  // Step 3 — sort. Pinned always first, then by chosen field.
+  return result.toList()..sort((a, b) {
     if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
     return switch (sort) {
       TokenSortField.name => a.symbol.compareTo(b.symbol),
@@ -73,6 +99,10 @@ List<WatchedToken> filteredTokens(Ref ref) {
 }
 
 // ── Total portfolio USD value ─────────────────────────────────────────────────
+//
+// Computed across VISIBLE tokens only — hidden tokens shouldn't pollute the
+// dashboard total even though they're now part of `tokensNotifierProvider`'s
+// raw list. Dashboard widgets reading this should still see "real money".
 
 @riverpod
 String totalPortfolioValue(Ref ref) {
@@ -80,6 +110,7 @@ String totalPortfolioValue(Ref ref) {
   if (tokens.isEmpty) return '';
   var total = 0.0;
   for (final t in tokens) {
+    if (t.isHidden) continue;
     total += parseUsd(t.balanceUsd);
   }
   if (total == 0) return '';
@@ -121,18 +152,19 @@ class TokensNotifier extends _$TokensNotifier {
     }
   }
 
-  /// Hide / unhide. Hidden tokens stay in storage so the auto-seed dedup map
-  /// still recognises them — just filtered out of the visible list.
+  /// Hide / unhide. Hidden tokens stay in storage AND in the in-memory
+  /// list — only the UI's `tokensVisibilityFilterProvider` decides what
+  /// to show. Flipping the flag in-place means the row visibly "moves"
+  /// between Visible / Hidden filter views without a network round-trip.
   Future<void> hide(String id, {required bool hidden}) async {
     final previous = state.valueOrNull ?? [];
-    // Optimistic: drop hidden token from the visible list immediately. The
-    // backend keeps it stored.
-    state = AsyncData(
-      hidden ? previous.where((t) => t.id != id).toList() : previous, // unhide path: refresh below
-    );
+    // Optimistic: flip the flag on the matching entry. The backend
+    // persists `is_hidden=hidden` and replies; on failure we roll back.
+    state = AsyncData([
+      for (final t in previous) t.id == id ? t.copyWith(isHidden: hidden) : t,
+    ]);
     try {
       await ref.read(tokenRepositoryProvider).hide(id, hidden: hidden);
-      if (!hidden) await refresh(); // re-pull to bring the unhidden token back
     } catch (e) {
       state = AsyncData(previous);
       rethrow;

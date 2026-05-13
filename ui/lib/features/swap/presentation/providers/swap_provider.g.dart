@@ -6,9 +6,18 @@ part of 'swap_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$swappableAssetsHash() => r'4f00cdd26605791603416a44aa369058c6a72434';
+String _$swappableAssetsHash() => r'bcc97ecea29fbe29532da4b5491ae52eb980cf7c';
 
-/// See also [swappableAssets].
+/// Build the swap asset list directly from the user's wallet —
+/// native ETH plus every watched ERC-20. Logo URLs are pre-stamped
+/// by the backend, so no separate lookup or hardcoded list is needed.
+///
+/// Implication: to swap *into* a token the user doesn't yet own, they
+/// have to Add Token first. That's the trade-off for not maintaining
+/// a hand-curated swap-only list — and it nudges users to confirm the
+/// contract address (anti-spam) before any swap can include it.
+///
+/// Copied from [swappableAssets].
 @ProviderFor(swappableAssets)
 final swappableAssetsProvider = AutoDisposeFutureProvider<List<SwapAsset>>.internal(
   swappableAssets,

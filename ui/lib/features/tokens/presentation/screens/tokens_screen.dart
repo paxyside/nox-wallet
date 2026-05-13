@@ -123,6 +123,11 @@ class _TokensHeaderState extends ConsumerState<_TokensHeader> {
 
           const SizedBox(width: 12),
 
+          // Visibility filter (Visible / Hidden / All)
+          const _VisibilityButton(),
+
+          const SizedBox(width: 12),
+
           // Sort dropdown
           _SortButton(),
 
@@ -172,17 +177,34 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
       })
       ..listenManual<TokenSortField>(tokensSortProvider, (prev, next) {
         if (mounted) setState(() => _page = 0);
+      })
+      ..listenManual<TokenVisibility>(tokensVisibilityFilterProvider, (prev, next) {
+        // Page count differs between Visible / Hidden / All — snapping
+        // back to page 0 avoids showing an empty page if the user
+        // jumped to e.g. page 3 of Visible then switched to Hidden
+        // where there are 2 entries.
+        if (mounted) setState(() => _page = 0);
       });
   }
 
-  Future<void> _hide(WatchedToken token) async {
+  /// Hide or un-hide depending on the row's current state. Same handler
+  /// for both directions — the expanded row's chip flips its label
+  /// based on `token.isHidden` so the user sees the right verb.
+  Future<void> _toggleHide(WatchedToken token) async {
+    final newHidden = !token.isHidden;
+    final label = token.symbol.isEmpty ? 'Token' : token.symbol;
     try {
-      await ref.read(tokensNotifierProvider.notifier).hide(token.id, hidden: true);
+      await ref.read(tokensNotifierProvider.notifier).hide(token.id, hidden: newHidden);
       if (mounted) {
-        AppSnackBar.info(context, '${token.symbol.isEmpty ? 'Token' : token.symbol} hidden.');
+        AppSnackBar.info(context, newHidden ? '$label hidden.' : '$label restored.');
       }
     } on Object catch (_) {
-      if (mounted) AppSnackBar.error(context, 'Failed to hide token.');
+      if (mounted) {
+        AppSnackBar.error(
+          context,
+          newHidden ? 'Failed to hide token.' : 'Failed to restore token.',
+        );
+      }
     }
   }
 
@@ -350,18 +372,33 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
                   );
                 }
 
-                // No results for current search
+                // Empty filtered list — copy depends on why it's empty:
+                // search hit nothing vs visibility filter has no matches.
                 if (filtered.isEmpty) {
+                  final visibility = ref.watch(tokensVisibilityFilterProvider);
+                  final hasSearch = query.isNotEmpty;
+                  final (icon, message) = switch ((hasSearch, visibility)) {
+                    (true, _) => (Icons.search_off, 'No tokens match "$query"'),
+                    (false, TokenVisibility.hidden) => (
+                      Icons.visibility_off_outlined,
+                      'No hidden tokens. Hide one from a row to manage it here.',
+                    ),
+                    (false, _) => (Icons.search_off, 'No tokens to show'),
+                  };
                   return Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.search_off, size: 48, color: context.colors.textDisabled),
+                        Icon(icon, size: 48, color: context.colors.textDisabled),
                         const SizedBox(height: 12),
-                        Text(
-                          'No tokens match "$query"',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: context.colors.textSecondary,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Text(
+                            message,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: context.colors.textSecondary,
+                            ),
                           ),
                         ),
                       ],
@@ -385,7 +422,7 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
                     return TokenListTile(
                       key: ValueKey(token.id),
                       token: token,
-                      onHide: () => _hide(token),
+                      onHide: () => _toggleHide(token),
                       onRemove: () => _confirmAndRemove(token),
                     );
                   },
@@ -403,6 +440,35 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
             ),
         ],
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Visibility filter dropdown
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _VisibilityButton extends ConsumerWidget {
+  const _VisibilityButton();
+
+  static const Map<TokenVisibility, String> _labels = {
+    TokenVisibility.visible: 'Visible',
+    TokenVisibility.hidden: 'Hidden',
+    TokenVisibility.all: 'All',
+  };
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final current = ref.watch(tokensVisibilityFilterProvider);
+    return ThemedDropdown<TokenVisibility>(
+      value: current,
+      width: 130,
+      leadingIcon: Icons.visibility_outlined,
+      items: [
+        for (final entry in _labels.entries)
+          ThemedDropdownItem(value: entry.key, label: entry.value),
+      ],
+      onChanged: (v) => ref.read(tokensVisibilityFilterProvider.notifier).select(v),
     );
   }
 }

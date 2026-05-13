@@ -45,7 +45,11 @@ class _TokenListTileState extends ConsumerState<TokenListTile> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
+    // Hidden tokens render muted so the user immediately sees they're
+    // not part of the normal portfolio — restored to full opacity once
+    // the row is hovered, so the user can read details before un-hiding.
+    final muted = t.isHidden && !_hovered;
+    final tile = MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: AnimatedContainer(
@@ -87,6 +91,12 @@ class _TokenListTileState extends ConsumerState<TokenListTile> {
           ],
         ),
       ),
+    );
+
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 150),
+      opacity: muted ? 0.5 : 1.0,
+      child: tile,
     );
   }
 }

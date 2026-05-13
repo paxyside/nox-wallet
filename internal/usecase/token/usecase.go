@@ -156,19 +156,17 @@ func (u *Usecase) Hide(ctx context.Context, id string, hidden bool) error {
 }
 
 func (u *Usecase) ListWithBalances(ctx context.Context, addr ethkit.Address) ([]TokenWithBalance, error) {
-	all, err := u.svc.List(ctx)
+	tokens, err := u.svc.List(ctx)
 	if err != nil {
 		return nil, liberrors.Wrapf(err, liberrors.CodeInternal, "list tokens")
 	}
 
-	// Filter hidden — they remain in storage for dedup but the UI never
-	// sees them. A future "Show hidden" toggle can use Service.List directly.
-	tokens := make([]*entity.WatchedToken, 0, len(all))
-	for _, t := range all {
-		if !t.IsHidden {
-			tokens = append(tokens, t)
-		}
-	}
+	// Hidden tokens flow through with their IsHidden flag intact — the UI
+	// is the source of truth for visibility filtering now. Previously the
+	// usecase stripped them here, which left users stuck: the only way
+	// back from "hide" was to remember the contract address and re-add via
+	// the dialog. The extra balance lookups per hidden token are bounded
+	// (users hide handfuls, not hundreds) and worth the saner UX.
 
 	// ── Fetch balances concurrently ──────────────────────────────────────────
 	type balResult struct {

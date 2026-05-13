@@ -53,11 +53,19 @@ class TokenListTileExpandedRow extends StatelessWidget {
             icon: Icons.open_in_new_rounded,
           ),
           const Spacer(),
-          // ── Hide is the soft option (suppresses but keeps in DB so the
-          //    auto-seed dedup map still recognises it). Remove is the hard
-          //    permanent delete. Both live in the expanded row to keep them
-          //    away from accidental row-tap.
-          _DetailChip(label: '', value: 'Hide', onTap: onHide, icon: Icons.visibility_off_outlined),
+          // ── Hide is the soft option (suppresses from default views but keeps
+          //    in DB so the auto-seed dedup map still recognises it, and so
+          //    the user can unhide it later). Remove is the hard permanent
+          //    delete. Both live in the expanded row to keep them away from
+          //    accidental row-tap. The chip flips between "Hide" / "Show"
+          //    based on the row's current state so the same expanded row
+          //    works in both Visible and Hidden filter views.
+          _DetailChip(
+            label: '',
+            value: token.isHidden ? 'Show' : 'Hide',
+            onTap: onHide,
+            icon: token.isHidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          ),
           const SizedBox(width: 6),
           _DetailChip(
             label: '',

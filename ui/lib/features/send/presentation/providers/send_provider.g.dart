@@ -59,9 +59,11 @@ final balanceRepositoryProvider = AutoDisposeProvider<BalanceRepository>.interna
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef BalanceRepositoryRef = AutoDisposeProviderRef<BalanceRepository>;
-String _$sendableAssetsHash() => r'960594d56d5691462f0d397f2117821bd5b1da35';
+String _$sendableAssetsHash() => r'8a677d616036a2de12b087a0eb2cd47e22ec34cf';
 
-/// Loads ETH + token balances for the asset selector.
+/// Loads ETH + token balances for the asset selector. Logo URLs flow
+/// through from the backend (`GetBalances.eth_logo_url` for native,
+/// `TokenBalance.logo_url` for ERC-20s) — no UI-side URL construction.
 ///
 /// Copied from [sendableAssets].
 @ProviderFor(sendableAssets)

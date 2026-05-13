@@ -23,7 +23,7 @@ final tokenRepositoryProvider = AutoDisposeProvider<TokenRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef TokenRepositoryRef = AutoDisposeProviderRef<TokenRepository>;
-String _$filteredTokensHash() => r'a587a559514156a0f7a7a456b8a33befc112f5d2';
+String _$filteredTokensHash() => r'0654eea82be158924348e6823adfcd04e647389f';
 
 /// See also [filteredTokens].
 @ProviderFor(filteredTokens)
@@ -40,7 +40,7 @@ final filteredTokensProvider = AutoDisposeProvider<List<WatchedToken>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef FilteredTokensRef = AutoDisposeProviderRef<List<WatchedToken>>;
-String _$totalPortfolioValueHash() => r'e46a98ce30bb3a6fa97a3c5cf40fd11118e66b39';
+String _$totalPortfolioValueHash() => r'3d0521bfd292bf76ed5976f34c159931d2e97cea';
 
 /// See also [totalPortfolioValue].
 @ProviderFor(totalPortfolioValue)
@@ -85,7 +85,23 @@ final tokensSearchProvider = AutoDisposeNotifierProvider<TokensSearch, String>.i
 );
 
 typedef _$TokensSearch = AutoDisposeNotifier<String>;
-String _$tokensNotifierHash() => r'0730ccfea6644b52471eff735087a769044f203a';
+String _$tokensVisibilityFilterHash() => r'74c5508119d6f4d75db24de1debb4c1c10c16ea6';
+
+/// See also [TokensVisibilityFilter].
+@ProviderFor(TokensVisibilityFilter)
+final tokensVisibilityFilterProvider =
+    AutoDisposeNotifierProvider<TokensVisibilityFilter, TokenVisibility>.internal(
+      TokensVisibilityFilter.new,
+      name: r'tokensVisibilityFilterProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$tokensVisibilityFilterHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+typedef _$TokensVisibilityFilter = AutoDisposeNotifier<TokenVisibility>;
+String _$tokensNotifierHash() => r'4de11fe7638a068e0ef8c74c0950b4ca4940c1ac';
 
 /// See also [TokensNotifier].
 @ProviderFor(TokensNotifier)
