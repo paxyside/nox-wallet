@@ -33,16 +33,17 @@ class SettingsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section title
+        // Section title — mirrors CompactSettingsRow's styling so the
+        // two layouts feel consistent when used on the same screen.
         Padding(
           padding: const EdgeInsets.only(left: 2, bottom: 6),
           child: Text(
             title.toUpperCase(),
             style: AppTextStyles.labelMedium.copyWith(
-              color: titleColor ?? context.colors.textDisabled,
-              fontSize: 11,
+              color: titleColor ?? context.colors.textSecondary,
+              fontSize: 11.5,
               letterSpacing: 1.4,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nox/core/app_info.dart';
 import 'package:nox/core/router/routes.dart';
 import 'package:nox/core/services/update_service.dart';
 import 'package:nox/core/state/auto_lock_provider.dart';
@@ -12,6 +13,7 @@ import 'package:nox/core/theme/app_text_styles.dart';
 import 'package:nox/core/utils/error_message.dart';
 import 'package:nox/core/widgets/app_dialog.dart';
 import 'package:nox/core/widgets/copy_button.dart';
+import 'package:nox/core/widgets/mini_switch.dart';
 import 'package:nox/core/widgets/themed_dropdown.dart';
 import 'package:nox/features/settings/domain/settings_repository.dart';
 import 'package:nox/features/settings/presentation/providers/settings_provider.dart';
@@ -82,8 +84,13 @@ class SettingsScreen extends ConsumerWidget {
                       title: 'Security',
                       cells: [
                         CompactSettingsCell(
+                          icon: Icons.lock_outline,
                           label: 'Auto-lock',
-                          subtitle: 'Lock the wallet after idle time',
+                          // Short subtitle keeps visual symmetry with the
+                          // sibling Hide balances cell (which has one).
+                          // Asymmetric cells in the same row read as
+                          // accidental — content density should match.
+                          subtitle: 'Lock after idle time',
                           trailing: _AutoLockSelector(
                             value: ref.watch(autoLockSettingProvider),
                             onChanged: (v) =>
@@ -91,9 +98,14 @@ class SettingsScreen extends ConsumerWidget {
                           ),
                         ),
                         CompactSettingsCell(
+                          icon: Icons.visibility_off_outlined,
                           label: 'Hide balances',
-                          subtitle: 'Mask all amounts as ••••••',
-                          trailing: _MiniSwitch(
+                          // Showing the actual portfolio value here as a
+                          // "preview" was a UX paradox — a setting called
+                          // "Hide balances" that displays your balance. Plain
+                          // explanation reads cleaner.
+                          subtitle: 'Mask balances and amounts',
+                          trailing: MiniSwitch(
                             value: ref.watch(hideBalancesProvider),
                             onChanged: (_) => ref.read(hideBalancesProvider.notifier).toggle(),
                           ),
@@ -101,26 +113,38 @@ class SettingsScreen extends ConsumerWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 14),
 
                     // ── Security (bottom row): Reveal + Export ─────────────
-                    // Two button-only actions. No title — visually they
-                    // continue the Security section above.
+                    // Visually split from the "state" controls above with
+                    // its own subheading. Toggles/dropdowns are settings
+                    // you set once; these are one-shot destructive-ish
+                    // actions you reach for occasionally — different mental
+                    // category, deserves its own header.
                     CompactSettingsRow(
-                      title: '',
+                      title: 'Actions',
                       cells: [
                         CompactSettingsCell(
+                          icon: Icons.vpn_key_outlined,
                           label: 'Reveal Secret Phrase',
-                          subtitle: 'View your seed phrase or private key',
+                          subtitle: 'Seed phrase or private key',
+                          // Amber tone on the icon tile AND the button —
+                          // revealing the secret phrase exposes everything
+                          // that can drain the wallet, so the warmer tint
+                          // signals "think before you click". Export
+                          // Keystore is encrypted, stays neutral ghost.
+                          iconColor: AppColors.warning,
                           trailing: _ActionButton(
                             label: 'Reveal',
                             icon: Icons.visibility_outlined,
+                            color: AppColors.warning,
                             onTap: () => _showRevealDialog(context),
                           ),
                         ),
                         CompactSettingsCell(
+                          icon: Icons.download_outlined,
                           label: 'Export Keystore',
-                          subtitle: 'Encrypted JSON keystore file',
+                          subtitle: 'Encrypted .keystore file',
                           trailing: _ActionButton(
                             label: 'Export',
                             icon: Icons.download_outlined,
@@ -130,20 +154,59 @@ class SettingsScreen extends ConsumerWidget {
                       ],
                     ),
 
+                    const SizedBox(height: 8),
+
+                    // ── Security continuation: Active approvals ──────────
+                    // The full Approvals page used to be a top-level sidebar
+                    // tab — now lives behind this entry. Per-token approval
+                    // status is shown contextually in each token's drawer.
+                    CompactSettingsRow(
+                      title: '',
+                      cells: [
+                        CompactSettingsCell(
+                          icon: Icons.shield_outlined,
+                          label: 'Active approvals',
+                          subtitle: 'Review and revoke ERC-20 allowances',
+                          trailing: _ActionButton(
+                            label: 'Open',
+                            icon: Icons.arrow_forward_rounded,
+                            onTap: () => context.go(Routes.approvals),
+                          ),
+                        ),
+                      ],
+                    ),
+
                     const SizedBox(height: 14),
 
                     // ── About ──────────────────────────────────────────────
-                    SettingsSection(
+                    CompactSettingsRow(
                       title: 'About',
-                      rows: [
-                        SettingsRow(
+                      cells: [
+                        CompactSettingsCell(
+                          icon: Icons.auto_awesome_outlined,
                           label: 'Updates',
-                          subtitle:
-                              'Sparkle checks hourly in the background. Use this to force a check now.',
-                          trailing: _ActionButton(
-                            label: 'Check for updates',
-                            icon: Icons.system_update_alt,
-                            onTap: () => unawaited(UpdateService.checkNow()),
+                          subtitle: 'Background check runs hourly — click to force one now',
+                          // Version label + Check button. "Auto-checked
+                          // hourly" used to live here too but duplicated
+                          // the subtitle — one statement of the cadence
+                          // is enough.
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'v$kAppVersion',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: context.colors.textSecondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              _ActionButton(
+                                label: 'Check for updates',
+                                icon: Icons.system_update_alt,
+                                onTap: () => unawaited(UpdateService.checkNow()),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -152,12 +215,19 @@ class SettingsScreen extends ConsumerWidget {
                     const SizedBox(height: 14),
 
                     // ── Danger Zone ────────────────────────────────────────
-                    SettingsSection(
+                    // `danger: true` paints a red border + soft red shadow
+                    // around the card so the destructive action stands
+                    // visually apart from everything else above.
+                    CompactSettingsRow(
                       title: 'Danger Zone',
                       titleColor: context.colors.error,
-                      rows: [
-                        SettingsRow(
+                      danger: true,
+                      cells: [
+                        CompactSettingsCell(
+                          icon: Icons.warning_amber_outlined,
                           label: 'Import new wallet',
+                          subtitle: 'Replace the current wallet using seed phrase or private key',
+                          danger: true,
                           trailing: _ActionButton(
                             label: 'Import',
                             icon: Icons.swap_horiz,
@@ -236,55 +306,56 @@ class _WalletSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CompactSettingsRow(
+    return SettingsSection(
       title: 'Wallet',
-      cells: [
-        CompactSettingsCell(
+      rows: [
+        SettingsRow(
           label: 'Address',
-          trailing: _CopyableAddress(address: wallet.address),
+          // Full address — the row has plenty of horizontal room and
+          // there's no shortage of mono-screen real estate. Truncated
+          // versions are useful when space is tight (mini widget, dense
+          // dashboard rows); in dedicated Settings the user wants the
+          // whole thing visible.
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                wallet.address.isEmpty ? '—' : wallet.address,
+                style: AppTextStyles.mono.copyWith(
+                  color: context.colors.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
+              if (wallet.address.isNotEmpty) ...[
+                const SizedBox(width: 6),
+                CopyButton(
+                  value: wallet.address,
+                  successMessage: 'Address copied.',
+                  tooltip: 'Copy address',
+                  size: 14,
+                  color: context.colors.textSecondary,
+                ),
+              ],
+            ],
+          ),
         ),
-        CompactSettingsCell(label: 'Label', value: wallet.label.isEmpty ? '—' : wallet.label),
-        CompactSettingsCell(
-          label: 'Secret Type',
+        SettingsRow(
+          label: 'Label',
+          trailing: Text(
+            wallet.label.isEmpty ? 'Unnamed' : wallet.label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: wallet.label.isEmpty
+                  ? context.colors.textDisabled
+                  : context.colors.textPrimary,
+              fontWeight: FontWeight.w600,
+              fontStyle: wallet.label.isEmpty ? FontStyle.italic : FontStyle.normal,
+            ),
+          ),
+        ),
+        SettingsRow(
+          label: 'Type',
           trailing: _SecretTypeBadge(secretKind: wallet.secretKind),
         ),
-      ],
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Copyable address widget
-// ---------------------------------------------------------------------------
-
-class _CopyableAddress extends StatelessWidget {
-  const _CopyableAddress({required this.address});
-
-  final String address;
-
-  @override
-  Widget build(BuildContext context) {
-    final short = address.length > 16
-        ? '${address.substring(0, 8)}…${address.substring(address.length - 6)}'
-        : address;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          address.isEmpty ? '—' : short,
-          style: AppTextStyles.mono.copyWith(color: context.colors.textSecondary),
-        ),
-        if (address.isNotEmpty) ...[
-          const SizedBox(width: 6),
-          CopyButton(
-            value: address,
-            successMessage: 'Address copied.',
-            tooltip: 'Copy address',
-            size: 14,
-            color: context.colors.textSecondary,
-          ),
-        ],
       ],
     );
   }
@@ -307,9 +378,13 @@ class _SecretTypeBadge extends StatelessWidget {
       SecretKind.unspecified => 'Unknown',
     };
 
+    // Secret type is a CATEGORY, not a quality assessment — strip the
+    // green "good" connotation (`success`) so the badge doesn't imply
+    // "mnemonic is the right answer". Everything except Unknown reads
+    // as a neutral identifier.
     final color = switch (secretKind) {
-      SecretKind.mnemonic => context.colors.success,
-      SecretKind.privateKey => context.colors.primaryLight,
+      SecretKind.mnemonic => context.colors.textSecondary,
+      SecretKind.privateKey => context.colors.textSecondary,
       SecretKind.unspecified => context.colors.textDisabled,
     };
 
@@ -335,18 +410,26 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final IconData? icon;
+
+  /// Tint colour for accent actions. Leave null for the default "ghost"
+  /// style (neutral text + soft border) used by Export and Check for
+  /// updates — actions which are common, low-stakes, and shouldn't
+  /// scream for attention. Pass `AppColors.warning` for caution-tier
+  /// (Reveal) or `AppColors.error` for danger-tier (Import).
   final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    final foreground = color ?? context.colors.primary;
+    final isAccent = color != null;
+    final foreground = color ?? context.colors.textPrimary;
+    final borderColor = isAccent ? color!.withValues(alpha: 0.5) : context.colors.border;
     return OutlinedButton.icon(
       onPressed: onTap,
       icon: icon != null ? Icon(icon, size: 15, color: foreground) : const SizedBox.shrink(),
       label: Text(label, style: AppTextStyles.labelLarge.copyWith(color: foreground)),
       style: OutlinedButton.styleFrom(
         foregroundColor: foreground,
-        side: BorderSide(color: foreground.withValues(alpha: 0.5)),
+        side: BorderSide(color: borderColor),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -363,12 +446,12 @@ class _WalletSectionSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const CompactSettingsRow(
+    return const SettingsSection(
       title: 'Wallet',
-      cells: [
-        CompactSettingsCell(label: 'Address', value: '—'),
-        CompactSettingsCell(label: 'Label', value: '—'),
-        CompactSettingsCell(label: 'Secret Type', value: '—'),
+      rows: [
+        SettingsRow(label: 'Address', value: '—'),
+        SettingsRow(label: 'Label', value: '—'),
+        SettingsRow(label: 'Type', value: '—'),
       ],
     );
   }
@@ -403,74 +486,6 @@ class _ErrorBanner extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Compact themed switch — replaces Switch.adaptive in settings rows.
-// Material's adaptive switch is large and uses Material colors that don't
-// match our palette in either theme; this draws its own track + thumb in the
-// app's primary / border colors.
-// ---------------------------------------------------------------------------
-
-class _MiniSwitch extends StatelessWidget {
-  const _MiniSwitch({required this.value, required this.onChanged});
-
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  static const _trackWidth = 34.0;
-  static const _trackHeight = 20.0;
-  static const _thumbSize = 14.0;
-  static const _padding = 3.0;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final trackOn = colors.primary;
-    final trackOff = colors.surfaceHigh;
-    final borderOn = colors.primary.withValues(alpha: 0.6);
-    final borderOff = colors.border;
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => onChanged(!value),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          width: _trackWidth,
-          height: _trackHeight,
-          decoration: BoxDecoration(
-            color: value ? trackOn : trackOff,
-            borderRadius: BorderRadius.circular(_trackHeight / 2),
-            border: Border.all(color: value ? borderOn : borderOff, width: 1),
-          ),
-          child: Stack(
-            children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeOut,
-                left: value ? _trackWidth - _thumbSize - _padding - 2 : _padding - 1,
-                top: (_trackHeight - _thumbSize) / 2 - 1,
-                child: Container(
-                  width: _thumbSize,
-                  height: _thumbSize,
-                  decoration: BoxDecoration(
-                    color: value ? Colors.white : colors.textSecondary,
-                    shape: BoxShape.circle,
-                    boxShadow: value
-                        ? [BoxShadow(color: colors.primary.withValues(alpha: 0.4), blurRadius: 4)]
-                        : null,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
