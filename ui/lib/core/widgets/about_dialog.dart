@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:nox/core/app_info.dart';
 import 'package:nox/core/theme/app_colors.dart';
 import 'package:nox/core/theme/app_text_styles.dart';
 
@@ -57,8 +58,11 @@ class AppAboutDialog extends StatelessWidget {
                   Divider(color: col.border),
                   const SizedBox(height: 16),
 
-                  // Info rows
-                  const _InfoRow(label: 'Version', value: '1.0.0'),
+                  // Info rows — version pulled from `kAppVersion` so it
+                  // stays in sync with VERSION / pubspec / config via
+                  // `task version:set`. Was previously hardcoded as
+                  // "1.0.0" which lied as soon as the first bump landed.
+                  const _InfoRow(label: 'Version', value: kAppVersion),
                   const SizedBox(height: 10),
                   const _InfoRow(label: 'Network', value: 'Ethereum Mainnet'),
                   const SizedBox(height: 10),

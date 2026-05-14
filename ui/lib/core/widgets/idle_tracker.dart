@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nox/core/state/auth_provider.dart';
 import 'package:nox/core/state/auto_lock_provider.dart';
+import 'package:window_manager/window_manager.dart';
 
 /// Wraps [child] in a transparent input-tracking layer that:
 ///   1. Records the wall-clock time of every pointer / key event into
@@ -62,12 +63,26 @@ class _IdleTrackerState extends ConsumerState<IdleTracker> {
     return false;
   }
 
-  void _evaluateLock() {
+  Future<void> _evaluateLock() async {
+    if (!ref.read(isUnlockedProvider)) return;
+
     final timeout = ref.read(autoLockSettingProvider).duration;
     if (timeout == null) return;
+
+    // Auto-lock should only count time the wallet is actually on screen.
+    // While focus is on another macOS app, no-one can see Nox anyway —
+    // counting that as idle made the wallet lock every time the user
+    // glanced at Slack for >5 min, then asked for Touch ID on return.
+    // We refresh `lastActivity` each tick while unfocused so the idle
+    // clock effectively "pauses" until the user comes back.
+    final focused = await windowManager.isFocused();
+    if (!focused) {
+      _touch();
+      return;
+    }
+
     final last = ref.read(lastActivityProvider);
     if (DateTime.now().difference(last) < timeout) return;
-    if (!ref.read(isUnlockedProvider)) return;
     ref.read(isUnlockedProvider.notifier).lock();
   }
 

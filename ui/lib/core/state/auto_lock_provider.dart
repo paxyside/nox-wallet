@@ -24,12 +24,19 @@ extension AutoLockTimeoutDuration on AutoLockTimeout {
   };
 }
 
-/// User's preferred auto-lock idle timeout. Stored in-memory only — persists
-/// for the app's lifetime, defaults to 5 minutes.
+/// User's preferred auto-lock idle timeout. Stored in-memory only —
+/// persists for the app's lifetime.
+///
+/// Default: **Never**. macOS already locks the screen when the lid
+/// closes or the user steps away (system idle lock + screen saver), and
+/// our app-level auto-lock duplicated that boundary — locking the
+/// wallet every time the user opened Slack for >5 min and forcing a
+/// Touch ID prompt on return. Users who want a stricter local lock
+/// can opt in from Settings; the default is "trust macOS".
 @Riverpod(keepAlive: true)
 class AutoLockSetting extends _$AutoLockSetting {
   @override
-  AutoLockTimeout build() => AutoLockTimeout.fiveMinutes;
+  AutoLockTimeout build() => AutoLockTimeout.none;
 
   void setTimeout(AutoLockTimeout timeout) {
     if (timeout == state) return;

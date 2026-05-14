@@ -53,10 +53,15 @@ enum GasTier {
   };
 }
 
-/// 4-segment selector that mirrors the History direction toggle so the
-/// visual language stays consistent. When [expand] is true, the segments
-/// share the parent row's width equally — useful inside the gas card where
-/// the picker should stretch across the row instead of hugging its label.
+/// 4-segment selector with a sliding indicator pill — the highlight
+/// AnimatedPositioned'd between segments instead of fading per-segment
+/// AnimatedContainer's, mirroring the Auto-delete control in the
+/// notifications panel so the app's "segmented selectors" share one
+/// visual language.
+///
+/// Segments share the parent row's width equally (Expanded) so the
+/// indicator can locate each segment as `index * (totalWidth / N)`
+/// without runtime text measurement.
 class GasTierPicker extends StatelessWidget {
   const GasTierPicker({
     required this.selected,
@@ -69,37 +74,72 @@ class GasTierPicker extends StatelessWidget {
   final GasTier selected;
   final ValueChanged<GasTier> onChanged;
   final bool locked;
+
+  /// Reserved for API compatibility with earlier non-expand usage —
+  /// no callers pass false today, but keeping the parameter avoids
+  /// breaking the public constructor.
   final bool expand;
+
+  static const _innerPad = 2.0;
+  static const _radius = 8.0;
+  static const _indicatorRadius = 6.0;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: context.colors.surfaceHigh,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: context.colors.border),
-      ),
-      padding: const EdgeInsets.all(2),
-      child: Row(
-        mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
-        children: [
-          for (final t in GasTier.values)
-            if (expand)
-              Expanded(
-                child: _Segment(
-                  tier: t,
-                  isSelected: t == selected,
-                  onTap: locked ? null : () => onChanged(t),
+    final colors = context.colors;
+    const tiers = GasTier.values;
+    final selectedIndex = tiers.indexOf(selected);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Available width inside the outer container (minus its 2px
+        // padding on each side). Each segment owns 1/N of that width;
+        // the sliding indicator slides to `index * segmentWidth`.
+        final innerWidth = constraints.maxWidth - _innerPad * 2;
+        final segmentWidth = innerWidth / tiers.length;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: colors.surfaceHigh,
+            borderRadius: BorderRadius.circular(_radius),
+            border: Border.all(color: colors.border),
+          ),
+          padding: const EdgeInsets.all(_innerPad),
+          child: Stack(
+            children: [
+              // Sliding indicator — same easing/duration family as
+              // MiniSwitch and the Auto-delete segmented control.
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                left: selectedIndex * segmentWidth,
+                top: 0,
+                bottom: 0,
+                width: segmentWidth,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.primary.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(_indicatorRadius),
+                    border: Border.all(color: colors.primary.withValues(alpha: 0.4)),
+                  ),
                 ),
-              )
-            else
-              _Segment(
-                tier: t,
-                isSelected: t == selected,
-                onTap: locked ? null : () => onChanged(t),
               ),
-        ],
-      ),
+              Row(
+                children: [
+                  for (final t in tiers)
+                    Expanded(
+                      child: _Segment(
+                        tier: t,
+                        isSelected: t == selected,
+                        onTap: locked ? null : () => onChanged(t),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -133,29 +173,36 @@ class _SegmentState extends State<_Segment> {
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
+        behavior: HitTestBehavior.opaque,
+        // No per-segment background — the sliding indicator in the
+        // parent Stack owns the highlight. Each segment just renders
+        // icon+label and animates text colour for a smooth selection
+        // transition (no jumpy colour swap mid-slide).
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: widget.isSelected ? colors.primary.withValues(alpha: 0.18) : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: widget.isSelected ? colors.primary.withValues(alpha: 0.4) : Colors.transparent,
-            ),
-          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(widget.tier.icon, size: 12, color: fg),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                child: Icon(
+                  widget.tier.icon,
+                  size: 12,
+                  color: fg,
+                  key: ValueKey('${widget.tier}_${widget.isSelected}_$_hovered'),
+                ),
+              ),
               const SizedBox(width: 4),
-              Text(
-                widget.tier.label,
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOut,
                 style: AppTextStyles.labelMedium.copyWith(
                   color: fg,
                   fontSize: 11,
                   fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w400,
                 ),
+                child: Text(widget.tier.label),
               ),
             ],
           ),

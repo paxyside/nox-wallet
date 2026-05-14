@@ -13,14 +13,21 @@ double parseUsd(String s) => double.tryParse(s.replaceAll(RegExp(r'[^\d.\-]'), '
 /// Returns 0 on failure. Use for token balances where minus has no meaning.
 double parseAmount(String s) => double.tryParse(s.replaceAll(RegExp(r'[^\d.]'), '')) ?? 0;
 
-/// Formats an ETH amount string to up to 6 decimals, trailing zeros trimmed.
-///   `'1.500000000'` -> `'1.5'`
-///   `'0'`           -> `'0.0'`
-///   `'foo'`         -> `'foo'` (unchanged on parse failure)
-String formatEth(String raw) {
+/// Formats an ETH amount string with the given decimal precision and
+/// trailing zeros trimmed.
+///   `formatEth('1.500000000')`              -> `'1.5'`
+///   `formatEth('0')`                        -> `'0.0'`
+///   `formatEth('0.006061', decimals: 4)`    -> `'0.0061'`
+///   `formatEth('foo')`                      -> `'foo'` (unchanged on parse failure)
+///
+/// Default `decimals` is 6 — full ETH-side precision for places that
+/// want to be exact (Send confirm, History detail). Lower it (e.g. 4)
+/// for the Dashboard where the eye scans many numbers at once and full
+/// precision becomes visual noise.
+String formatEth(String raw, {int decimals = 6}) {
   final v = double.tryParse(raw);
   if (v == null) return raw;
-  final s = v.toStringAsFixed(6);
+  final s = v.toStringAsFixed(decimals);
   final trimmed = s.replaceAll(RegExp(r'0+$'), '');
   return trimmed.endsWith('.') ? '${trimmed}0' : trimmed;
 }
