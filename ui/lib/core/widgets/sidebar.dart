@@ -72,13 +72,10 @@ class Sidebar extends StatelessWidget {
               route: Routes.history,
               selected: location == Routes.history,
             ),
-            _NavItem(
-              icon: Icons.shield_outlined,
-              label: 'Approvals',
-              route: Routes.approvals,
-              selected: location == Routes.approvals,
-            ),
 
+            // Approvals lives per-token in the Tokens drawer; the audit
+            // view ("all approvals at once") is reachable from Settings.
+            // No top-level sidebar entry — see token_details_drawer.dart.
             const Spacer(),
 
             // ── Settings ─────────────────────────────────────────────────
@@ -184,61 +181,35 @@ class _NavItemState extends State<_NavItem> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 120),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: selected
-                    ? [
-                        context.colors.primary.withValues(alpha: 0.22),
-                        context.colors.primary.withValues(alpha: 0.08),
-                      ]
-                    : _hovered
-                    ? [context.colors.surfaceHigh, context.colors.surfaceHigh]
-                    : [Colors.transparent, Colors.transparent],
-              ),
+              // Active state used to stack FOUR indicators (gradient bg
+              // + border + 4px left rail + colour-shift on text/icon).
+              // Modern macOS sidebars (Mail, Finder) use one or two.
+              // Keep: soft tinted background + colour-shift on text/icon
+              //       + slightly bolder font.
+              // Dropped: border, left rail — they were visual noise.
+              color: selected
+                  ? context.colors.primary.withValues(alpha: 0.14)
+                  : _hovered
+                  ? context.colors.surfaceHigh
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: selected
-                    ? context.colors.primary.withValues(alpha: 0.35)
-                    : _hovered
-                    ? context.colors.border
-                    : Colors.transparent,
-              ),
             ),
-            child: Stack(
-              children: [
-                if (selected)
-                  Positioned(
-                    left: 0,
-                    top: 4,
-                    bottom: 4,
-                    child: Container(
-                      width: 4,
-                      decoration: BoxDecoration(
-                        color: context.colors.primary,
-                        borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(4),
-                          bottomRight: Radius.circular(4),
-                        ),
-                      ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              child: Row(
+                children: [
+                  Icon(widget.icon, size: 22, color: fg),
+                  const SizedBox(width: 12),
+                  Text(
+                    widget.label,
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: fg,
+                      fontSize: 15,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                     ),
                   ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                  child: Row(
-                    children: [
-                      Icon(widget.icon, size: 22, color: fg),
-                      const SizedBox(width: 12),
-                      Text(
-                        widget.label,
-                        style: AppTextStyles.labelLarge.copyWith(
-                          color: fg,
-                          fontSize: 15,
-                          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -262,26 +233,58 @@ class _BottomIconRow extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _IconBtn(
-            icon: Icons.lock_outline_rounded,
-            tooltip: 'Lock wallet',
-            onTap: () => ref.read(isUnlockedProvider.notifier).lock(),
-          ),
-          _IconBtn(
-            icon: Icons.help_outline_rounded,
-            tooltip: 'About',
-            onTap: () =>
-                showAppDialog<void>(context: context, builder: (_) => const AppAboutDialog()),
-          ),
-          _IconBtn(
-            icon: isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-            tooltip: isDark ? 'Light mode' : 'Dark mode',
-            onTap: () => ref.read(themeModeNotifierProvider.notifier).toggle(),
-          ),
-        ],
+      // IntrinsicHeight lets VerticalDivider inherit a sensible height
+      // from the icon button row siblings. Expanded around each button
+      // gives equal column widths regardless of icon glyph weight, so
+      // the dividers sit at exact thirds and don't shift when the
+      // theme-toggle glyph swaps between sun and moon.
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Expanded(
+              child: Center(
+                child: _IconBtn(
+                  icon: Icons.lock_outline_rounded,
+                  tooltip: 'Lock wallet',
+                  onTap: () => ref.read(isUnlockedProvider.notifier).lock(),
+                ),
+              ),
+            ),
+            VerticalDivider(
+              width: 1,
+              thickness: 1,
+              indent: 10,
+              endIndent: 10,
+              color: context.colors.border,
+            ),
+            Expanded(
+              child: Center(
+                child: _IconBtn(
+                  icon: Icons.help_outline_rounded,
+                  tooltip: 'About',
+                  onTap: () =>
+                      showAppDialog<void>(context: context, builder: (_) => const AppAboutDialog()),
+                ),
+              ),
+            ),
+            VerticalDivider(
+              width: 1,
+              thickness: 1,
+              indent: 10,
+              endIndent: 10,
+              color: context.colors.border,
+            ),
+            Expanded(
+              child: Center(
+                child: _IconBtn(
+                  icon: isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                  tooltip: isDark ? 'Light mode' : 'Dark mode',
+                  onTap: () => ref.read(themeModeNotifierProvider.notifier).toggle(),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

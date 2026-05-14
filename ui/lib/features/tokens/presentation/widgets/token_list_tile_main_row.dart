@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:nox/core/router/routes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nox/core/theme/app_colors.dart';
 import 'package:nox/core/theme/app_text_styles.dart';
 import 'package:nox/core/widgets/maskable_text.dart';
+import 'package:nox/core/widgets/row_icon_button.dart';
 import 'package:nox/core/widgets/token_icon.dart';
+import 'package:nox/features/approvals/presentation/providers/approvals_provider.dart';
 import 'package:nox/features/tokens/domain/watched_token.dart';
-import 'package:nox/features/tokens/presentation/widgets/_token_mini_btn.dart';
 import 'package:nox/features/tokens/presentation/widgets/token_change_badge.dart';
 import 'package:nox/features/tokens/presentation/widgets/token_sparkline.dart';
 
@@ -20,14 +20,13 @@ enum TokenTimeframe { d1, d7, d30 }
 // Main row
 // ─────────────────────────────────────────────────────────────────────────────
 
-class TokenListTileMainRow extends StatelessWidget {
+class TokenListTileMainRow extends ConsumerWidget {
   const TokenListTileMainRow({
     required this.token,
     required this.hovered,
-    required this.expanded,
     required this.tf,
     required this.sparkline,
-    required this.onToggleExpand,
+    required this.onOpenDetails,
     required this.onPin,
     required this.onTimeframe,
     super.key,
@@ -35,15 +34,14 @@ class TokenListTileMainRow extends StatelessWidget {
 
   final WatchedToken token;
   final bool hovered;
-  final bool expanded;
   final TokenTimeframe tf;
   final List<double> sparkline;
-  final VoidCallback onToggleExpand;
+  final VoidCallback onOpenDetails;
   final VoidCallback onPin;
   final ValueChanged<TokenTimeframe> onTimeframe;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = token;
     final hasMarket = t.priceUsd.isNotEmpty;
     // "0.00" / "+0.00" / "-0.00" → neutral grey. Anything else gets a
@@ -112,56 +110,43 @@ class TokenListTileMainRow extends StatelessWidget {
             ),
           ),
 
-          // ── Sparkline + (timeframe toggle ⟶ change badge inline) ──────────
-          // The change % sits right next to the 1D/7D/30D toggle so the
-          // user reads "this is the chart, this is its change" as one unit.
-          // Price stays on its own column to the right.
+          // ── Sparkline + (timeframe toggle ⟶ change badge ⟶ price inline) ──
+          // Chart, timeframe toggle, change %, and price all read as one
+          // unit. Price used to sit in its own column to the right which
+          // made the eye jump — now it's part of the same component.
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Flexible(
-                    child: Column(
+                  if (hasMarket && sparkline.isNotEmpty)
+                    TokenSparkline(points: sparkline, positive: t.changePositive, height: 24)
+                  else
+                    const SizedBox(height: 24),
+                  const SizedBox(height: 4),
+                  if (hasMarket)
+                    Row(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        if (hasMarket && sparkline.isNotEmpty)
-                          TokenSparkline(points: sparkline, positive: t.changePositive, height: 24)
-                        else
-                          const SizedBox(height: 24),
-                        const SizedBox(height: 4),
-                        if (hasMarket)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _TfToggle(current: tf, onChanged: onTimeframe),
-                              const SizedBox(width: 8),
-                              TokenChangeBadge(
-                                change: t.change24hPct,
-                                positive: t.changePositive,
-                                color: changeColor,
-                              ),
-                            ],
+                        _TfToggle(current: tf, onChanged: onTimeframe),
+                        const SizedBox(width: 8),
+                        TokenChangeBadge(
+                          change: t.change24hPct,
+                          positive: t.changePositive,
+                          color: changeColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _formatPrice(t.priceUsd),
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: context.colors.textSecondary,
+                            fontSize: 11,
                           ),
+                        ),
                       ],
                     ),
-                  ),
-                  if (hasMarket) ...[
-                    const SizedBox(width: 10),
-                    SizedBox(
-                      width: 78,
-                      child: Text(
-                        _formatPrice(t.priceUsd),
-                        textAlign: TextAlign.end,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: context.colors.textSecondary,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -190,37 +175,18 @@ class TokenListTileMainRow extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          // ── Action buttons (Send, Swap, Details) ────────────────────────────
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TokenMiniBtn(
-                icon: Icons.arrow_upward_rounded,
-                tooltip: 'Send',
-                color: context.colors.primary,
-                // Pre-select this token on the Send screen via query param.
-                // Send reads `?token=<contract>` in initState and calls
-                // setSelectedAsset before the form first paints.
-                onTap: () => context.go('${Routes.send}?token=${t.address}'),
-              ),
-              const SizedBox(width: 6),
-              TokenMiniBtn(
-                icon: Icons.swap_horiz_rounded,
-                tooltip: 'Swap',
-                color: context.colors.primary,
-                // Same idea on Swap: `?tokenIn=<contract>` pre-fills the
-                // PAY side (RECEIVE keeps its default).
-                onTap: () => context.go('${Routes.swap}?tokenIn=${t.address}'),
-              ),
-              const SizedBox(width: 6),
-              TokenMiniBtn(
-                icon: Icons.expand_more_rounded,
-                tooltip: expanded ? 'Collapse' : 'Details',
-                color: context.colors.textSecondary,
-                onTap: onToggleExpand,
-                rotated: expanded,
-              ),
-            ],
+          // ── Approval indicator + kebab ─────────────────────────────────────
+          // Subtle shield badge when this token has an active approval —
+          // lets the user audit at a glance instead of opening every
+          // drawer. Tooltip explains. Single "..." opens the details
+          // drawer (Send / Swap / Hide / Remove / Revoke all live in there
+          // now). Inline action buttons used to fill this column.
+          _ApprovalIndicator(tokenAddress: t.address, ref: ref),
+          const SizedBox(width: 6),
+          RowIconButton(
+            icon: Icons.more_horiz_rounded,
+            tooltip: 'Details',
+            onTap: onOpenDetails,
           ),
         ],
       ),
@@ -260,6 +226,51 @@ class TokenListTileMainRow extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Timeframe toggle (1D / 7D / 30D)
 // ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Approval indicator — small amber/warning shield next to the kebab when the
+// token has at least one active allowance granted. Tooltip surfaces the count.
+// Invisible when there are no approvals so the column stays uncluttered.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ApprovalIndicator extends StatelessWidget {
+  const _ApprovalIndicator({required this.tokenAddress, required this.ref});
+
+  final String tokenAddress;
+  final WidgetRef ref;
+
+  @override
+  Widget build(BuildContext context) {
+    final col = context.colors;
+    final asyncApprovals = ref.watch(approvalsNotifierProvider);
+    final matching = asyncApprovals.valueOrNull
+        ?.where((a) => a.tokenAddress.toLowerCase() == tokenAddress.toLowerCase())
+        .toList();
+
+    if (matching == null || matching.isEmpty) {
+      // Reserve the same width as the visible indicator so neighbouring
+      // kebab buttons sit at the same x-coord regardless of approval
+      // state. Otherwise rows with/without approval would shimmy.
+      return const SizedBox(width: 18);
+    }
+
+    final hasUnlimited = matching.any(
+      (a) => a.amountHuman.toLowerCase().contains('unlimited'),
+    );
+    final accent = hasUnlimited ? col.error : const Color(0xFFF59E0B); // amber
+
+    return Tooltip(
+      message: hasUnlimited
+          ? '${matching.length} active approval${matching.length == 1 ? '' : 's'} — at least one is unlimited'
+          : '${matching.length} active approval${matching.length == 1 ? '' : 's'}',
+      waitDuration: const Duration(milliseconds: 300),
+      child: SizedBox(
+        width: 18,
+        child: Icon(Icons.shield_outlined, size: 16, color: accent),
+      ),
+    );
+  }
+}
 
 class _TfToggle extends StatelessWidget {
   const _TfToggle({required this.current, required this.onChanged});

@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nox/core/theme/app_colors.dart';
+import 'package:nox/core/widgets/right_drawer.dart';
 import 'package:nox/features/tokens/domain/watched_token.dart';
 import 'package:nox/features/tokens/presentation/providers/tokens_provider.dart';
-import 'package:nox/features/tokens/presentation/widgets/token_list_tile_expanded_row.dart';
+import 'package:nox/features/tokens/presentation/widgets/token_details_drawer.dart';
 import 'package:nox/features/tokens/presentation/widgets/token_list_tile_main_row.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Main tile
+// Main tile — opens the per-token details drawer when the user clicks the
+// kebab in the main row. The previous inline expanded section is gone; all
+// metadata + actions live in the drawer now.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class TokenListTile extends ConsumerStatefulWidget {
-  const TokenListTile({
-    required this.token,
-    required this.onHide,
-    required this.onRemove,
-    super.key,
-  });
+  const TokenListTile({required this.token, super.key});
 
   final WatchedToken token;
-  final VoidCallback onHide;
-  final VoidCallback onRemove;
 
   @override
   ConsumerState<TokenListTile> createState() => _TokenListTileState();
@@ -29,12 +24,9 @@ class TokenListTile extends ConsumerStatefulWidget {
 
 class _TokenListTileState extends ConsumerState<TokenListTile> {
   bool _hovered = false;
-  bool _expanded = false;
   TokenTimeframe _tf = TokenTimeframe.d7;
 
   WatchedToken get t => widget.token;
-
-  void _openExplorer() => launchUrl(Uri.parse('https://etherscan.io/token/${t.address}'));
 
   List<double> _sparklineFor(TokenTimeframe tf) => switch (tf) {
     TokenTimeframe.d1 =>
@@ -42,6 +34,13 @@ class _TokenListTileState extends ConsumerState<TokenListTile> {
     TokenTimeframe.d7 => t.sparkline7d,
     TokenTimeframe.d30 => t.sparkline30d,
   };
+
+  Future<void> _openDrawer() {
+    return showRightDrawer<void>(
+      context,
+      builder: (_) => TokenDetailsDrawer(token: t),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,30 +64,14 @@ class _TokenListTileState extends ConsumerState<TokenListTile> {
                       : Colors.transparent),
           ),
         ),
-        child: Column(
-          children: [
-            TokenListTileMainRow(
-              token: t,
-              hovered: _hovered,
-              expanded: _expanded,
-              tf: _tf,
-              sparkline: _sparklineFor(_tf),
-              onToggleExpand: () => setState(() => _expanded = !_expanded),
-              onPin: () => ref.read(tokensNotifierProvider.notifier).togglePin(t.id),
-              onTimeframe: (v) => setState(() => _tf = v),
-            ),
-            AnimatedCrossFade(
-              duration: const Duration(milliseconds: 180),
-              firstChild: const SizedBox.shrink(),
-              secondChild: TokenListTileExpandedRow(
-                token: t,
-                onExplorer: _openExplorer,
-                onHide: widget.onHide,
-                onRemove: widget.onRemove,
-              ),
-              crossFadeState: _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            ),
-          ],
+        child: TokenListTileMainRow(
+          token: t,
+          hovered: _hovered,
+          tf: _tf,
+          sparkline: _sparklineFor(_tf),
+          onOpenDetails: _openDrawer,
+          onPin: () => ref.read(tokensNotifierProvider.notifier).togglePin(t.id),
+          onTimeframe: (v) => setState(() => _tf = v),
         ),
       ),
     );

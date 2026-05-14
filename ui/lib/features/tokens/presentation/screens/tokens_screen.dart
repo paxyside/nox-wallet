@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nox/core/theme/app_colors.dart';
 import 'package:nox/core/theme/app_text_styles.dart';
 import 'package:nox/core/widgets/app_dialog.dart';
-import 'package:nox/core/widgets/app_snack_bar.dart';
 import 'package:nox/core/widgets/pagination.dart';
 import 'package:nox/core/widgets/themed_dropdown.dart';
 import 'package:nox/features/tokens/domain/watched_token.dart';
@@ -187,79 +186,6 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
       });
   }
 
-  /// Hide or un-hide depending on the row's current state. Same handler
-  /// for both directions — the expanded row's chip flips its label
-  /// based on `token.isHidden` so the user sees the right verb.
-  Future<void> _toggleHide(WatchedToken token) async {
-    final newHidden = !token.isHidden;
-    final label = token.symbol.isEmpty ? 'Token' : token.symbol;
-    try {
-      await ref.read(tokensNotifierProvider.notifier).hide(token.id, hidden: newHidden);
-      if (mounted) {
-        AppSnackBar.info(context, newHidden ? '$label hidden.' : '$label restored.');
-      }
-    } on Object catch (_) {
-      if (mounted) {
-        AppSnackBar.error(
-          context,
-          newHidden ? 'Failed to hide token.' : 'Failed to restore token.',
-        );
-      }
-    }
-  }
-
-  Future<void> _confirmAndRemove(WatchedToken token) async {
-    final confirmed = await showAppDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: context.colors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: context.colors.border),
-        ),
-        title: Text(
-          'Remove token',
-          style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
-        ),
-        content: Text(
-          'Remove ${token.symbol.isEmpty ? token.address : token.symbol} '
-          'from your watched list?',
-          style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(
-              'Cancel',
-              style: AppTextStyles.labelLarge.copyWith(color: context.colors.textSecondary),
-            ),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: context.colors.error,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(
-              'Remove',
-              style: AppTextStyles.labelLarge.copyWith(color: context.colors.textPrimary),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && mounted) {
-      try {
-        await ref.read(tokensNotifierProvider.notifier).remove(token.id);
-      } on Object catch (_) {
-        if (mounted) {
-          AppSnackBar.error(context, 'Failed to remove token. Please try again.');
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final tokensAsync = ref.watch(tokensNotifierProvider);
@@ -419,12 +345,9 @@ class _TokensScreenState extends ConsumerState<TokensScreen> {
                     // a key, paginating from page 1 to 2 reuses the State of
                     // the row at index 0 — the new token at the top inherits
                     // the previous token's "expanded" flag.
-                    return TokenListTile(
-                      key: ValueKey(token.id),
-                      token: token,
-                      onHide: () => _toggleHide(token),
-                      onRemove: () => _confirmAndRemove(token),
-                    );
+                    // Hide / remove no longer live on the row — they're
+                    // inside the TokenDetailsDrawer the tile opens.
+                    return TokenListTile(key: ValueKey(token.id), token: token);
                   },
                 );
               },
