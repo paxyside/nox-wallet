@@ -20,7 +20,6 @@ import 'package:nox/features/settings/presentation/providers/settings_provider.d
 import 'package:nox/features/settings/presentation/widgets/compact_settings_row.dart';
 import 'package:nox/features/settings/presentation/widgets/export_keystore_dialog.dart';
 import 'package:nox/features/settings/presentation/widgets/reveal_secret_dialog.dart';
-import 'package:nox/features/settings/presentation/widgets/settings_section.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -65,18 +64,20 @@ class SettingsScreen extends ConsumerWidget {
                       style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary),
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
                     // ── Wallet ─────────────────────────────────────────────
-                    // 3-cell horizontal row (Address / Label / Secret Type)
-                    // instead of 3 stacked rows. Buys ~120px of height back.
+                    // 2-cell CompactSettingsRow (Label+Address / Secret type)
+                    // instead of the legacy 3-stacked-row layout —
+                    // saves ~80px of vertical space so Settings fits in
+                    // a single viewport.
                     walletAsync.when(
                       loading: () => const _WalletSectionSkeleton(),
                       error: (err, _) => _ErrorBanner(message: errorMessage(err)),
                       data: (wallet) => _WalletSection(wallet: wallet),
                     ),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
 
                     // ── Security (top row): Auto-lock + Hide balances ──────
                     // Two short selectors that fit comfortably side-by-side.
@@ -113,7 +114,7 @@ class SettingsScreen extends ConsumerWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
 
                     // ── Security (bottom row): Reveal + Export ─────────────
                     // Visually split from the "state" controls above with
@@ -176,7 +177,7 @@ class SettingsScreen extends ConsumerWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
 
                     // ── About ──────────────────────────────────────────────
                     CompactSettingsRow(
@@ -212,7 +213,7 @@ class SettingsScreen extends ConsumerWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
 
                     // ── Danger Zone ────────────────────────────────────────
                     // `danger: true` paints a red border + soft red shadow
@@ -306,54 +307,41 @@ class _WalletSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SettingsSection(
+    // Wallet metadata folded into a 2-cell CompactSettingsRow so the
+    // section reads in one glance and doesn't burn 150px on three
+    // stacked legacy rows. The address sits on the same line as its
+    // copy button (mono, shortened); the type badge lives next to the
+    // label cell. Saves enough vertical space to keep Settings within
+    // a 1000×700 window without scrolling.
+    final shortAddress = wallet.address.length > 14
+        ? '${wallet.address.substring(0, 8)}…${wallet.address.substring(wallet.address.length - 6)}'
+        : wallet.address;
+
+    return CompactSettingsRow(
       title: 'Wallet',
-      rows: [
-        SettingsRow(
-          label: 'Address',
-          // Full address — the row has plenty of horizontal room and
-          // there's no shortage of mono-screen real estate. Truncated
-          // versions are useful when space is tight (mini widget, dense
-          // dashboard rows); in dedicated Settings the user wants the
-          // whole thing visible.
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                wallet.address.isEmpty ? '—' : wallet.address,
-                style: AppTextStyles.mono.copyWith(
-                  color: context.colors.textSecondary,
-                  fontSize: 12,
-                ),
-              ),
-              if (wallet.address.isNotEmpty) ...[
-                const SizedBox(width: 6),
-                CopyButton(
+      cells: [
+        CompactSettingsCell(
+          icon: Icons.account_balance_wallet_outlined,
+          label: wallet.label.isEmpty ? 'Unnamed wallet' : wallet.label,
+          subtitle: wallet.address.isEmpty ? '—' : shortAddress,
+          trailing: wallet.address.isEmpty
+              ? null
+              : CopyButton(
                   value: wallet.address,
                   successMessage: 'Address copied.',
                   tooltip: 'Copy address',
                   size: 14,
                   color: context.colors.textSecondary,
                 ),
-              ],
-            ],
-          ),
         ),
-        SettingsRow(
-          label: 'Label',
-          trailing: Text(
-            wallet.label.isEmpty ? 'Unnamed' : wallet.label,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: wallet.label.isEmpty
-                  ? context.colors.textDisabled
-                  : context.colors.textPrimary,
-              fontWeight: FontWeight.w600,
-              fontStyle: wallet.label.isEmpty ? FontStyle.italic : FontStyle.normal,
-            ),
-          ),
-        ),
-        SettingsRow(
-          label: 'Type',
+        CompactSettingsCell(
+          icon: Icons.key_outlined,
+          label: 'Secret type',
+          subtitle: switch (wallet.secretKind) {
+            SecretKind.mnemonic => 'Mnemonic phrase',
+            SecretKind.privateKey => 'Raw private key',
+            SecretKind.unspecified => 'Unknown',
+          },
           trailing: _SecretTypeBadge(secretKind: wallet.secretKind),
         ),
       ],
@@ -446,12 +434,15 @@ class _WalletSectionSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SettingsSection(
+    return const CompactSettingsRow(
       title: 'Wallet',
-      rows: [
-        SettingsRow(label: 'Address', value: '—'),
-        SettingsRow(label: 'Label', value: '—'),
-        SettingsRow(label: 'Type', value: '—'),
+      cells: [
+        CompactSettingsCell(
+          icon: Icons.account_balance_wallet_outlined,
+          label: '—',
+          subtitle: '—',
+        ),
+        CompactSettingsCell(icon: Icons.key_outlined, label: 'Secret type', subtitle: '—'),
       ],
     );
   }
