@@ -10,6 +10,7 @@ import 'package:nox/core/theme/app_text_styles.dart';
 import 'package:nox/core/utils/format.dart';
 import 'package:nox/core/wallet_events/domain/wallet_event.dart';
 import 'package:nox/core/widgets/app_dialog.dart';
+import 'package:nox/core/widgets/mini_switch.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // Library file — split into `parts/*.dart` so private widgets stay

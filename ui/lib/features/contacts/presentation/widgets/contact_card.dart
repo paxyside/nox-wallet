@@ -10,6 +10,7 @@ import 'package:nox/core/theme/app_text_styles.dart';
 import 'package:nox/core/utils/error_message.dart';
 import 'package:nox/core/widgets/app_dialog.dart';
 import 'package:nox/core/widgets/app_snack_bar.dart';
+import 'package:nox/core/widgets/row_icon_button.dart';
 import 'package:nox/features/contacts/domain/contact.dart';
 import 'package:nox/features/contacts/presentation/providers/contacts_provider.dart';
 import 'package:nox/features/send/presentation/providers/send_provider.dart';
@@ -327,34 +328,24 @@ class _NormalContent extends StatelessWidget {
         const SizedBox(width: 12),
 
         // ── Action buttons ─────────────────────────────────────────────────
+        // Shared RowIconButton — neutral at rest, primary tint on hover.
+        // Only Delete keeps a red accent (danger: true) because it's
+        // destructive. Previously Send was bright primary and Copy/Edit
+        // were dim grey custom widgets — inconsistent visual weight for
+        // actions of similar tier.
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _MiniBtn(
-              icon: Icons.send_rounded,
-              tooltip: 'Send',
-              color: const Color(0xFF6366F1),
-              onTap: onSend,
-            ),
+            RowIconButton(icon: Icons.send_rounded, tooltip: 'Send', onTap: onSend),
             const SizedBox(width: 4),
-            _MiniBtn(
-              icon: Icons.copy_rounded,
-              tooltip: 'Copy address',
-              color: const Color(0xFF64748B),
-              onTap: onCopy,
-            ),
+            RowIconButton(icon: Icons.copy_rounded, tooltip: 'Copy address', onTap: onCopy),
             const SizedBox(width: 4),
-            _MiniBtn(
-              icon: Icons.edit_rounded,
-              tooltip: 'Edit',
-              color: const Color(0xFF64748B),
-              onTap: onEdit,
-            ),
+            RowIconButton(icon: Icons.edit_rounded, tooltip: 'Edit', onTap: onEdit),
             const SizedBox(width: 4),
-            _MiniBtn(
+            RowIconButton(
               icon: Icons.delete_outline_rounded,
               tooltip: 'Delete',
-              color: const Color(0xFFEF4444),
+              danger: true,
               onTap: onDelete,
             ),
           ],
@@ -365,97 +356,6 @@ class _NormalContent extends StatelessWidget {
 }
 
 // _EditContent lives in the part file contact_edit_content.dart.
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Mini icon button (matching token tile style)
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _MiniBtn extends StatefulWidget {
-  const _MiniBtn({
-    required this.icon,
-    required this.tooltip,
-    required this.color,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  State<_MiniBtn> createState() => _MiniBtnState();
-}
-
-class _MiniBtnState extends State<_MiniBtn> {
-  bool _hovered = false;
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final active = _hovered || _pressed;
-    final c = widget.color;
-
-    return Tooltip(
-      message: widget.tooltip,
-      waitDuration: const Duration(milliseconds: 500),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() {
-          _hovered = false;
-          _pressed = false;
-        }),
-        child: GestureDetector(
-          onTap: widget.onTap,
-          onTapDown: (_) => setState(() => _pressed = true),
-          onTapUp: (_) => setState(() => _pressed = false),
-          onTapCancel: () => setState(() => _pressed = false),
-          child: AnimatedScale(
-            scale: _pressed ? 0.92 : 1.0,
-            duration: const Duration(milliseconds: 80),
-            curve: Curves.easeOut,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              curve: Curves.easeOut,
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: active
-                      ? [
-                          c.withValues(alpha: _pressed ? 0.22 : 0.15),
-                          c.withValues(alpha: _pressed ? 0.10 : 0.06),
-                        ]
-                      : [c.withValues(alpha: 0.08), c.withValues(alpha: 0.08)],
-                ),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: active
-                      ? c.withValues(alpha: _pressed ? 0.65 : 0.45)
-                      : c.withValues(alpha: 0.15),
-                  width: active ? 1.5 : 1.0,
-                ),
-                boxShadow: (_hovered && !_pressed)
-                    ? [
-                        BoxShadow(
-                          color: c.withValues(alpha: 0.18),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Center(child: Icon(widget.icon, size: 16, color: c)),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Highlight text (highlights query match in amber/primary)

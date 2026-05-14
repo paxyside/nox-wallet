@@ -230,7 +230,22 @@ class _PortfolioChartState extends ConsumerState<PortfolioChart> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Header ────────────────────────────────────────────────────────
-          Text('Portfolio', style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary)),
+          // "View all" navigates to the dedicated Tokens screen — lives
+          // as a tooltip'd icon-button on the right of the title so the
+          // header carries the action (matches the Tokens card's "+
+          // Add Token" placement on the dashboard). Frees the bottom
+          // of the card for the actual portfolio content.
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Portfolio',
+                  style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
+                ),
+              ),
+              if (slices.isNotEmpty) _ViewAllButton(onTap: () => context.go(Routes.tokens)),
+            ],
+          ),
           const SizedBox(height: 12),
 
           if (slices.isEmpty)
@@ -302,29 +317,6 @@ class _PortfolioChartState extends ConsumerState<PortfolioChart> {
                   ),
                 ),
               ],
-            ),
-
-            const SizedBox(height: 16),
-            Divider(height: 1, color: context.colors.border),
-            const SizedBox(height: 12),
-
-            // ── View All link ────────────────────────────────────────────────
-            GestureDetector(
-              onTap: () => context.go(Routes.tokens),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'View All Tokens',
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: context.colors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(Icons.chevron_right_rounded, size: 16, color: context.colors.primary),
-                ],
-              ),
             ),
           ],
         ],
@@ -562,4 +554,53 @@ class _DonutPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _DonutPainter old) =>
       old.slices != slices || old.hoveredSlice != hoveredSlice || old.trackColor != trackColor;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// "View all" header icon-button — mirrors the Add Token / Notification
+// bell affordance so the three Dashboard cards share one mini-icon-button
+// language for their header actions.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ViewAllButton extends StatefulWidget {
+  const _ViewAllButton({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  State<_ViewAllButton> createState() => _ViewAllButtonState();
+}
+
+class _ViewAllButtonState extends State<_ViewAllButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'View all tokens',
+      waitDuration: const Duration(milliseconds: 400),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: _hovered ? context.colors.surfaceHigh : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: context.colors.border),
+            ),
+            child: Icon(
+              Icons.arrow_forward_rounded,
+              size: 16,
+              color: _hovered ? context.colors.textPrimary : context.colors.textSecondary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

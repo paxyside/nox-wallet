@@ -19,23 +19,33 @@ class _SwapFlipButtonState extends State<SwapFlipButton> {
 
   @override
   Widget build(BuildContext context) {
+    final col = context.colors;
+    final canTap = widget.onTap != null;
+    // Was a solid primary circle that read too loud sitting between
+    // the PAY and RECEIVE cards. Neutral tile by default + primary
+    // tint on hover follows the same icon-button rhythm used in
+    // Settings / Dashboard rows.
+    final bg = (_hovered && canTap) ? col.primary.withValues(alpha: 0.14) : col.surfaceHigh;
+    final borderColor = (_hovered && canTap) ? col.primary.withValues(alpha: 0.40) : col.border;
+    final iconColor = (_hovered && canTap) ? col.primary : col.textSecondary;
+
     return MouseRegion(
-      cursor: widget.onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      cursor: canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          width: 28,
-          height: 28,
+          curve: Curves.easeOut,
+          width: 32,
+          height: 32,
           decoration: BoxDecoration(
-            color: _hovered && widget.onTap != null
-                ? context.colors.primaryLight
-                : context.colors.primary,
-            shape: BoxShape.circle,
+            color: bg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: borderColor),
           ),
-          child: const Center(child: Icon(Icons.swap_vert_rounded, size: 15, color: Colors.white)),
+          child: Center(child: Icon(Icons.swap_vert_rounded, size: 16, color: iconColor)),
         ),
       ),
     );

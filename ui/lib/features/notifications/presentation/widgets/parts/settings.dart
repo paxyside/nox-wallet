@@ -189,15 +189,11 @@ class _SettingsToggleRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Transform.scale(
-              scale: 0.85,
-              child: Switch(
-                value: value,
-                onChanged: onChanged,
-                activeThumbColor: Colors.white,
-                activeTrackColor: col.primary,
-              ),
-            ),
+            // Project-wide MiniSwitch — same 34x20 size + colours used
+            // in Settings. Replaces Material's bulky Switch.adaptive
+            // wrapped in Transform.scale (which scaled but didn't fix
+            // the Material palette mismatch in dark theme).
+            MiniSwitch(value: value, onChanged: onChanged),
           ],
         ),
       ),
@@ -248,24 +244,97 @@ class _AutoDeleteRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            decoration: BoxDecoration(
-              color: col.background,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: col.border),
+          _AutoDeleteSegmented(value: value, options: _options, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+/// Sliding segmented control — the selected pill animates between
+/// options instead of fading. Borrows the same easing/duration as
+/// `MiniSwitch` so all stateful settings widgets feel like one family.
+class _AutoDeleteSegmented extends StatelessWidget {
+  const _AutoDeleteSegmented({
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  final int value;
+  final List<(int, String)> options;
+  final ValueChanged<int> onChanged;
+
+  // Layout constants — tuned together so the pill aligns exactly with
+  // each option's tap target.
+  static const _chipPaddingH = 12.0;
+  static const _outerPaddingH = 4.0;
+  static const _outerPaddingV = 3.0;
+
+  // Approximate widths of each option's text. Kept hand-tuned because
+  // measuring TextPainter at build-time is expensive and we know the
+  // four labels are fixed.
+  static const _labelWidths = <int, double>{0: 36, 7: 44, 30: 50, 90: 50};
+
+  @override
+  Widget build(BuildContext context) {
+    final col = context.colors;
+
+    // Compute cumulative offsets to the left of each chip so the
+    // sliding indicator knows where to animate to.
+    final widths = <double>[];
+    for (final opt in options) {
+      widths.add((_labelWidths[opt.$1] ?? 50) + _chipPaddingH * 2);
+    }
+    final selectedIndex = options.indexWhere((o) => o.$1 == value);
+    var indicatorLeft = _outerPaddingH;
+    for (var i = 0; i < selectedIndex && i < widths.length; i++) {
+      indicatorLeft += widths[i];
+    }
+    final indicatorWidth = selectedIndex >= 0 && selectedIndex < widths.length
+        ? widths[selectedIndex]
+        : 0.0;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: _outerPaddingH,
+        vertical: _outerPaddingV,
+      ),
+      decoration: BoxDecoration(
+        color: col.background,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: col.border),
+      ),
+      child: Stack(
+        children: [
+          // Sliding indicator — animates left + width when selection
+          // changes. AnimatedPositioned matches the easing curve from
+          // MiniSwitch so the two widgets feel like the same primitive.
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            left: indicatorLeft - _outerPaddingH,
+            top: 0,
+            bottom: 0,
+            width: indicatorWidth,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: col.primary.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(7),
+              ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final opt in _options)
-                  _AutoDeleteChip(
-                    label: opt.$2,
-                    selected: opt.$1 == value,
-                    onTap: () => onChanged(opt.$1),
-                  ),
-              ],
-            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final opt in options)
+                _AutoDeleteChip(
+                  label: opt.$2,
+                  width: (_labelWidths[opt.$1] ?? 50) + _chipPaddingH * 2,
+                  selected: opt.$1 == value,
+                  onTap: () => onChanged(opt.$1),
+                ),
+            ],
           ),
         ],
       ),
@@ -274,9 +343,15 @@ class _AutoDeleteRow extends StatelessWidget {
 }
 
 class _AutoDeleteChip extends StatelessWidget {
-  const _AutoDeleteChip({required this.label, required this.selected, required this.onTap});
+  const _AutoDeleteChip({
+    required this.label,
+    required this.width,
+    required this.selected,
+    required this.onTap,
+  });
 
   final String label;
+  final double width;
   final bool selected;
   final VoidCallback onTap;
 
@@ -287,19 +362,20 @@ class _AutoDeleteChip extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: selected ? col.primary.withValues(alpha: 0.18) : Colors.transparent,
-            borderRadius: BorderRadius.circular(7),
-          ),
-          child: Text(
-            label,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: selected ? col.primaryLight : col.textSecondary,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          width: width,
+          height: 24,
+          child: Center(
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: selected ? col.primaryLight : col.textSecondary,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+              ),
+              child: Text(label),
             ),
           ),
         ),

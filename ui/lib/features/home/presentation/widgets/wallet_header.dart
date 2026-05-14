@@ -150,9 +150,16 @@ class WalletHeader extends StatelessWidget {
                           TokenIcon(symbol: 'ETH', logoUrl: balanceData.ethLogoUrl, size: 18),
                           const SizedBox(width: 6),
                           MaskableText(
-                            '${formatEth(balanceData.ethBalance)} ETH',
+                            // 4 decimals — sufficient for visual scan;
+                            // 6 was too noisy under a $X.XX figure in
+                            // the hero card. Full precision still lives
+                            // on Send / Swap / History detail surfaces.
+                            '${formatEth(balanceData.ethBalance, decimals: 4)} ETH',
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: context.colors.textSecondary,
+                              // Lift from textSecondary toward textPrimary
+                              // so the line doesn't read as disabled
+                              // (textSecondary on dark theme = quite dim).
+                              color: context.colors.textPrimary.withValues(alpha: 0.75),
                             ),
                           ),
                         ],
@@ -276,10 +283,14 @@ class _EthereumBadgeState extends ConsumerState<_EthereumBadge> {
     );
 
     return Tooltip(
+      // Was: "Network  just now / Wallet  just now" — read as standalone
+      // labels, not a "X was last synced Y ago" sentence. Spelling out
+      // "last synced" removes the ambiguity for anyone hovering for the
+      // first time.
       richMessage: TextSpan(
         children: [
           TextSpan(
-            text: 'Network  ',
+            text: 'Network last synced  ',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -296,7 +307,7 @@ class _EthereumBadgeState extends ConsumerState<_EthereumBadge> {
           ),
           const TextSpan(text: '\n'),
           TextSpan(
-            text: 'Wallet    ',
+            text: 'Wallet last synced     ',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,

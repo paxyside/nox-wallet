@@ -261,38 +261,71 @@ class _DirectionToggle extends StatelessWidget {
   final TxDirection selected;
   final ValueChanged<TxDirection> onChanged;
 
+  // Hand-tuned widths matching the actual rendered text + horizontal
+  // chip padding (14 each side). Keeps the indicator perfectly aligned
+  // without runtime TextPainter measurements.
+  static const _options = <(TxDirection, String, double)>[
+    (TxDirection.all, 'All', 30),
+    (TxDirection.sent, 'Sent', 36),
+    (TxDirection.received, 'Received', 64),
+    (TxDirection.swaps, 'Swaps', 46),
+  ];
+
+  static const _chipPadH = 14.0;
+  static const _outerPad = 2.0;
+
   @override
   Widget build(BuildContext context) {
+    final col = context.colors;
+    final selectedIndex = _options.indexWhere((o) => o.$1 == selected);
+
+    // Compute chip widths + cumulative left offset of the active one.
+    final widths = [for (final o in _options) o.$3 + _chipPadH * 2];
+    var indicatorLeft = 0.0;
+    for (var i = 0; i < selectedIndex && i < widths.length; i++) {
+      indicatorLeft += widths[i];
+    }
+    final indicatorWidth = selectedIndex >= 0 && selectedIndex < widths.length
+        ? widths[selectedIndex]
+        : 0.0;
+
     return Container(
       decoration: BoxDecoration(
-        color: context.colors.surfaceHigh,
+        color: col.surfaceHigh,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: context.colors.border),
+        border: Border.all(color: col.border),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      padding: const EdgeInsets.all(_outerPad),
+      child: Stack(
         children: [
-          _Pill(
-            label: 'All',
-            active: selected == TxDirection.all,
-            isFirst: true,
-            onTap: () => onChanged(TxDirection.all),
+          // Sliding indicator pill — same easing/duration as the other
+          // segmented controls in the app (Gas tiers, Auto-delete).
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            left: indicatorLeft,
+            top: 0,
+            bottom: 0,
+            width: indicatorWidth,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: col.primary.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: col.primary.withValues(alpha: 0.4)),
+              ),
+            ),
           ),
-          _Pill(
-            label: 'Sent',
-            active: selected == TxDirection.sent,
-            onTap: () => onChanged(TxDirection.sent),
-          ),
-          _Pill(
-            label: 'Received',
-            active: selected == TxDirection.received,
-            onTap: () => onChanged(TxDirection.received),
-          ),
-          _Pill(
-            label: 'Swaps',
-            active: selected == TxDirection.swaps,
-            isLast: true,
-            onTap: () => onChanged(TxDirection.swaps),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final opt in _options)
+                _Pill(
+                  label: opt.$2,
+                  width: opt.$3 + _chipPadH * 2,
+                  active: opt.$1 == selected,
+                  onTap: () => onChanged(opt.$1),
+                ),
+            ],
           ),
         ],
       ),
@@ -303,39 +336,36 @@ class _DirectionToggle extends StatelessWidget {
 class _Pill extends StatelessWidget {
   const _Pill({
     required this.label,
+    required this.width,
     required this.active,
     required this.onTap,
-    this.isFirst = false,
-    this.isLast = false,
   });
 
   final String label;
+  final double width;
   final bool active;
   final VoidCallback onTap;
-  final bool isFirst;
-  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.horizontal(
-      left: isFirst ? const Radius.circular(7) : Radius.zero,
-      right: isLast ? const Radius.circular(7) : Radius.zero,
-    );
-
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color: active ? context.colors.primary : Colors.transparent,
-          borderRadius: radius,
-        ),
-        child: Text(
-          label,
-          style: AppTextStyles.labelMedium.copyWith(
-            color: active ? context.colors.textPrimary : context.colors.textSecondary,
-            fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          width: width,
+          height: 26,
+          child: Center(
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              style: AppTextStyles.labelMedium.copyWith(
+                color: active ? context.colors.primaryLight : context.colors.textSecondary,
+                fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+              ),
+              child: Text(label),
+            ),
           ),
         ),
       ),

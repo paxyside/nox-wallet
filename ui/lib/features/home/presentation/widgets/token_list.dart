@@ -83,16 +83,28 @@ class TokenList extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // ── Header ──────────────────────────────────────────────
+          // "Add Token" lives here as a small "+" icon-button on the
+          // right of the title (vs the bottom full-width button it used
+          // to be). Header is the natural place for card-level actions
+          // — MetaMask / Rabby / Phantom all put add-token there — and
+          // it frees the bottom of the card for actual token content.
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 16, 12),
-            child: Text(
-              'Tokens',
-              style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
+            padding: const EdgeInsets.fromLTRB(20, 12, 12, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Tokens',
+                    style: AppTextStyles.h3.copyWith(color: context.colors.textPrimary),
+                  ),
+                ),
+                _AddTokenButton(onTap: () => _showAddToken(context)),
+              ],
             ),
           ),
           Divider(height: 1, color: context.colors.border),
 
-          // ── ERC-20 rows (up to 3, pinned-first / USD desc) ──────
+          // ── ERC-20 rows (up to 4, pinned-first / USD desc) ──────
           for (int i = 0; i < visibleTokens.length; i++) ...[
             _TokenRow(token: visibleTokens[i]),
             if (i < visibleTokens.length - 1)
@@ -114,10 +126,6 @@ class TokenList extends ConsumerWidget {
                 ],
               ),
             ),
-
-          // ── Add Token button ─────────────────────────────────────
-          Divider(height: 1, color: context.colors.border),
-          _AddTokenButton(onTap: () => _showAddToken(context)),
         ],
       ),
     );
@@ -222,33 +230,29 @@ class _AddTokenButtonState extends State<_AddTokenButton> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          color: _hovered ? context.colors.primary.withValues(alpha: 0.05) : Colors.transparent,
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.add_rounded,
-                size: 16,
-                color: _hovered ? context.colors.primaryLight : context.colors.primary,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                'Add Token',
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: _hovered ? context.colors.primaryLight : context.colors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+    return Tooltip(
+      message: 'Add ERC-20 token',
+      waitDuration: const Duration(milliseconds: 400),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: _hovered ? context.colors.surfaceHigh : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: context.colors.border),
+            ),
+            child: Icon(
+              Icons.add_rounded,
+              size: 16,
+              color: _hovered ? context.colors.textPrimary : context.colors.textSecondary,
+            ),
           ),
         ),
       ),

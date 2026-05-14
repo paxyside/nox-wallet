@@ -10,6 +10,7 @@ import 'package:nox/core/theme/app_text_styles.dart';
 import 'package:nox/core/utils/formatters.dart';
 import 'package:nox/core/widgets/app_snack_bar.dart';
 import 'package:nox/core/widgets/maskable_text.dart';
+import 'package:nox/core/widgets/row_icon_button.dart';
 import 'package:nox/features/contacts/presentation/providers/contacts_provider.dart';
 import 'package:nox/features/history/domain/transaction.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -360,17 +361,15 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    _MiniBtn(
+                                    RowIconButton(
                                       icon: Icons.open_in_new_rounded,
                                       tooltip: 'View on Etherscan',
-                                      color: context.colors.textSecondary,
                                       onTap: _openEtherscan,
                                     ),
                                     const SizedBox(width: 4),
-                                    _MiniBtn(
+                                    RowIconButton(
                                       icon: Icons.copy_rounded,
                                       tooltip: 'Copy tx hash',
-                                      color: context.colors.textSecondary,
                                       onTap: _copyHash,
                                     ),
                                   ],
@@ -449,96 +448,6 @@ class _AssetBadge extends StatelessWidget {
           fontWeight: FontWeight.w700,
           color: AppColors.textSecondary,
           letterSpacing: 0.4,
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 34×34 gradient action button (matches token/contacts screens)
-// ---------------------------------------------------------------------------
-
-class _MiniBtn extends StatefulWidget {
-  const _MiniBtn({
-    required this.icon,
-    required this.tooltip,
-    required this.color,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  State<_MiniBtn> createState() => _MiniBtnState();
-}
-
-class _MiniBtnState extends State<_MiniBtn> {
-  bool _hovered = false;
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final active = _hovered || _pressed;
-    final c = widget.color;
-
-    return Tooltip(
-      message: widget.tooltip,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() {
-          _hovered = false;
-          _pressed = false;
-        }),
-        child: GestureDetector(
-          onTap: widget.onTap,
-          onTapDown: (_) => setState(() => _pressed = true),
-          onTapUp: (_) => setState(() => _pressed = false),
-          onTapCancel: () => setState(() => _pressed = false),
-          child: AnimatedScale(
-            scale: _pressed ? 0.92 : 1.0,
-            duration: const Duration(milliseconds: 80),
-            curve: Curves.easeOut,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              curve: Curves.easeOut,
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: active
-                      ? [
-                          c.withValues(alpha: _pressed ? 0.22 : 0.15),
-                          c.withValues(alpha: _pressed ? 0.10 : 0.06),
-                        ]
-                      : [c.withValues(alpha: 0.08), c.withValues(alpha: 0.08)],
-                ),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: active
-                      ? c.withValues(alpha: _pressed ? 0.65 : 0.45)
-                      : c.withValues(alpha: 0.15),
-                  width: active ? 1.5 : 1.0,
-                ),
-                boxShadow: (_hovered && !_pressed)
-                    ? [
-                        BoxShadow(
-                          color: c.withValues(alpha: 0.18),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Center(child: Icon(widget.icon, size: 17, color: c)),
-            ),
-          ),
         ),
       ),
     );
