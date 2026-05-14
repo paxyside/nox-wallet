@@ -226,10 +226,15 @@ tasks:
         echo "$new" > VERSION
         sed -i.bak -E "s/^version:[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$/version: $new+$build_number/" {{.UI}}/pubspec.yaml && rm {{.UI}}/pubspec.yaml.bak
         sed -i.bak -E "s/^  version: \"[0-9]+\.[0-9]+\.[0-9]+\"$/  version: \"$new\"/" config.example.yaml && rm config.example.yaml.bak
+        # The Dart-side constant `kAppVersion` powers the version
+        # readout in Settings → Updates. Mirror the bump here so
+        # nothing drifts when the user sees what they're running.
+        sed -i.bak -E "s/^const String kAppVersion = '[0-9]+\.[0-9]+\.[0-9]+';$/const String kAppVersion = '$new';/" {{.UI}}/lib/core/app_info.dart && rm {{.UI}}/lib/core/app_info.dart.bak
         echo "✓ version set to $new (build $build_number)"
         echo "  VERSION             — $(tr -d '[:space:]' < VERSION)"
         echo "  pubspec.yaml        — $(grep '^version:' {{.UI}}/pubspec.yaml)"
         echo "  config.example.yaml — $(grep '^  version:' config.example.yaml)"
+        echo "  app_info.dart       — $(grep '^const String kAppVersion' {{.UI}}/lib/core/app_info.dart)"
 
   # ───────────────────────────────────────────────────────────────────────────
   # Proto — buf in Docker (one-time image build, then format + lint + generate)
