@@ -16,6 +16,7 @@ import 'package:nox/core/theme/theme_provider.dart';
 import 'package:nox/core/utils/format.dart';
 import 'package:nox/core/wallet_events/domain/wallet_event.dart';
 import 'package:nox/core/widgets/maskable_text.dart';
+import 'package:nox/core/widgets/portfolio_summary.dart';
 import 'package:nox/core/widgets/token_icon.dart';
 import 'package:nox/features/history/domain/transaction.dart';
 import 'package:nox/features/home/domain/home_usecase.dart';

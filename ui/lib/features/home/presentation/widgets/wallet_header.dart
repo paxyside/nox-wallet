@@ -11,6 +11,7 @@ import 'package:nox/core/theme/app_text_styles.dart';
 import 'package:nox/core/utils/formatters.dart';
 import 'package:nox/core/widgets/copy_button.dart';
 import 'package:nox/core/widgets/maskable_text.dart';
+import 'package:nox/core/widgets/portfolio_summary.dart';
 import 'package:nox/core/widgets/token_icon.dart';
 import 'package:nox/features/home/presentation/widgets/wallet_network_stats.dart';
 import 'package:nox/features/home/presentation/widgets/wallet_notification_panel.dart';
@@ -39,6 +40,7 @@ class WalletHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasUsd = balanceData.ethUsdValue.isNotEmpty;
+    final portfolio = computePortfolioSummary(balanceData.ethUsdValue, balanceData.tokens);
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -131,10 +133,19 @@ class WalletHeader extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    // Balance
+                    // Balance — headline is the wallet's TOTAL across
+                    // every priced asset when more than one is priced
+                    // (so the user sees their full bag, not just ETH).
+                    // Falls back to ETH USD when ETH is the only
+                    // priced asset. The detail row below pairs the
+                    // native ETH amount with its USD value using a
+                    // middle-dot separator — keeps "what you have"
+                    // and "what it's worth" on a single tight line.
                     if (hasUsd) ...[
                       MaskableText(
-                        balanceData.ethUsdValue,
+                        portfolio != null
+                            ? formatPortfolioTotal(portfolio.totalUsd)
+                            : balanceData.ethUsdValue,
                         maskLength: 8,
                         style: TextStyle(
                           fontSize: 40,
@@ -154,7 +165,7 @@ class WalletHeader extends StatelessWidget {
                             // 6 was too noisy under a $X.XX figure in
                             // the hero card. Full precision still lives
                             // on Send / Swap / History detail surfaces.
-                            '${formatEth(balanceData.ethBalance, decimals: 4)} ETH',
+                            '${formatEth(balanceData.ethBalance, decimals: 4)} ETH · ${balanceData.ethUsdValue}',
                             style: AppTextStyles.bodyMedium.copyWith(
                               // Lift from textSecondary toward textPrimary
                               // so the line doesn't read as disabled
