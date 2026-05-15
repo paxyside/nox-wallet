@@ -9,39 +9,37 @@ class _QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final col = context.colors;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      decoration: BoxDecoration(
-        color: col.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: col.border),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _QuickAction(
-              icon: Icons.dashboard_rounded,
-              label: 'Dashboard',
-              onTap: onDashboard,
-            ),
+    // No outer wrapper card — each action is a standalone outlined
+    // tile (matches the dashboard ActionButtons row). Wrapping a
+    // group of bordered cards in another bordered card stacked two
+    // visual frames over each tile and read as "container in a
+    // container" rather than a row of buttons.
+    return Row(
+      children: [
+        Expanded(
+          child: _QuickAction(
+            icon: Icons.dashboard_rounded,
+            label: 'Dashboard',
+            onTap: onDashboard,
           ),
-          Expanded(
-            child: _QuickAction(
-              icon: Icons.arrow_upward_rounded,
-              label: 'Send',
-              onTap: onSend,
-            ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _QuickAction(
+            icon: Icons.arrow_upward_rounded,
+            label: 'Send',
+            onTap: onSend,
           ),
-          Expanded(
-            child: _QuickAction(
-              icon: Icons.swap_horiz_rounded,
-              label: 'Swap',
-              onTap: onSwap,
-            ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _QuickAction(
+            icon: Icons.swap_horiz_rounded,
+            label: 'Swap',
+            onTap: onSwap,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -75,16 +73,19 @@ class _QuickActionState extends State<_QuickAction> {
       child: GestureDetector(
         onTap: widget.onTap,
         behavior: HitTestBehavior.opaque,
+        // Borders + textPrimary at rest — same readability contract
+        // as the dashboard ActionButtons. The previous version made
+        // rest-state borders transparent, which dropped the tiles
+        // visually below "clickable" and read as decoration.
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           curve: Curves.easeOut,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: _hovered ? col.surfaceHigh : Colors.transparent,
+            color: _hovered ? col.surfaceHigh : col.surface,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: _hovered ? col.primary.withValues(alpha: 0.4) : Colors.transparent,
+              color: _hovered ? col.primary.withValues(alpha: 0.4) : col.border,
             ),
           ),
           child: Column(
@@ -108,8 +109,8 @@ class _QuickActionState extends State<_QuickAction> {
               Text(
                 widget.label,
                 style: AppTextStyles.labelMedium.copyWith(
-                  color: _hovered ? col.textPrimary : col.textSecondary,
-                  fontSize: 11.5,
+                  color: col.textPrimary,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 1,
                 ),
