@@ -35,6 +35,7 @@ class _BalanceCard extends StatelessWidget {
           ethBalance: state.balanceData.ethBalance,
           ethUsd: state.balanceData.ethUsdValue,
           ethLogoUrl: state.balanceData.ethLogoUrl,
+          tokens: state.balanceData.tokens,
           address: state.walletInfo.address,
         ),
       ),
@@ -66,12 +67,14 @@ class _BalanceContent extends StatelessWidget {
     required this.ethBalance,
     required this.ethUsd,
     required this.ethLogoUrl,
+    required this.tokens,
     required this.address,
   });
 
   final String ethBalance;
   final String ethUsd;
   final String ethLogoUrl;
+  final List<TokenBalance> tokens;
   final String address;
 
   String get _shortAddr => address.length > 12
@@ -80,14 +83,45 @@ class _BalanceContent extends StatelessWidget {
 
   String get _ethFormatted => formatAmount(ethBalance, maxFrac: 4);
 
+  /// Sum of every priced asset in USD: native ETH + each tracked
+  /// token's USD value. Tokens without a price (empty `usdValue`)
+  /// contribute zero and are excluded from the "N assets" count so
+  /// the number reads as "N priced assets" rather than "N tracked
+  /// rows including some unknowns".
+  ///
+  /// Returns null when no asset is priced at all (loading state, or
+  /// a fresh wallet that only holds the native asset with the
+  /// pricefeed still warming up) — `_PortfolioTotal` skips rendering
+  /// in that case rather than showing "$0.00" which would read as a
+  /// drained wallet.
+  ({double totalUsd, int pricedCount})? _portfolio() {
+    final ethVal = double.tryParse(ethUsd.replaceAll(r'$', '').replaceAll(',', ''));
+    var total = 0.0;
+    var count = 0;
+    if (ethVal != null && ethVal > 0) {
+      total += ethVal;
+      count += 1;
+    }
+    for (final t in tokens) {
+      if (t.usdValue.isEmpty) continue;
+      final v = double.tryParse(t.usdValue.replaceAll(r'$', '').replaceAll(',', ''));
+      if (v == null || v <= 0) continue;
+      total += v;
+      count += 1;
+    }
+    if (count <= 1) return null; // ETH-only — no benefit from showing total.
+    return (totalUsd: total, pricedCount: count);
+  }
+
   @override
   Widget build(BuildContext context) {
     final col = context.colors;
+    final portfolio = _portfolio();
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left: USD + ETH + address.
+        // Left: USD + ETH + portfolio + address.
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,6 +152,13 @@ class _BalanceContent extends StatelessWidget {
                   ),
                 ],
               ),
+              if (portfolio != null) ...[
+                const SizedBox(height: 8),
+                _PortfolioTotal(
+                  totalUsd: portfolio.totalUsd,
+                  assetCount: portfolio.pricedCount,
+                ),
+              ],
               const SizedBox(height: 6),
               _AddressChip(address: address, shortAddr: _shortAddr),
             ],
@@ -126,6 +167,79 @@ class _BalanceContent extends StatelessWidget {
         // Right: network chip — tap opens info dialog with refresh.
         const _NetworkChip(),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Portfolio total — small pill summarising native + tokens in USD.
+//
+// Why a pill (not plain text): the headline number above this row is
+// native ETH value, which can be tiny relative to stablecoin holdings.
+// The user reading the popover at-a-glance needs a clear "total bag"
+// signal that doesn't compete with the headline for typographic weight
+// but also doesn't fade into the background. A subtle primary-tinted
+// pill threads that needle — visually distinct, reads as "summary",
+// stays calmer than the headline.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _PortfolioTotal extends StatelessWidget {
+  const _PortfolioTotal({required this.totalUsd, required this.assetCount});
+
+  final double totalUsd;
+  final int assetCount;
+
+  /// Format with thousands separator + 2 decimals — `$1,932.04`. The
+  /// global `formatUsdFixed` abbreviates ≥1k as `$1.93k` which trades
+  /// precision for compactness; in the menubar the user wants the
+  /// exact figure because they're often planning a transfer.
+  String _format(double v) {
+    final fixed = v.toStringAsFixed(2);
+    final parts = fixed.split('.');
+    final intPart = parts[0];
+    final buf = StringBuffer();
+    for (var i = 0; i < intPart.length; i++) {
+      if (i > 0 && (intPart.length - i) % 3 == 0) buf.write(',');
+      buf.write(intPart[i]);
+    }
+    return '\$$buf.${parts[1]}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final col = context.colors;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: col.primary.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(7),
+        border: Border.all(color: col.primary.withValues(alpha: 0.28)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.account_balance_wallet_rounded, size: 11, color: col.primaryLight),
+          const SizedBox(width: 5),
+          MaskableText(
+            _format(totalUsd),
+            style: AppTextStyles.labelMedium.copyWith(
+              color: col.primaryLight,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            '· $assetCount assets',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: col.textSecondary,
+              fontSize: 10.5,
+              height: 1.1,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
