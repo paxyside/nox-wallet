@@ -11,4 +11,4 @@
 ///   - One source of truth driven by the existing version pipeline.
 library;
 
-const String kAppVersion = '0.9.0';
+const String kAppVersion = '1.0.0';
