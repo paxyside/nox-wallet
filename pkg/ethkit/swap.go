@@ -148,17 +148,52 @@ func (c *Client) Swap(ctx context.Context, wallet *Wallet, req SwapRequest) (TxR
 		SqrtPriceLimitX96 *big.Int
 	}
 
-	data, err := routerABI.Pack("exactInputSingle", exactInputParams{
+	// When the desired output is the chain's native asset (ETH on
+	// mainnet), the swap settles in WETH and we must unwrap it in
+	// the same transaction so the user actually ends up with native
+	// ETH — WETH is an ERC-20 token, useless for paying gas. The
+	// standard SwapRouter02 pattern is `multicall([swap, unwrap])`:
+	//   step 1: exactInputSingle with recipient=router so the WETH
+	//           stays in the router instead of being delivered to
+	//           the user as a plain ERC-20.
+	//   step 2: unwrapWETH9(min, user) — router unwraps its WETH
+	//           balance to native ETH and forwards it to the user.
+	// `amountMinimum` on the unwrap doubles as the slippage floor.
+	wantsNativeOut := req.TokenOut.IsNative()
+
+	swapRecipient := wallet.Address().Common()
+	if wantsNativeOut {
+		swapRecipient = router.Common()
+	}
+
+	swapData, err := routerABI.Pack("exactInputSingle", exactInputParams{
 		TokenIn:           inAddr,
 		TokenOut:          outAddr,
 		Fee:               big.NewInt(int64(fee)),
-		Recipient:         wallet.Address().Common(),
+		Recipient:         swapRecipient,
 		AmountIn:          req.AmountIn.Wei(),
 		AmountOutMinimum:  req.MinAmountOut.Wei(),
 		SqrtPriceLimitX96: big.NewInt(0),
 	})
 	if err != nil {
 		return TxReceipt{}, fmt.Errorf("ethkit: pack swap: %w", err)
+	}
+
+	data := swapData
+	if wantsNativeOut {
+		unwrapData, err := routerABI.Pack(
+			"unwrapWETH9",
+			req.MinAmountOut.Wei(),
+			wallet.Address().Common(),
+		)
+		if err != nil {
+			return TxReceipt{}, fmt.Errorf("ethkit: pack unwrap: %w", err)
+		}
+
+		data, err = routerABI.Pack("multicall", [][]byte{swapData, unwrapData})
+		if err != nil {
+			return TxReceipt{}, fmt.Errorf("ethkit: pack multicall: %w", err)
+		}
 	}
 
 	// When swapping native ETH → token, attach ETH as msg.value.

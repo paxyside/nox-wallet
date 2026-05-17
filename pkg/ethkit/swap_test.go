@@ -4,8 +4,11 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/paxyside/nox-wallet/pkg/ethkit/abis"
 )
 
 func TestSlippageAmount(t *testing.T) {
@@ -81,4 +84,45 @@ func TestResolveSwapAddresses(t *testing.T) {
 		assert.Equal(t, usdc.Address.Common(), in)
 		assert.Equal(t, weth9.Common(), out)
 	})
+}
+
+// TestRouterMulticallEncoding pins down the ABI encoding for the
+// ERC-20 → native-ETH path: a multicall containing exactInputSingle
+// followed by unwrapWETH9. Catches accidents like a missing entry in
+// the embedded router ABI JSON or a typo in the method names.
+func TestRouterMulticallEncoding(t *testing.T) {
+	routerABI := abis.UniswapSwapRouter02()
+
+	swapData, err := routerABI.Pack("exactInputSingle", struct {
+		TokenIn           common.Address
+		TokenOut          common.Address
+		Fee               *big.Int
+		Recipient         common.Address
+		AmountIn          *big.Int
+		AmountOutMinimum  *big.Int
+		SqrtPriceLimitX96 *big.Int
+	}{
+		TokenIn:           common.HexToAddress("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
+		TokenOut:          common.HexToAddress("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+		Fee:               big.NewInt(500),
+		Recipient:         common.HexToAddress("0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45"),
+		AmountIn:          big.NewInt(1_000_000),
+		AmountOutMinimum:  big.NewInt(0),
+		SqrtPriceLimitX96: big.NewInt(0),
+	})
+	require.NoError(t, err, "exactInputSingle should encode")
+
+	unwrapData, err := routerABI.Pack(
+		"unwrapWETH9",
+		big.NewInt(123),
+		common.HexToAddress("0x61bE3BB037a2eeA06D6f3619be8662BB972a2BE7"),
+	)
+	require.NoError(t, err, "unwrapWETH9 should encode")
+	// Each function selector is 4 bytes — sanity-check we got more
+	// than just the selector (i.e. encoding actually emitted args).
+	assert.Greater(t, len(unwrapData), 4)
+
+	multicallData, err := routerABI.Pack("multicall", [][]byte{swapData, unwrapData})
+	require.NoError(t, err, "multicall should encode")
+	assert.Greater(t, len(multicallData), len(swapData)+len(unwrapData))
 }
