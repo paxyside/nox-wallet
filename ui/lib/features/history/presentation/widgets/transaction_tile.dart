@@ -100,11 +100,17 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
     final incoming = tx.isIncoming;
     final isSwap = tx.isSwap;
 
+    // Tint per transaction kind. Sent uses `warning` (amber) instead
+    // of `error` (red) — red on every outgoing tx screamed "danger"
+    // when the user was just making a normal transfer; amber reads
+    // as "money leaving" without alarm. Mirrors the menubar
+    // activity feed so the same row visual language carries across
+    // both surfaces.
     final accentColor = isSwap
         ? context.colors.primary
         : incoming
         ? context.colors.success
-        : context.colors.error;
+        : context.colors.warning;
 
     final directionLabel = isSwap ? 'Swap' : (incoming ? 'Received' : 'Sent');
     final directionIcon = isSwap
@@ -328,17 +334,26 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
                                             MaskableText(
                                               '$valueSign${formatAmountCompact(tx.value)} $assetLabel',
                                               style: AppTextStyles.labelLarge.copyWith(
-                                                color: accentColor,
+                                                // Received shows green (positive money
+                                                // event); sent uses textPrimary so the
+                                                // amber-tinted icon/bar do the "money
+                                                // leaving" signalling and the number
+                                                // itself reads as a neutral fact.
+                                                color: incoming
+                                                    ? context.colors.success
+                                                    : context.colors.textPrimary,
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w700,
-                                                shadows: [
-                                                  Shadow(
-                                                    color: accentColor.withValues(
-                                                      alpha: 0.30 + 0.35 * t,
-                                                    ),
-                                                    blurRadius: 8,
-                                                  ),
-                                                ],
+                                                shadows: incoming
+                                                    ? [
+                                                        Shadow(
+                                                          color: accentColor.withValues(
+                                                            alpha: 0.30 + 0.35 * t,
+                                                          ),
+                                                          blurRadius: 8,
+                                                        ),
+                                                      ]
+                                                    : null,
                                               ),
                                               overflow: TextOverflow.ellipsis,
                                               textAlign: TextAlign.end,
