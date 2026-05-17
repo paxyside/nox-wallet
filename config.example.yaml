@@ -10,7 +10,7 @@
 # -----------------------------------------------------------------------------
 app:
   name: "nox-wallet"
-  version: "0.8.0"
+  version: "0.9.0"
   environment: "local"      # local, development, staging, production
   shutdown_timeout: 30s
 
