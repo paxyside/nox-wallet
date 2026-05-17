@@ -65,12 +65,10 @@ class _QuickActionState extends State<_QuickAction> {
   @override
   Widget build(BuildContext context) {
     final col = context.colors;
-    // Single-source hover signal: an outer wrap fades in a soft
-    // primary tint behind the whole column. Inner icon tile stays
-    // STATIC — same trick as the dashboard ActionButtons. Animating
-    // the tile (fill + border + glyph) AT THE SAME TIME as the
-    // outer wrap shifted three signals at once and read as a
-    // "double" hover effect.
+    // Minimal hover: a small bg-alpha bump on the icon tile itself,
+    // no wrapper card behind it, no color/border/glyph shifts. One
+    // element animates, one property changes — nothing reads as a
+    // "card-inside-a-card".
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
@@ -78,24 +76,18 @@ class _QuickActionState extends State<_QuickAction> {
       child: GestureDetector(
         onTap: widget.onTap,
         behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
-          curve: Curves.easeOut,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-          decoration: BoxDecoration(
-            color: _hovered ? col.primary.withValues(alpha: 0.10) : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Static — no hover-driven props. The outer container
-              // owns the entire visual state change.
-              Container(
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 140),
+                curve: Curves.easeOut,
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: col.textSecondary.withValues(alpha: 0.10),
+                  color: col.textSecondary.withValues(alpha: _hovered ? 0.18 : 0.10),
                   borderRadius: BorderRadius.circular(11),
                   border: Border.all(color: col.textSecondary.withValues(alpha: 0.22)),
                 ),
