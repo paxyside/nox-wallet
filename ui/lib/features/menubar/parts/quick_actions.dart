@@ -65,6 +65,12 @@ class _QuickActionState extends State<_QuickAction> {
   @override
   Widget build(BuildContext context) {
     final col = context.colors;
+    // Single-source hover signal: an outer wrap fades in a soft
+    // primary tint behind the whole column. Inner icon tile stays
+    // STATIC — same trick as the dashboard ActionButtons. Animating
+    // the tile (fill + border + glyph) AT THE SAME TIME as the
+    // outer wrap shifted three signals at once and read as a
+    // "double" hover effect.
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
@@ -72,35 +78,28 @@ class _QuickActionState extends State<_QuickAction> {
       child: GestureDetector(
         onTap: widget.onTap,
         behavior: HitTestBehavior.opaque,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          decoration: BoxDecoration(
+            color: _hovered ? col.primary.withValues(alpha: 0.10) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon tile carries the entire hover signal — fill
-              // shifts to surfaceHigh + primary border + icon goes
-              // primary. Label stays textPrimary at rest (so the
-              // action reads as clickable without hovering) and only
-              // brightens slightly on hover, which is enough motion.
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 140),
-                curve: Curves.easeOut,
+              // Static — no hover-driven props. The outer container
+              // owns the entire visual state change.
+              Container(
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: _hovered ? col.surfaceHigh : col.textSecondary.withValues(alpha: 0.10),
+                  color: col.textSecondary.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(11),
-                  border: Border.all(
-                    color: _hovered
-                        ? col.primary.withValues(alpha: 0.45)
-                        : col.textSecondary.withValues(alpha: 0.22),
-                  ),
+                  border: Border.all(color: col.textSecondary.withValues(alpha: 0.22)),
                 ),
-                child: Icon(
-                  widget.icon,
-                  size: 19,
-                  color: _hovered ? col.primaryLight : col.textSecondary,
-                ),
+                child: Icon(widget.icon, size: 19, color: col.textSecondary),
               ),
               const SizedBox(height: 6),
               Text(

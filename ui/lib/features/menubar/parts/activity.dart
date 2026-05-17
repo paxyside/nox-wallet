@@ -39,7 +39,7 @@ class _LastActivity extends ConsumerWidget {
                   ),
                 );
               }
-              final visible = items.take(5).toList();
+              final visible = items.take(4).toList();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
