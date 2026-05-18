@@ -129,19 +129,20 @@ tasks:
       # here defends against any post-build copy that would otherwise
       # break the seal.
       - codesign --force --deep --sign - "{{.RELEASE_BUNDLE}}"
+      # dmgbuild instead of create-dmg — the bash tool couldn't reliably
+      # render the /Applications target as a proper Finder folder icon
+      # (showed up as a dashed-border placeholder), and couldn't pin a
+      # custom icon on the .dmg FILE itself (downloads displayed the
+      # generic disk-image glyph). dmgbuild writes the .DS_Store with
+      # the right alias bookmark + attaches the .icns resource fork in
+      # one pass, fixing both. Settings live in ui/macos/installer/
+      # dmgbuild_settings.py.
       - |
-        create-dmg \
-          --volname "Nox" \
-          --volicon "ui/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png" \
-          --background "ui/macos/installer/background@2x.png" \
-          --window-pos 200 120 \
-          --window-size 600 400 \
-          --icon-size 100 \
-          --icon "Nox.app" 150 185 \
-          --hide-extension "Nox.app" \
-          --app-drop-link 450 185 \
-          "dist/Nox.dmg" \
-          "{{.RELEASE_BUNDLE}}"
+        dmgbuild \
+          -s ui/macos/installer/dmgbuild_settings.py \
+          -D app="{{.RELEASE_BUNDLE}}" \
+          "Nox" \
+          "dist/Nox.dmg"
       - codesign --force --sign - dist/Nox.dmg
       - echo "✓ dist/Nox.dmg ready"
 

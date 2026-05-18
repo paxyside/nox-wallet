@@ -56,9 +56,14 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Install task + create-dmg + golangci-lint
+      - name: Install task + dmgbuild + golangci-lint
         run: |
-          brew install go-task/tap/go-task create-dmg
+          brew install go-task/tap/go-task
+          # dmgbuild (Python) replaced create-dmg (bash) because the
+          # bash tool couldn't render /Applications as a proper folder
+          # icon and couldn't pin a custom .dmg file icon. macOS
+          # runners ship system Python 3 — install dmgbuild via pip.
+          pip3 install --break-system-packages dmgbuild
           # Pin golangci-lint to the version `task prepare` is known
           # to pass with — "latest" bit us once when upstream v2.12.2
           # shipped with a drifted sha256 in their checksums file.
