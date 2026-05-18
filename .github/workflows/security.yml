@@ -55,8 +55,12 @@ jobs:
       # (go.mod, pubspec.lock, vendor/modules.txt) and cross-checks
       # against the OSV database. Catches things govulncheck can't —
       # specifically the Dart/Flutter side.
+      # Pinned to v2.3.8 — upstream retired the floating `v1` tag when
+      # v2 shipped, which broke this job. Bumping to a specific minor
+      # so an upstream major bump doesn't silently change behaviour on
+      # us; refresh by hand when the changelog warrants it.
       - name: Run osv-scanner
-        uses: google/osv-scanner-action/osv-scanner-action@v1
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
         with:
           scan-args: |-
             --recursive
