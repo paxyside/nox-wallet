@@ -60,6 +60,7 @@ type WalletService interface {
 	Save(ctx context.Context, w *entity.Wallet) error
 	Get(ctx context.Context) (*entity.Wallet, error)
 	Delete(ctx context.Context) error
+	Reset(ctx context.Context) error
 }
 
 var _ WalletService = (*walletservice.Service)(nil)
@@ -499,6 +500,17 @@ func (u *Usecase) persistWallet(
 	secretType entity.SecretType,
 	label string,
 ) (*entity.Wallet, error) {
+	// Clean slate first. Generate/import is the only path here (startup
+	// restore goes through LoadFromKeychain, which never calls this), so
+	// wiping is always a deliberate "create or replace wallet" action.
+	// On first onboarding the tables are empty and this is a no-op; on
+	// replace it drops the previous wallet's tokens / history /
+	// notifications / pending txs so the new address doesn't inherit
+	// another wallet's state.
+	if err := u.svc.Reset(ctx); err != nil {
+		return nil, liberrors.Wrapf(err, liberrors.CodeInternal, "reset previous wallet state")
+	}
+
 	if err := u.keychain.Set(keychainKey, secret); err != nil {
 		return nil, liberrors.Wrapf(err, liberrors.CodeInternal, "store secret in keychain")
 	}

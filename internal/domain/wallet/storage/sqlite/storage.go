@@ -73,3 +73,41 @@ func (s *Storage) Delete(ctx context.Context) error {
 
 	return nil
 }
+
+// resetTables lists every wallet-scoped table wiped by Reset. Order is
+// irrelevant — there are no cross-table foreign keys — but keeping the
+// wallet row last reads as "and finally the wallet itself".
+//
+// Deliberately excluded:
+//   - contacts: a personal address book, not tied to any one wallet.
+//   - notification_settings: a global singleton preference row.
+var resetTables = []string{
+	"watched_tokens",
+	"transactions",
+	"notifications",
+	"pending_txs",
+	"wallets",
+}
+
+// Reset wipes all wallet-scoped state in a single transaction. Called
+// when the user replaces their wallet (Settings → Import new wallet):
+// the new wallet starts from a clean slate rather than inheriting the
+// previous wallet's token watchlist, transaction history, notification
+// feed, and in-flight pending txs — all of which belong to a different
+// address and would otherwise show stale, misleading data.
+func (s *Storage) Reset(ctx context.Context) error {
+	err := s.db.WithTx(ctx, func(tx *sqlitekit.Tx) error {
+		for _, table := range resetTables {
+			if _, err := tx.Exec(ctx, "DELETE FROM "+table); err != nil {
+				return liberrors.Wrapf(err, liberrors.CodeInternal, "reset %s", table)
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return liberrors.Wrapf(err, liberrors.CodeInternal, "reset wallet state")
+	}
+
+	return nil
+}

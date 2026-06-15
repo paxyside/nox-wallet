@@ -126,6 +126,7 @@ type mockWalletService struct {
 	saveFn   func(ctx context.Context, w *entity.Wallet) error
 	getFn    func(ctx context.Context) (*entity.Wallet, error)
 	deleteFn func(ctx context.Context) error
+	resetFn  func(ctx context.Context) error
 }
 
 func (m *mockWalletService) Save(ctx context.Context, w *entity.Wallet) error {
@@ -134,6 +135,13 @@ func (m *mockWalletService) Save(ctx context.Context, w *entity.Wallet) error {
 
 func (m *mockWalletService) Get(ctx context.Context) (*entity.Wallet, error) { return m.getFn(ctx) }
 func (m *mockWalletService) Delete(ctx context.Context) error                { return m.deleteFn(ctx) }
+
+func (m *mockWalletService) Reset(ctx context.Context) error {
+	if m.resetFn == nil {
+		return nil
+	}
+	return m.resetFn(ctx)
+}
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 

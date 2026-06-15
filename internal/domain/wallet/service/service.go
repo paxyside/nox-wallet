@@ -11,6 +11,9 @@ type Repository interface {
 	Save(ctx context.Context, w *entity.Wallet) error
 	Get(ctx context.Context) (*entity.Wallet, error) // single-wallet app — no ID needed
 	Delete(ctx context.Context) error
+	// Reset wipes all wallet-scoped state (tokens, history, notifications,
+	// pending txs, the wallet row) so a replacement wallet starts clean.
+	Reset(ctx context.Context) error
 }
 
 type Service struct {
@@ -31,4 +34,8 @@ func (s *Service) Get(ctx context.Context) (*entity.Wallet, error) {
 
 func (s *Service) Delete(ctx context.Context) error {
 	return s.repo.Delete(ctx)
+}
+
+func (s *Service) Reset(ctx context.Context) error {
+	return s.repo.Reset(ctx)
 }
