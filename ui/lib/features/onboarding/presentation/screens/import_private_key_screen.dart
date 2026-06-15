@@ -35,7 +35,7 @@ class _ImportPrivateKeyScreenState extends ConsumerState<ImportPrivateKeyScreen>
         .read(importPrivateKeyNotifierProvider.notifier)
         .importPrivateKey(_keyController.text.trim(), _labelController.text.trim());
     if (success && mounted) {
-      ref.invalidate(walletExistsProvider);
+      invalidateWalletScopedCaches(ref);
       context.go(Routes.home);
     }
   }

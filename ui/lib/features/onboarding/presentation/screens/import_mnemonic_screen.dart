@@ -159,7 +159,7 @@ class _ImportMnemonicScreenState extends ConsumerState<ImportMnemonicScreen> {
           derivationPath: _derivController.text.trim(),
         );
     if (ok && mounted) {
-      ref.invalidate(walletExistsProvider);
+      invalidateWalletScopedCaches(ref);
       context.go(Routes.home);
     }
   }

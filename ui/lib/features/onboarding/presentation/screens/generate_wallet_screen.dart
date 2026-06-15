@@ -37,7 +37,7 @@ class _GenerateWalletScreenState extends ConsumerState<GenerateWalletScreen> {
   }
 
   void _onContinue() {
-    ref.invalidate(walletExistsProvider);
+    invalidateWalletScopedCaches(ref);
     context.go(Routes.home);
   }
 

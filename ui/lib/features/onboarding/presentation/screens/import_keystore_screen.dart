@@ -42,7 +42,7 @@ class _ImportKeystoreScreenState extends ConsumerState<ImportKeystoreScreen> {
         .read(importKeystoreNotifierProvider.notifier)
         .importKeystore(jsonBytes, _passphraseController.text, _labelController.text.trim());
     if (success && mounted) {
-      ref.invalidate(walletExistsProvider);
+      invalidateWalletScopedCaches(ref);
       context.go(Routes.home);
     }
   }

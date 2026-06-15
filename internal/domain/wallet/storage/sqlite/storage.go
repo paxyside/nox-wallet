@@ -74,18 +74,25 @@ func (s *Storage) Delete(ctx context.Context) error {
 	return nil
 }
 
-// resetTables lists every wallet-scoped table wiped by Reset. Order is
-// irrelevant — there are no cross-table foreign keys — but keeping the
-// wallet row last reads as "and finally the wallet itself".
+// resetTables lists every table wiped by Reset on a wallet replace.
+// Order is irrelevant — there are no cross-table foreign keys — but
+// keeping the wallet row last reads as "and finally the wallet itself".
+//
+// Everything tied to the previous wallet goes: token watchlist,
+// transaction history, notification feed, pending txs, AND the
+// contacts address book. Treating a replace as a full clean slate
+// matches the user's expectation — switching to a different wallet
+// shouldn't surface the old wallet's saved contacts.
 //
 // Deliberately excluded:
-//   - contacts: a personal address book, not tied to any one wallet.
-//   - notification_settings: a global singleton preference row.
+//   - notification_settings: a global app preference singleton (sounds,
+//     toasts, auto-delete), not tied to any one wallet.
 var resetTables = []string{
 	"watched_tokens",
 	"transactions",
 	"notifications",
 	"pending_txs",
+	"contacts",
 	"wallets",
 }
 

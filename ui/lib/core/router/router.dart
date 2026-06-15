@@ -3,13 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nox/core/balance/balance_grpc_repository.dart';
 import 'package:nox/core/router/routes.dart';
+import 'package:nox/core/services/notification_history_provider.dart';
 import 'package:nox/core/theme/app_colors.dart';
 import 'package:nox/core/widgets/app_dialog.dart';
 import 'package:nox/core/widgets/app_snack_bar.dart';
 import 'package:nox/core/widgets/sidebar.dart';
 import 'package:nox/features/approvals/presentation/screens/approvals_screen.dart';
+import 'package:nox/features/contacts/presentation/providers/contacts_provider.dart';
 import 'package:nox/features/contacts/presentation/screens/contacts_screen.dart';
+import 'package:nox/features/history/presentation/providers/history_provider.dart';
 import 'package:nox/features/history/presentation/screens/history_screen.dart';
+import 'package:nox/features/home/presentation/providers/home_provider.dart';
+import 'package:nox/features/home/presentation/providers/recent_activity_provider.dart';
 import 'package:nox/features/home/presentation/screens/home_screen.dart';
 import 'package:nox/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:nox/features/send/presentation/providers/send_provider.dart';
@@ -19,6 +24,7 @@ import 'package:nox/features/settings/presentation/screens/settings_screen.dart'
 import 'package:nox/features/swap/presentation/providers/swap_provider.dart';
 import 'package:nox/features/swap/presentation/screens/swap_screen.dart';
 import 'package:nox/features/swap/presentation/widgets/swap_result_dialog.dart';
+import 'package:nox/features/tokens/presentation/providers/tokens_provider.dart';
 import 'package:nox/features/tokens/presentation/screens/tokens_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -40,6 +46,24 @@ final walletExistsProvider = FutureProvider<bool>(
 /// Reset when OnboardingScreen is disposed (replace completed, or the
 /// user navigated away), so the safety-net guard re-arms.
 final replaceWalletIntentProvider = StateProvider<bool>((ref) => false);
+
+/// Drop every wallet-scoped cache after a wallet import/replace. The
+/// backend wipes its DB (tokens / history / notifications / pending /
+/// contacts) inside persistWallet, but the keepAlive Riverpod
+/// providers still hold the previous wallet's data — without this the
+/// UI shows stale tokens, contacts, and notifications over a
+/// freshly-wiped backend until the next cold start. Called from every
+/// onboarding success path (generate + the three import flows).
+void invalidateWalletScopedCaches(WidgetRef ref) {
+  ref
+    ..invalidate(walletExistsProvider)
+    ..invalidate(tokensNotifierProvider)
+    ..invalidate(contactsNotifierProvider)
+    ..invalidate(notificationHistoryProvider)
+    ..invalidate(historyNotifierProvider)
+    ..invalidate(homeDataProvider)
+    ..invalidate(recentActivityProvider);
+}
 
 // ---------------------------------------------------------------------------
 // Router notifier — refreshes go_router when wallet state changes

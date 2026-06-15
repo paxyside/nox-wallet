@@ -110,17 +110,14 @@ func TestReset(t *testing.T) {
 		t.Fatalf("reset: %v", err)
 	}
 
-	// Wallet-scoped tables must be empty.
+	// Wallet-scoped tables (incl. contacts) must be empty.
 	for _, table := range resetTables {
 		if got := countRows(t, c, table); got != 0 {
 			t.Errorf("table %s should be empty after Reset, got %d rows", table, got)
 		}
 	}
 
-	// Global tables must survive.
-	if got := countRows(t, c, "contacts"); got != 1 {
-		t.Errorf("contacts should survive Reset, got %d rows", got)
-	}
+	// Global app-preference singleton must survive.
 	if got := countRows(t, c, "notification_settings"); got != 1 {
 		t.Errorf("notification_settings should survive Reset, got %d rows", got)
 	}

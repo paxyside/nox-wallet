@@ -161,48 +161,98 @@ func (u *Usecase) Subscribe() (<-chan WalletEvent, func()) {
 // active watchers, and notifications would silently stop appearing
 // until the next full restart.
 func (u *Usecase) Start(ctx context.Context) error {
-	addr := u.waitForWallet(ctx)
-	if addr.IsZero() {
-		// ctx canceled before a wallet showed up.
-		return nil
-	}
-
-	u.log.Info("watcher: starting all monitors", "address", addr.Short())
-
 	var wg sync.WaitGroup
 
-	// 1. ETH balance watcher — drives low-balance latch only. The chain-level "balance changed" event is no longer surfaced as a separate
-	//    notification (gas burns from token / approve txs were generating
-	//    confusing duplicates). The Tx watcher below covers the meaningful
-	//    "ETH sent / received" cases via Alchemy.
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if err := u.watchBalanceForLowAlert(ctx, addr); err != nil && ctx.Err() == nil {
-			u.log.Error("watcher: ETH monitor stopped", "error", err)
-		}
-	}()
-
-	// 2. Canonical transaction watcher: polls Alchemy `getAssetTransfers`,
-	//    groups movements by tx hash, classifies role (Send / Receive /
-	//    Swap / Approve / SelfTransfer), and emits one rich event per tx.
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		u.watchTransactions(ctx, addr)
-	}()
-
-	// 3. Gas alerts (independent — purely market-state).
+	// Gas alerts are market-state, address-independent — run once for
+	// the whole session, never restarted on a wallet change.
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		u.watchGas(ctx)
 	}()
 
+	// Address-scoped monitors (balance + transactions) (re)start whenever
+	// the loaded wallet address changes — initial import OR a Danger-Zone
+	// replace. runAddressMonitors owns that retarget loop.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		u.runAddressMonitors(ctx)
+	}()
+
 	wg.Wait()
-	u.log.Info("watcher: all monitors stopped", "address", addr.Short())
+	u.log.Info("watcher: all monitors stopped")
 
 	return nil
+}
+
+// runAddressMonitors keeps the address-scoped monitors pointed at the
+// currently-loaded wallet. On a wallet replace the in-memory address
+// flips (walletUC.persistWallet reassigns it), so we cancel the old
+// wallet's monitors and restart on the new address — otherwise the
+// watcher would keep polling the previous wallet forever and the new
+// one would never get notifications.
+func (u *Usecase) runAddressMonitors(ctx context.Context) {
+	for {
+		addr := u.waitForWallet(ctx)
+		if addr.IsZero() {
+			return // ctx canceled before a wallet showed up
+		}
+
+		u.log.Info("watcher: starting address monitors", "address", addr.Short())
+
+		// Child ctx scoped to this address — canceled when the address
+		// changes so both monitors below unwind cleanly.
+		monCtx, cancel := context.WithCancel(ctx)
+
+		var mwg sync.WaitGroup
+		mwg.Add(2)
+
+		// ETH balance watcher — drives the low-balance latch only.
+		go func() {
+			defer mwg.Done()
+			if err := u.watchBalanceForLowAlert(monCtx, addr); err != nil && monCtx.Err() == nil {
+				u.log.Error("watcher: ETH monitor stopped", "error", err)
+			}
+		}()
+
+		// Canonical transaction watcher: polls Alchemy getAssetTransfers,
+		// groups movements by tx hash, classifies role, emits one event
+		// per tx.
+		go func() {
+			defer mwg.Done()
+			u.watchTransactions(monCtx, addr)
+		}()
+
+		u.waitForAddressChange(ctx, addr)
+		cancel()
+		mwg.Wait()
+		u.log.Info("watcher: address monitors stopped", "address", addr.Short())
+
+		if ctx.Err() != nil {
+			return
+		}
+	}
+}
+
+// waitForAddressChange blocks until the loaded wallet address differs
+// from current (a replace happened) or ctx is canceled.
+func (u *Usecase) waitForAddressChange(ctx context.Context, current ethkit.Address) {
+	const pollInterval = 2 * time.Second
+
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if u.wallet.LoadedAddress() != current {
+				return
+			}
+		}
+	}
 }
 
 // waitForWallet polls the address provider until a non-zero address is
