@@ -76,4 +76,9 @@ icon_locations = {
     "Applications": (450, 185),
 }
 
-background = "ui/macos/installer/background@2x.png"
+# Point at the 1x file — dmgbuild auto-discovers the sibling
+# `background@2x.png` for HiDPI rendering. Pointing directly at the
+# 2x file makes dmgbuild use its pixel dimensions (1200×800) as the
+# logical window size, which doubled the popover to ~1000px tall and
+# left the icons stranded above the dotted-arrow art.
+background = "ui/macos/installer/background.png"
