@@ -81,7 +81,9 @@ func (a *App) initServices(ctx context.Context) (*services, error) {
 
 	walletUC := walletuc.New(base, a.l, a.adapter, walletDomainSvc, a.keychain)
 	swapUC := swapuc.New(base, a.l, a.adapter, walletUC)
-	historyUC := historyuc.New(base, a.l, a.adapter, a.adapter, txDomainSvc)
+	historyUC := historyuc.New(base, a.l, a.adapter, a.adapter, txDomainSvc,
+		historyuc.WithVerifiedToken(verifiedTokenPredicate(a.tokenList, a.network.ChainID)),
+	)
 	contactUC := contactuc.New(base, a.l, contactDomainSvc)
 	tokenUC := tokenuc.New(base, a.l, a.adapter, tokenDomainSvc, feed)
 	approvalUC := approvaluc.New(a.l, a.adapter, walletUC, tokenUC)
@@ -141,6 +143,17 @@ func (s notificationSink) Save(
 	}
 
 	return id, nil
+}
+
+// verifiedTokenPredicate adapts the TokenList registry to the history
+// usecase's VerifiedToken signature — a simple "is this contract in
+// the verified list for our chain?" boolean used to drop
+// address-poisoning spam before it's cached.
+func verifiedTokenPredicate(tl *networks.TokenList, chainID int64) historyuc.VerifiedToken {
+	return func(contractLower string) bool {
+		_, ok := tl.TokenByAddress(chainID, contractLower)
+		return ok
+	}
 }
 
 // tokenListLookup adapts the verified TokenList registry to the

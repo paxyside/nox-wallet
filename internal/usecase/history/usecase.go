@@ -66,12 +66,22 @@ type TxService interface {
 
 var _ TxService = (*txservice.Service)(nil)
 
+// VerifiedToken reports whether a lowercase ERC-20 contract address is
+// in the embedded verified registry (Uniswap Default Token List).
+// Used to drop address-poisoning spam — counterfeit-token transfers
+// that spoof the wallet address — before they're cached into history.
+type VerifiedToken func(contractLower string) bool
+
 type Usecase struct {
 	*usecase.BaseUsecase
 	log     logger.Log
 	alchemy AlchemyClient
 	eth     ReceiptFetcher
 	txSvc   TxService
+
+	// verified is optional; nil = fail open (cache every transfer, no
+	// spam filtering). Wired from the embedded token list in production.
+	verified VerifiedToken
 
 	mu       sync.Mutex
 	lastSync time.Time
@@ -87,14 +97,24 @@ type Usecase struct {
 	alchemySem *semaphore.Weighted
 }
 
+type Option func(*Usecase)
+
+// WithVerifiedToken wires the embedded verified-token predicate so the
+// sync path can drop counterfeit-token (address-poisoning) transfers
+// before they reach the cache.
+func WithVerifiedToken(v VerifiedToken) Option {
+	return func(u *Usecase) { u.verified = v }
+}
+
 func New(
 	base *usecase.BaseUsecase,
 	log logger.Log,
 	alchemy AlchemyClient,
 	eth ReceiptFetcher,
 	txSvc TxService,
+	opts ...Option,
 ) *Usecase {
-	return &Usecase{
+	u := &Usecase{
 		BaseUsecase: base,
 		log:         log,
 		alchemy:     alchemy,
@@ -102,6 +122,11 @@ func New(
 		txSvc:       txSvc,
 		alchemySem:  semaphore.NewWeighted(alchemyConcurrency),
 	}
+	for _, opt := range opts {
+		opt(u)
+	}
+
+	return u
 }
 
 func (u *Usecase) GetHistory(ctx context.Context, p GetHistoryParams) (GetHistoryResult, error) {
@@ -296,6 +321,10 @@ func (u *Usecase) fetchAllPages(ctx context.Context, base ethkit.GetAssetTransfe
 		}
 
 		for _, t := range page.Transfers {
+			if u.isSpamTransfer(t) {
+				continue
+			}
+
 			if err := u.txSvc.Upsert(ctx, alchemyToEntity(u.ULID(), t, now)); err != nil {
 				u.log.Warn("history: upsert tx failed", "hash", t.Hash, "error", err)
 				continue
@@ -353,6 +382,27 @@ func (u *Usecase) enrichGasFee(ctx context.Context, hash string) {
 	if err := u.txSvc.UpdateGasFees(ctx, hash, gasFeeEth, ""); err != nil {
 		u.log.Warn("history: update gas fees failed", "hash", hash, "error", err)
 	}
+}
+
+// isSpamTransfer reports whether an Alchemy transfer leg is an
+// address-poisoning counterfeit-token transfer that should be kept out
+// of the cached history. A genuine ERC-20 only emits its own Transfer
+// events, so a fake "USDC" leg necessarily carries a contract address
+// absent from the verified list. Native ETH legs (Token == nil) are
+// never spam here; with no verified predicate wired the check fails
+// open and caches everything.
+//
+// Note: unlike the watcher path there's no IsOurs signal at the
+// per-leg history level, so a swap into a token outside the verified
+// list loses its inbound leg from the cache. The app's swap UI targets
+// liquid (listed) tokens, so this is a rare, accepted trade-off of the
+// "drop unverified entirely" policy.
+func (u *Usecase) isSpamTransfer(t ethkit.AssetTransfer) bool {
+	if u.verified == nil || t.Token == nil {
+		return false
+	}
+
+	return !u.verified(strings.ToLower(t.Token.Address.Hex()))
 }
 
 func alchemyToEntity(id string, t ethkit.AssetTransfer, now time.Time) *entity.Transaction {

@@ -89,6 +89,38 @@ func TestNormalizeAsset(t *testing.T) {
 	}
 }
 
+func TestIsSpamTransfer(t *testing.T) {
+	const usdc = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+	verified := func(addrLower string) bool { return addrLower == usdc }
+
+	tokenLeg := func(contract string) ethkit.AssetTransfer {
+		tok := ethkit.Token{Address: ethkit.MustAddress(contract)}
+		return ethkit.AssetTransfer{Token: &tok, Asset: "USDC"}
+	}
+	ethLeg := ethkit.AssetTransfer{Token: nil, Asset: "ETH"}
+
+	cases := []struct {
+		name     string
+		verified VerifiedToken
+		leg      ethkit.AssetTransfer
+		wantSpam bool
+	}{
+		{"nil predicate fails open", nil, tokenLeg("0x000000000000000000000000000000000000dead"), false},
+		{"verified token kept", verified, tokenLeg(usdc), false},
+		{"unverified token is spam", verified, tokenLeg("0x000000000000000000000000000000000000beef"), true},
+		{"native ETH never spam", verified, ethLeg, false},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			u := &Usecase{verified: c.verified}
+			if got := u.isSpamTransfer(c.leg); got != c.wantSpam {
+				t.Errorf("isSpamTransfer = %v, want %v", got, c.wantSpam)
+			}
+		})
+	}
+}
+
 func TestGetHistory_DefaultsAndCursor(t *testing.T) {
 	addr := ethkit.MustAddress("0x52908400098527886e0f7030069857d2e4169ee7")
 

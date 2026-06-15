@@ -146,6 +146,16 @@ func (u *Usecase) processTick(
 
 		txEvent := u.buildTransactionEvent(ctx, addr, hash, legs, ourPendingHashes)
 
+		// Drop address-poisoning spam (fake-token transfers spoofing the
+		// wallet address) before it becomes a notification. Mark the hash
+		// emitted so the lookback overlap doesn't re-evaluate it every tick.
+		if u.isSpamTransaction(txEvent) {
+			u.log.Info("watcher: dropping spam transaction", "hash", hash)
+			emitted.add(hash)
+			delete(deferred, hash)
+			continue
+		}
+
 		if u.shouldDefer(hash, txEvent, ourPending, deferred, maxDeferral) {
 			continue
 		}
