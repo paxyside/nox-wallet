@@ -29,6 +29,18 @@ final walletExistsProvider = FutureProvider<bool>(
   (ref) => const BalanceGrpcRepository().walletExists(),
 );
 
+/// Set true by the "Import new wallet" (replace) flow before it
+/// navigates to onboarding. The redirect's `hasWallet && inOnboarding →
+/// home` guard exists to bounce a wallet-holder off the onboarding
+/// route — but a deliberate replace is the one legitimate way to be
+/// there with a wallet still present. Without this exemption the guard
+/// instantly threw the replace flow back to home, so clicking "Import"
+/// in Danger Zone appeared to do nothing.
+///
+/// Reset when OnboardingScreen is disposed (replace completed, or the
+/// user navigated away), so the safety-net guard re-arms.
+final replaceWalletIntentProvider = StateProvider<bool>((ref) => false);
+
 // ---------------------------------------------------------------------------
 // Router notifier — refreshes go_router when wallet state changes
 // ---------------------------------------------------------------------------
@@ -47,8 +59,11 @@ class _RouterNotifier extends ChangeNotifier {
     if (walletAsync.isLoading) return null;
     final hasWallet = walletAsync.valueOrNull ?? false;
     final inOnboarding = state.matchedLocation.startsWith('/onboarding');
+    final replacing = _ref.read(replaceWalletIntentProvider);
     if (!hasWallet && !inOnboarding) return Routes.onboarding;
-    if (hasWallet && inOnboarding) return Routes.home;
+    // Bounce a wallet-holder off onboarding UNLESS they deliberately
+    // started a replace (Settings → Import new wallet).
+    if (hasWallet && inOnboarding && !replacing) return Routes.home;
     return null;
   }
 }

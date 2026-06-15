@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nox/core/app_info.dart';
+import 'package:nox/core/router/router.dart';
 import 'package:nox/core/router/routes.dart';
 import 'package:nox/core/services/update_service.dart';
 import 'package:nox/core/state/auto_lock_provider.dart';
@@ -233,7 +234,7 @@ class SettingsScreen extends ConsumerWidget {
                             label: 'Import',
                             icon: Icons.swap_horiz,
                             color: context.colors.error,
-                            onTap: () => _confirmImportNewWallet(context),
+                            onTap: () => _confirmImportNewWallet(context, ref),
                           ),
                         ),
                       ],
@@ -256,7 +257,7 @@ class SettingsScreen extends ConsumerWidget {
     unawaited(showAppDialog<void>(context: context, builder: (_) => const ExportKeystoreDialog()));
   }
 
-  Future<void> _confirmImportNewWallet(BuildContext context) async {
+  Future<void> _confirmImportNewWallet(BuildContext context, WidgetRef ref) async {
     final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -291,6 +292,9 @@ class SettingsScreen extends ConsumerWidget {
     );
 
     if (confirmed == true && context.mounted) {
+      // Signal the router to let onboarding through despite a wallet
+      // still existing; OnboardingScreen clears it again on dispose.
+      ref.read(replaceWalletIntentProvider.notifier).state = true;
       context.go(Routes.onboarding);
     }
   }

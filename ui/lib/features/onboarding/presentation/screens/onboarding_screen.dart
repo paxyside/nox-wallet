@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nox/core/router/router.dart';
 import 'package:nox/core/theme/app_colors.dart';
 import 'package:nox/core/theme/app_text_styles.dart';
 import 'package:nox/core/widgets/app_dialog.dart';
@@ -9,8 +11,27 @@ import 'package:nox/features/onboarding/presentation/screens/import_keystore_scr
 import 'package:nox/features/onboarding/presentation/screens/import_mnemonic_screen.dart';
 import 'package:nox/features/onboarding/presentation/screens/import_private_key_screen.dart';
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
+
+  @override
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
+  @override
+  void dispose() {
+    // Re-arm the redirect guard once we leave onboarding — whether the
+    // replace completed (screen navigated home) or the user backed out.
+    // Deferred to after the current frame so we don't mutate provider
+    // state mid-dispose/build. The provider is keepAlive (plain
+    // StateProvider), so reading it post-dispose is safe.
+    final container = ProviderScope.containerOf(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      container.read(replaceWalletIntentProvider.notifier).state = false;
+    });
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
