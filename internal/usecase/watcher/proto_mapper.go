@@ -2,6 +2,7 @@ package watcher
 
 import (
 	"fmt"
+	"strings"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -121,7 +122,17 @@ func roleToProto(r TxRole) pbevent.TransactionEvent_Role {
 
 // trimDecimalZeros removes unnecessary trailing zeros after the decimal
 // point. e.g. "12.500000" -> "12.5", "100.000000" -> "100".
+//
+// Integers without a decimal point are returned untouched — their
+// trailing zeros are significant. Without this guard "1550" was walked
+// from the right, the trailing '0' stripped, and "155" returned: the
+// notification showed a 10×-off amount while history (a separate format
+// path) stayed correct.
 func trimDecimalZeros(s string) string {
+	if !strings.Contains(s, ".") {
+		return s
+	}
+
 	for i := len(s) - 1; i >= 0; i-- {
 		if s[i] == '.' {
 			return s[:i]
