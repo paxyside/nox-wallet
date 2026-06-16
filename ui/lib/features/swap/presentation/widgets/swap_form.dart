@@ -64,12 +64,19 @@ class _SwapFormState extends ConsumerState<SwapForm> {
       final preIn = findByAddress(st.tokenIn);
       final preOut = findByAddress(st.tokenOut);
 
+      final inAsset = preIn ?? findBySymbol('ETH') ?? assets.first;
+      // Default the receive side to USDC, but never to the same token as
+      // the pay side — otherwise deep-linking into the swap from the USDC
+      // token row produced USDC → USDC. Fall back to the first asset that
+      // differs from the pay token.
+      var outAsset = preOut ?? findBySymbol('USDC');
+      if (outAsset == null || outAsset == inAsset) {
+        outAsset = assets.firstWhere((a) => a != inAsset, orElse: () => inAsset);
+      }
+
       setState(() {
-        _assetIn = preIn ?? findBySymbol('ETH') ?? assets.first;
-        _assetOut =
-            preOut ??
-            findBySymbol('USDC') ??
-            assets.firstWhere((a) => a != _assetIn, orElse: () => assets.first);
+        _assetIn = inAsset;
+        _assetOut = outAsset;
       });
       _push();
     });
@@ -131,12 +138,21 @@ class _SwapFormState extends ConsumerState<SwapForm> {
           children: [
             // ── You pay ──────────────────────────────────────────────────
             SwapPayCard(
-              assets: assets.where((a) => a != _assetOut).toList(),
+              // Full list (not pre-filtered) so the picker still opens
+              // when the user only holds two tokens — filtering the other
+              // side out left a single-item list, which _canOpen gates
+              // off. Picking the token that's currently on the receive
+              // side flips the pair instead of creating a same-token swap.
+              assets: assets,
               selected: _assetIn,
               controller: _amountCtrl,
               locked: isLoading,
               exceedsBalance: exceedsBalance,
               onAssetChanged: (a) {
+                if (a == _assetOut) {
+                  _flip();
+                  return;
+                }
                 setState(() => _assetIn = a);
                 ref.read(swapNotifierProvider.notifier).setTokenIn(a.address);
                 ref.read(swapNotifierProvider.notifier).setBalanceIn(a.balance);
@@ -153,11 +169,15 @@ class _SwapFormState extends ConsumerState<SwapForm> {
 
             // ── You receive ───────────────────────────────────────────────
             SwapReceiveCard(
-              assets: assets.where((a) => a != _assetIn).toList(),
+              assets: assets,
               selected: _assetOut,
               locked: isLoading,
               value: isLoading ? '…' : (quoteOut.isEmpty ? null : quoteOut),
               onAssetChanged: (a) {
+                if (a == _assetIn) {
+                  _flip();
+                  return;
+                }
                 setState(() => _assetOut = a);
                 ref.read(swapNotifierProvider.notifier).setTokenOut(a.address);
               },
